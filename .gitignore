@@ -1,0 +1,45 @@
+# -------------------------
+# OS / Editor
+# -------------------------
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env.local
+
+# -------------------------
+# Rails API (jobjogger_api)
+# -------------------------
+jobjogger_api/log/*
+jobjogger_api/tmp/*
+jobjogger_api/storage/*
+jobjogger_api/.env
+jobjogger_api/.env.*
+jobjogger_api/db/*.sqlite3
+jobjogger_api/db/*.sqlite3-journal
+jobjogger_api/db/*.sqlite3-*
+
+# Rails credentials backups
+jobjogger_api/config/master.key
+
+# Bundler
+jobjogger_api/Gemfile.lock
+jobjogger_api/.bundle/
+
+# -------------------------
+# Node / React (jobjogger_web)
+# -------------------------
+jobjogger_web/node_modules/
+jobjogger_web/dist/
+jobjogger_web/.env
+jobjogger_web/.env.*
+jobjogger_web/.vite/
+jobjogger_web/build/
+
+# -------------------------
+# General
+# -------------------------
+*.log
+.DS_Store

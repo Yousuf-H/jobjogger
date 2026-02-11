@@ -1,0 +1,26 @@
+{
+  "name": "jobjogger",
+  "dockerComposeFile": "compose.yaml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/jobjogger",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/rails/devcontainer/features/postgres-client": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ],
+  "containerEnv": {
+    "DB_HOST": "postgres",
+    "DATABASE_URL": "postgres://postgres:postgres@postgres:5432/jobjogger_api_development"
+  },
+  "forwardPorts": [
+    3000,
+    3001,
+    5432
+  ]
+}
