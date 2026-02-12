@@ -5,7 +5,9 @@
   "workspaceFolder": "/workspaces/jobjogger",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    },
     "ghcr.io/rails/devcontainer/features/postgres-client": {},
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
