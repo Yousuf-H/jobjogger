@@ -35,6 +35,14 @@ class Job < ApplicationRecord
   before_update :set_date_applied_if_needed
   after_update_commit :auto_create_timeline_entry
 
+  def archive!
+    update(archived_at: Time.current)
+  end
+
+  def unarchive!
+    update(archived_at: nil)
+  end
+
   private
 
   def url_optional?
