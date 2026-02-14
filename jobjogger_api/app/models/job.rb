@@ -3,7 +3,6 @@ class Job < ApplicationRecord
 
   TERMINAL_STATUSES = %w[accepted rejected ghosted withdrawn].freeze
 
-  # Enum for status
   enum :status, {
       wishlist: 'wishlist',
       applied: 'applied',
@@ -16,16 +15,13 @@ class Job < ApplicationRecord
       withdrawn: 'withdrawn'
     }
 
-  #  Basic Validations
   validates :company_name, presence: true
   validates :job_title, presence: true
   validates :status, presence: true
 
-  # Conditional validation
   validates :job_url, presence: true, unless: :url_optional?
   validates :source_other, presence: true, if: :other_source?
 
-  # Scopes
   scope :active, -> { where(archived_at: nil).where.not(status: TERMINAL_STATUSES) }
   scope :archived, -> { where.not(archived_at: nil) }
   scope :overdue, -> { active.where("follow_up_date < ?", Date.current) }
