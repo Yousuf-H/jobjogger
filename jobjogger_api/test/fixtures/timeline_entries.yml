@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  job: one
+  entry_type: MyString
+  description: MyText
+  occurred_at: 2026-02-12 04:24:10
+  metadata: 
+
+two:
+  job: two
+  entry_type: MyString
+  description: MyText
+  occurred_at: 2026-02-12 04:24:10
+  metadata: 
