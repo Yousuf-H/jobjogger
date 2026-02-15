@@ -1,5 +1,5 @@
 class Job < ApplicationRecord
-  has_many :timeline_entries, dependent: :destroy
+  has_many :timeline_entries, -> { order(occurred_at: :desc) }, dependent: :destroy
 
   TERMINAL_STATUSES = %w[accepted rejected ghosted withdrawn].freeze
 
@@ -24,8 +24,8 @@ class Job < ApplicationRecord
 
   scope :active, -> { where(archived_at: nil).where.not(status: TERMINAL_STATUSES) }
   scope :archived, -> { where.not(archived_at: nil) }
-  scope :overdue, -> { active.where("follow_up_date < ?", Date.current) }
-  scope :due_this_week, -> { active.where(follow_up_date: Date.current..Date.current.end_of_week(:sunday)) }
+  scope :overdue, -> { where("follow_up_date < ?", Date.current) }
+  scope :due_this_week, -> { where(follow_up_date: Date.current..Date.current.end_of_week(:sunday)) }
 
   before_save :normalise_tags
   before_update :set_date_applied_if_needed
