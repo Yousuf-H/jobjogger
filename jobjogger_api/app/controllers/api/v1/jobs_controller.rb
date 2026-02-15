@@ -1,4 +1,6 @@
 class Api::V1::JobsController < ApplicationController
+  before_action :set_job, only: [:show, :update, :destroy, :archive, :unarchive]
+
   def index
     jobs = apply_filters(Job.all)
 
@@ -6,9 +8,7 @@ class Api::V1::JobsController < ApplicationController
   end
 
   def show
-    job = Job.find(params[:id])
-
-    render json: { job: job, timeline_entries: job.timeline_entries }
+    render json: { job: @job, timeline_entries: @job.timeline_entries }
   end
 
   def create
@@ -22,37 +22,33 @@ class Api::V1::JobsController < ApplicationController
   end
 
   def update
-    job = Job.find(params[:id])
-
-    if job.update(job_params)
-      render json: job, status: :ok
+    if @job.update(job_params)
+      render json: @job, status: :ok
     else
-      render json: { errors: job.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @job.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    job = Job.find(params[:id])
-    job.destroy
-
+    @job.destroy
     head :no_content
   end
 
   def archive
-    job = Job.find(params[:id])
-    job.archive!
-
-    render json: job, status: :ok
+    @job.archive!
+    render json: @job, status: :ok
   end
 
   def unarchive
-    job = Job.find(params[:id])
-    job.unarchive!
-
-    render json: job, status: :ok
+    @job.unarchive!
+    render json: @job, status: :ok
   end
 
   private
+
+  def set_job
+    @job = Job.find(params[:id])
+  end
 
   def apply_filters(jobs)
     jobs = params[:archived] == "true" ? jobs.archived : jobs.active
