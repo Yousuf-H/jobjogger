@@ -15,6 +15,27 @@ class Job < ApplicationRecord
       withdrawn: 'withdrawn'
     }
 
+  enum :priority, {
+      low: 'low',
+      medium: 'medium',
+      high: 'high'
+    }
+
+  enum :employment_type, {
+      full_time: 'full_time',
+      part_time: 'part_time',
+      casual: 'casual',
+      contract: 'contract'
+    }
+
+  enum source: {
+      seek: 'seek',
+      linkedin: 'linkedin',
+      referral: 'referral',
+      company_site: 'company_site',
+      other: 'other'
+    }
+
   validates :company_name, presence: true
   validates :job_title, presence: true
   validates :status, presence: true
