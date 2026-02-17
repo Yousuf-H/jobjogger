@@ -6,6 +6,10 @@ type JobSource = 'seek' | 'linkedin' | 'referral' | 'company_site' | 'other'
 
 type Priority = 'low' | 'medium' | 'high' | null
 
+type Sort = 'created_at' | 'date_applied' | 'follow_up_date' | 'priority'
+
+type Direction = 'asc' | 'desc'
+
 export interface Job {
   id: number
   company_name: string
@@ -39,6 +43,6 @@ export interface JobFilters {
   due_this_week?: boolean
   archived?: boolean
   search?: string
-  sort?: 'created_at' | 'date_applied' | 'follow_up_date' | 'priority'
-  direction?: 'asc' | 'desc'
+  sort?: Sort
+  direction?: Direction
 }

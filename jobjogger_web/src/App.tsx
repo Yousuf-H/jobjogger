@@ -1,4 +1,21 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import DashboardPage from './pages/DashboardPage/DashboardPage'
+import JobDetailPage from './pages/JobDetailPage'
+import JobEditPage from './pages/JobEditPage'
+import Layout from './components/Layout'
+
 function App() {
-  return <div className="text-3xl font-bold text-red-500">JobJogger</div>;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/jobs/:id" element={<JobDetailPage />} />
+          <Route path="/jobs/:id/edit" element={<JobEditPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  )
 }
-export default App;
+
+export default App

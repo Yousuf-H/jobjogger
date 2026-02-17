@@ -7,7 +7,7 @@ export async function fetchJobs(filters?: JobFilters): Promise<Job[]> {
     params: filters
   })
 
-  return response.data.jobs
+  return response.data
 }
 
 export async function fetchJob(id: number): Promise<{ job: Job, timeline_entries: TimelineEntry[] }> {
