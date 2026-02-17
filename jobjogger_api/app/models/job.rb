@@ -28,7 +28,7 @@ class Job < ApplicationRecord
       contract: 'contract'
     }
 
-  enum source: {
+  enum :source, {
       seek: 'seek',
       linkedin: 'linkedin',
       referral: 'referral',
