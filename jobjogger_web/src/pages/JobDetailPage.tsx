@@ -5,7 +5,6 @@ import { fetchJob } from '@/services/api/jobs'
 export default function JobDetailPage() {
   const { id } = useParams()
 
-  console.log ("this is a param id", typeof id)
   const { data, isLoading, error } = useQuery({
     queryKey: ['jobs', id],
     queryFn: () => fetchJob(Number(id))
