@@ -40,6 +40,7 @@ class Job < ApplicationRecord
   validates :job_title, presence: true
   validates :status, presence: true
 
+  before_validation :normalise_job_url
   validates :job_url, presence: true, unless: :url_optional?
   validates :source_other, presence: true, if: :other_source?
 
@@ -61,6 +62,13 @@ class Job < ApplicationRecord
   end
 
   private
+
+  def normalise_job_url
+    return if job_url.blank?
+    return if job_url.start_with?('http://', 'https://')
+
+    self.job_url = "https://#{job_url}"
+  end
 
   def url_optional?
     wishlist? || archived_at.present?

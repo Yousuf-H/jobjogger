@@ -1,12 +1,10 @@
-import type {
-  ColumnDef,
-} from "@tanstack/react-table"
+import type { ColumnDef } from '@tanstack/react-table'
 
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from '@tanstack/react-table'
 
 import {
   Table,
@@ -15,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -26,9 +24,8 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onRowClick
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
-
   const table = useReactTable({
     data,
     columns,
@@ -61,8 +58,8 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="cursor-pointer hover:bg-gray-50"
+                data-state={row.getIsSelected() && 'selected'}
+                className="hover:bg-muted/50 cursor-pointer"
                 onClick={() => onRowClick?.(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (

@@ -123,3 +123,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .page-container {
+    @apply p-3;
+  }
+  .page-title {
+    @apply text-2xl font-bold mb-6 text-foreground;
+  }
+}
+

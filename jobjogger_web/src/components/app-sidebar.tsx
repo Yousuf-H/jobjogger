@@ -8,18 +8,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Link } from "react-router-dom"
+} from '@/components/ui/sidebar'
+import { Link } from 'react-router-dom'
+import { TypographyH3 } from './ui/typography'
 
-const navItems = [
-  { title: "Dashboard", url: "/" },
-]
+const navItems = [{ title: 'Dashboard', url: '/' }]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <h1 className="text-2xl font-bold text-gray-800">Job Jogger</h1>
+        <TypographyH3>Job Jogger</TypographyH3>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
