@@ -1,16 +1,16 @@
 import { Outlet } from 'react-router-dom'
-import { AppSidebar } from "@/components/app-sidebar"
-import { Separator } from "@/components/ui/separator"
+import { AppSidebar } from '@/components/app-sidebar'
+import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar'
 
 export default function Layout() {
   return (
     <SidebarProvider>
-      <AppSidebar variant='floating'/>
+      <AppSidebar variant="sidebar" />
       <SidebarInset>
         <header className="flex h-14 items-center gap-2 border-b px-4">
           <SidebarTrigger />
