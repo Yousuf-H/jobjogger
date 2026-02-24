@@ -47,7 +47,7 @@ export default function CreateJobDialog() {
         <Button>+ New Job</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Job</DialogTitle>
           <DialogDescription>
