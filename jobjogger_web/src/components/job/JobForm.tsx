@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -52,6 +53,12 @@ export function JobForm({
   })
 
   const sourceValue = form.watch('source')
+
+  useEffect(() => {
+    if (sourceValue !== 'other') {
+      form.setValue('source_other', '')
+    }
+  }, [sourceValue, form])
 
   return (
     <Form {...form}>
