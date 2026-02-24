@@ -45,10 +45,13 @@ export function JobForm({
       employment_type: defaultValues?.employment_type,
       salary_range: defaultValues?.salary_range ?? '',
       source: defaultValues?.source,
+      source_other: defaultValues?.source_other ?? '',
       priority: defaultValues?.priority,
       tags: defaultValues?.tags ?? '',
     },
   })
+
+  const sourceValue = form.watch('source')
 
   return (
     <Form {...form}>
@@ -208,6 +211,22 @@ export function JobForm({
             </FormItem>
           )}
         />
+
+        {sourceValue === 'other' && (
+          <FormField
+            control={form.control}
+            name="source_other"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Other Source</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g Gumtree" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Priority */}
         <FormField

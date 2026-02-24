@@ -23,6 +23,7 @@ export const createJobSchema = z.object({
   source: z
     .enum(['seek', 'linkedin', 'referral', 'company_site', 'other'])
     .optional(),
+  source_other: z.string().optional().or(z.literal('')),
   priority: z.enum(['low', 'medium', 'high']).optional(),
   tags: z.string().optional().or(z.literal('')),
 })
