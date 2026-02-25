@@ -5,6 +5,7 @@ import { columns } from '@/pages/DashboardPage/columns'
 import { useNavigate } from 'react-router-dom'
 import type { Job } from '@/types/job'
 import { TypographyH3 } from '@/components/ui/typography'
+import CreateJobDialog from '@/components/job/CreateJobDialog'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -18,7 +19,10 @@ export default function DashboardPage() {
 
   return (
     <div className="page-container">
-      <TypographyH3 className="page-title">Jobs</TypographyH3>
+      <div className="page-header flex items-center justify-between">
+        <TypographyH3 className="page-title">Jobs</TypographyH3>
+        <CreateJobDialog />
+      </div>
 
       <div className="space-y-4">
         <DataTable

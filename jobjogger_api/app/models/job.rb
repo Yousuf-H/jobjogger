@@ -41,7 +41,7 @@ class Job < ApplicationRecord
   validates :status, presence: true
 
   before_validation :normalise_job_url
-  validates :job_url, presence: true, unless: :url_optional?
+  validates :job_url, format: { with: URI::DEFAULT_PARSER.make_regexp }, allow_blank: true
   validates :source_other, presence: true, if: :other_source?
 
   scope :active, -> { where(archived_at: nil).where.not(status: TERMINAL_STATUSES) }
@@ -68,10 +68,6 @@ class Job < ApplicationRecord
     return if job_url.start_with?('http://', 'https://')
 
     self.job_url = "https://#{job_url}"
-  end
-
-  def url_optional?
-    wishlist? || archived_at.present?
   end
 
   def other_source?
