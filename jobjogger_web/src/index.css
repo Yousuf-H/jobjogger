@@ -1,7 +1,13 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-@plugin "tailwindcss-animate";
-@import "tw-animate-css";
+@plugin 'tailwindcss-animate';
+@import 'tw-animate-css';
+
+/* Visible focus for keyboard users, hidden for mouse users */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -129,7 +135,6 @@
     @apply p-3;
   }
   .page-title {
-    @apply text-2xl font-bold mb-6 text-foreground;
+    @apply text-foreground mb-6 text-2xl font-bold;
   }
 }
-
