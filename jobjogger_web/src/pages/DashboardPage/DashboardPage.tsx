@@ -56,7 +56,11 @@ export default function DashboardPage() {
 
       <div className="space-y-4">
         <DataTable
-          columns={createColumns(archiveMutation.mutate, deleteMutation.mutate)}
+          columns={createColumns(
+            (id) => navigate(`/jobs/${id}`),
+            archiveMutation.mutate,
+            deleteMutation.mutate
+          )}
           data={data || []}
           onRowClick={(row) => navigate(`/jobs/${(row as Job).id}`)}
         />

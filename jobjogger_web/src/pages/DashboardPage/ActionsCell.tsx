@@ -22,11 +22,17 @@ import {
 
 interface ActionsCellProps {
   jobId: number
+  onView: (id: number) => void
   onArchive: (id: number) => void
   onDelete: (id: number) => void
 }
 
-export function ActionsCell({ jobId, onArchive, onDelete }: ActionsCellProps) {
+export function ActionsCell({
+  jobId,
+  onView,
+  onArchive,
+  onDelete,
+}: ActionsCellProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   return (
@@ -40,10 +46,13 @@ export function ActionsCell({ jobId, onArchive, onDelete }: ActionsCellProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onArchive(jobId)}>
+          <DropdownMenuItem onSelect={() => onView(jobId)}>
+            View
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onArchive(jobId)}>
             Archive
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setShowDeleteDialog(true)}>
+          <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)}>
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -3,6 +3,7 @@ import type { Job } from '@/types/job'
 import { ActionsCell } from './ActionsCell'
 
 export const columns = (
+  onView: (id: number) => void,
   onArchive: (id: number) => void,
   onDelete: (id: number) => void
 ): ColumnDef<Job>[] => [
@@ -36,9 +37,10 @@ export const columns = (
       const job = row.original
 
       return (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onSelect={(e) => e.stopPropagation()}>
           <ActionsCell
             jobId={job.id}
+            onView={onView}
             onArchive={onArchive}
             onDelete={onDelete}
           />
