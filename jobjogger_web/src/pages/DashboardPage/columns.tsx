@@ -37,7 +37,7 @@ export const columns = (
       const job = row.original
 
       return (
-        <div onSelect={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()}>
           <ActionsCell
             jobId={job.id}
             onView={onView}
