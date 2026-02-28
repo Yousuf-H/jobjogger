@@ -12,7 +12,10 @@ import {
 import { Link } from 'react-router-dom'
 import { TypographyH3 } from './ui/typography'
 
-const navItems = [{ title: 'Dashboard', url: '/' }]
+const navItems = [
+  { title: 'Dashboard', url: '/' },
+  { title: 'Jobs', url: '/jobs' },
+]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (

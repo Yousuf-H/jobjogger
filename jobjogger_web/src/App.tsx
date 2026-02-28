@@ -3,6 +3,7 @@ import DashboardPage from './pages/DashboardPage/DashboardPage'
 import JobDetailPage from './pages/JobDetailPage'
 import JobEditPage from './pages/JobEditPage'
 import Layout from './components/Layout'
+import JobsPage from './pages/JobsPage/JobsPage'
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:id" element={<JobDetailPage />} />
           <Route path="/jobs/:id/edit" element={<JobEditPage />} />
         </Route>

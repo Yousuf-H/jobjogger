@@ -3,17 +3,19 @@ import type { Job, JobFilters } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
 export async function fetchJobs(filters?: JobFilters): Promise<Job[]> {
-  const response = await apiClient.get('/jobs', {
-    params: filters
-  })
-
+  const response = await apiClient.get('/jobs', { params: filters })
   return response.data
 }
 
-export async function fetchJob(id: number): Promise<{ job: Job, timeline_entries: TimelineEntry[] }> {
+export async function fetchJob(
+  id: number
+): Promise<{ job: Job; timeline_entries: TimelineEntry[] }> {
   const response = await apiClient.get(`/jobs/${id}`)
 
-  return { job: response.data.job, timeline_entries: response.data.timeline_entries }
+  return {
+    job: response.data.job,
+    timeline_entries: response.data.timeline_entries,
+  }
 }
 
 export async function createJob(data: Partial<Job>): Promise<Job> {
@@ -43,4 +45,3 @@ export async function unarchiveJob(id: number): Promise<Job> {
 
   return response.data.job
 }
-

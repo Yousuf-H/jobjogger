@@ -1,4 +1,13 @@
-type JobStatus = 'wishlist' | 'applied' | 'phone_screen' | 'interviewing' | 'offer' | 'accepted' | 'rejected' | 'ghosted' | 'withdrawn'
+export type JobStatus =
+  | 'wishlist'
+  | 'applied'
+  | 'phone_screen'
+  | 'interviewing'
+  | 'offer'
+  | 'accepted'
+  | 'rejected'
+  | 'ghosted'
+  | 'withdrawn'
 
 type EmploymentType = 'full_time' | 'part_time' | 'casual' | 'contract'
 

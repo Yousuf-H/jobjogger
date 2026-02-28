@@ -44,7 +44,7 @@ export default function CreateJobDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>+ New Job</Button>
+        <Button className="cursor-pointer" variant="outline">+ New Job</Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[95vh] overflow-y-auto">
