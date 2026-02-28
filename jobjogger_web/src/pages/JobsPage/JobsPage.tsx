@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useDebounce } from '@/hooks/debounceSearch'
+import { Button } from '@/components/ui/button'
 
 export default function JobsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('')
@@ -84,6 +85,20 @@ export default function JobsPage() {
               Show Archived
             </label>
           </div>
+
+          {(selectedStatus || searchQuery || showArchived) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedStatus('')
+                setSearchQuery('')
+                setShowArchived(false)
+              }}
+            >
+              Clear Filters
+            </Button>
+          )}
         </div>
 
         {/* Header Row */}
@@ -91,6 +106,7 @@ export default function JobsPage() {
           <CreateJobDialog />
         </div>
       </div>
+
       {/* Table */}
       <DataTable
         columns={createColumns(
@@ -101,70 +117,10 @@ export default function JobsPage() {
         data={data || []}
         onRowClick={(row) => handleView((row as Job).id)}
       />
+
+      <p className="text-muted-foreground my-2 text-sm">
+        {data?.length || 0} jobs found
+      </p>
     </div>
   )
 }
-
-// <div className="page-container">
-//   <div className="page-header mb-4 flex items-center justify-between">
-//     {/* Filters */}
-//     <div className="mb-4 flex flex-wrap items-center gap-4">
-//       {/* Status Filter */}
-//       {/* Status Filter */}
-//       <Select
-//         value={selectedStatus || 'all'} // ← Default to "all"
-//         onValueChange={(value) =>
-//           setSelectedStatus(value === 'all' ? '' : value)
-//         }
-//       >
-//         <SelectTrigger className="w-[180px]">
-//           <SelectValue placeholder="All Statuses" />
-//         </SelectTrigger>
-//         <SelectContent>
-//           <SelectItem value="all">All Statuses</SelectItem>{' '}
-//           {/* ← Change to "all" */}
-//           <SelectItem value="wishlist">Wishlist</SelectItem>
-//           <SelectItem value="applied">Applied</SelectItem>
-//           <SelectItem value="phone_screen">Phone Screen</SelectItem>
-//           <SelectItem value="interviewing">Interviewing</SelectItem>
-//           <SelectItem value="offer">Offer</SelectItem>
-//           <SelectItem value="accepted">Accepted</SelectItem>
-//           <SelectItem value="rejected">Rejected</SelectItem>
-//           <SelectItem value="ghosted">Ghosted</SelectItem>
-//           <SelectItem value="withdrawn">Withdrawn</SelectItem>
-//         </SelectContent>
-//       </Select>
-
-//       {/* Search */}
-//       <Input
-//         placeholder="Search jobs..."
-//         value={searchQuery}
-//         onChange={(e) => setSearchQuery(e.target.value)}
-//         className="max-w-sm"
-//       />
-
-//       {/* Show Archived Toggle */}
-//       <div className="flex items-center gap-2">
-//         <Checkbox
-//           id="archived"
-//           checked={showArchived}
-//           onCheckedChange={(checked) => setShowArchived(!!checked)}
-//         />
-//         <label htmlFor="archived" className="cursor-pointer text-sm">
-//           Show Archived
-//         </label>
-//       </div>
-//     </div>
-//     <CreateJobDialog />
-//   </div>
-
-//   <DataTable
-//     columns={createColumns(
-//       handleView,
-//       archiveMutation.mutate,
-//       deleteMutation.mutate
-//     )}
-//     data={data || []}
-//     onRowClick={(row) => handleView((row as Job).id)}
-//   />
-// </div>
