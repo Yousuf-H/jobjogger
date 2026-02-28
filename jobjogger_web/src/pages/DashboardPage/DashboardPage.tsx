@@ -1,69 +1,52 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { archiveJob, deleteJob, fetchJobs } from '@/services/api/jobs'
-import { AxiosError } from 'axios'
-import { toast } from 'sonner'
 import { DataTable } from '@/pages/DashboardPage/DataTable'
 import { columns as createColumns } from '@/pages/DashboardPage/columns'
 import { useNavigate } from 'react-router-dom'
 import type { Job } from '@/types/job'
 import { TypographyH3 } from '@/components/ui/typography'
 import CreateJobDialog from '@/components/job/CreateJobDialog'
+import { Button } from '@/components/ui/button'
+import { useJobs } from '@/hooks/useJobs'
+import { useJobActions } from '@/hooks/useJobActions'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['jobs'],
-    queryFn: () => fetchJobs(),
-  })
-
-  const archiveMutation = useMutation({
-    mutationFn: archiveJob,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      toast.success('Job Archived Successfully!')
-    },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
-      const message =
-        error.response?.data?.errors?.[0] || 'Failed to archive this job'
-      toast.error(message)
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteJob,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      toast.success('Job Deleted Successfully!')
-    },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
-      const message =
-        error.response?.data?.errors?.[0] || 'Failed to delete this job'
-      toast.error(message)
-    },
-  })
+  const { data, isLoading, error } = useJobs()
+  const { archiveMutation, deleteMutation, handleView } = useJobActions()
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
 
   return (
     <div className="page-container">
-      <div className="page-header flex items-center justify-between">
-        <TypographyH3 className="page-title">Jobs</TypographyH3>
+      <div className="page-header flex items-center justify-between mb-4">
+        <TypographyH3>Jobs</TypographyH3>
         <CreateJobDialog />
       </div>
 
       <div className="space-y-4">
         <DataTable
           columns={createColumns(
-            (id) => navigate(`/jobs/${id}`),
+            handleView,
             archiveMutation.mutate,
             deleteMutation.mutate
           )}
-          data={data || []}
-          onRowClick={(row) => navigate(`/jobs/${(row as Job).id}`)}
+          data={data?.slice(0, 10) || []}
+          onRowClick={(row) => handleView((row as Job).id)}
         />
+
+        <div className="flex flex-col items-start gap-4">
+          <span className="text-muted-foreground text-sm">
+            Showing {data?.length || 0} of {data?.length || 0} jobs
+          </span>
+
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={() => navigate('/jobs')}
+          >
+            View All Jobs →
+          </Button>
+        </div>
       </div>
     </div>
   )
