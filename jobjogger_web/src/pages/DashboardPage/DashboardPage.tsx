@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header flex items-center justify-between mb-4">
+      <div className="page-header mb-4 flex items-center justify-between">
         <TypographyH3>Jobs</TypographyH3>
         <CreateJobDialog />
       </div>
@@ -35,10 +35,6 @@ export default function DashboardPage() {
         />
 
         <div className="flex flex-col items-start gap-4">
-          <span className="text-muted-foreground text-sm">
-            Showing {data?.length || 0} of {data?.length || 0} jobs
-          </span>
-
           <Button
             className="cursor-pointer"
             variant="outline"
