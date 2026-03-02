@@ -28,12 +28,14 @@ interface JobFormProps {
   onSubmit: (data: CreateJobFormValues) => void
   defaultValues?: Partial<CreateJobFormValues>
   isSubmitting?: boolean
+  mode?: 'create' | 'edit'
 }
 
 export function JobForm({
   onSubmit,
   defaultValues,
   isSubmitting,
+  mode = 'create',
 }: JobFormProps) {
   const form = useForm<CreateJobFormValues>({
     resolver: zodResolver(createJobSchema),
@@ -63,7 +65,6 @@ export function JobForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Company Name */}
         <FormField
           control={form.control}
           name="company_name"
@@ -78,7 +79,6 @@ export function JobForm({
           )}
         />
 
-        {/* Job Title */}
         <FormField
           control={form.control}
           name="job_title"
@@ -93,7 +93,6 @@ export function JobForm({
           )}
         />
 
-        {/* Status */}
         <FormField
           control={form.control}
           name="status"
@@ -123,7 +122,6 @@ export function JobForm({
           )}
         />
 
-        {/* Job URL */}
         <FormField
           control={form.control}
           name="job_url"
@@ -138,7 +136,6 @@ export function JobForm({
           )}
         />
 
-        {/* Location */}
         <FormField
           control={form.control}
           name="location"
@@ -153,7 +150,6 @@ export function JobForm({
           )}
         />
 
-        {/* Employment Type */}
         <FormField
           control={form.control}
           name="employment_type"
@@ -178,7 +174,6 @@ export function JobForm({
           )}
         />
 
-        {/* Salary Range */}
         <FormField
           control={form.control}
           name="salary_range"
@@ -193,7 +188,6 @@ export function JobForm({
           )}
         />
 
-        {/* Source */}
         <FormField
           control={form.control}
           name="source"
@@ -235,7 +229,6 @@ export function JobForm({
           />
         )}
 
-        {/* Priority */}
         <FormField
           control={form.control}
           name="priority"
@@ -259,7 +252,6 @@ export function JobForm({
           )}
         />
 
-        {/* Tags */}
         <FormField
           control={form.control}
           name="tags"
@@ -276,7 +268,13 @@ export function JobForm({
         />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating...' : 'Create Job'}
+          {isSubmitting
+            ? mode === 'edit'
+              ? 'Saving...'
+              : 'Creating...'
+            : mode === 'edit'
+              ? 'Save Changes'
+              : 'Create Job'}
         </Button>
       </form>
     </Form>

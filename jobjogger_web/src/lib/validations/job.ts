@@ -42,5 +42,8 @@ export const createJobSchema = z
     }
   )
 
+export const updateJobSchema = createJobSchema
+
 export type CreateJobFormInput = z.input<typeof createJobSchema>
 export type CreateJobFormValues = z.infer<typeof createJobSchema>
+export type UpdateJobFormValues = z.infer<typeof updateJobSchema>

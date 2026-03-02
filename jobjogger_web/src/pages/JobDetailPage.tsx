@@ -6,6 +6,7 @@ import { TypographyH1, TypographyP } from '@/components/ui/typography'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import EditJobDialog from '@/components/job/EditJobDialog'
 
 export default function JobDetailPage() {
   const { id } = useParams()
@@ -63,13 +64,14 @@ export default function JobDetailPage() {
               <TypographyP className="text-muted-foreground !mt-0 text-xl font-medium">
                 {data?.job.job_title}
               </TypographyP>
+              <Badge
+                variant={getStatusVariant(data?.job.status || '')}
+                className="mt-2 rounded-full capitalize"
+              >
+                {data?.job.status?.replace('_', ' ') || ''}
+              </Badge>
             </div>
-            <Badge
-              variant={getStatusVariant(data?.job.status || '')}
-              className="ml-4 rounded-full capitalize"
-            >
-              {data?.job.status?.replace('_', ' ') || ''}
-            </Badge>
+            {data?.job && <EditJobDialog job={data.job} />}
           </div>
 
           <Separator className="my-4" />
