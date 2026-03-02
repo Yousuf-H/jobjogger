@@ -58,6 +58,7 @@ export default function CreateJobDialog() {
           key={open ? 'open' : 'closed'}
           onSubmit={handleSubmit}
           isSubmitting={mutation.isPending}
+          mode="create"
         />
       </DialogContent>
     </Dialog>
