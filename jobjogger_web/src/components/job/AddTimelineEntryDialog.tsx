@@ -89,8 +89,8 @@ export default function AddTimelineEntryDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {mode === 'create' ? (
-          <Button size="sm" variant="outline">
-            <Plus className="mr-2 h-4 w-4" />
+          <Button size="sm" variant="success">
+            <Plus className="h-4 w-4" />
             Add Entry
           </Button>
         ) : (
@@ -180,6 +180,7 @@ export default function AddTimelineEntryDialog({
               type="submit"
               className="w-full"
               disabled={mutation.isPending}
+              value="success"
             >
               {mutation.isPending
                 ? mode === 'edit'

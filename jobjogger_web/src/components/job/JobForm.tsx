@@ -24,6 +24,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+import { Textarea } from '@/components/ui/textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Markdown } from '@/components/ui/markdown'
+
 interface JobFormProps {
   onSubmit: (data: CreateJobFormValues) => void
   defaultValues?: Partial<CreateJobFormValues>
@@ -51,6 +55,7 @@ export function JobForm({
       source_other: defaultValues?.source_other ?? '',
       priority: defaultValues?.priority,
       tags: defaultValues?.tags ?? '',
+      job_description: defaultValues?.job_description ?? '',
     },
   })
 
@@ -267,7 +272,61 @@ export function JobForm({
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {/* Job Description with Markdown Preview */}
+        <FormField
+          control={form.control}
+          name="job_description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Job Description (Optional)</FormLabel>
+
+              <Tabs defaultValue="write" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="write">Write</TabsTrigger>
+                  <TabsTrigger value="preview">Preview</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="write">
+                  <FormControl>
+                    <Textarea
+                      placeholder="Paste the job description here, then use markdown to format it..."
+                      rows={10}
+                      className="resize-y font-mono text-sm"
+                      {...field}
+                    />
+                  </FormControl>
+                  <p className="text-muted-foreground mt-2 text-xs">
+                    Supports Markdown: **bold**, ## headings, - lists,
+                    [links](url)
+                  </p>
+                </TabsContent>
+
+                <TabsContent value="preview">
+                  {field.value ? (
+                    <div className="min-h-[240px] rounded-md border p-4">
+                      <Markdown>{field.value}</Markdown>
+                    </div>
+                  ) : (
+                    <div className="flex min-h-[240px] items-center justify-center rounded-md border border-dashed p-8">
+                      <p className="text-muted-foreground text-sm">
+                        No description yet. Switch to Write tab to add one.
+                      </p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting}
+          variant="success"
+        >
           {isSubmitting
             ? mode === 'edit'
               ? 'Saving...'

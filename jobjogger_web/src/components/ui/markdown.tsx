@@ -46,11 +46,13 @@ const markdownComponents: Components = {
 }
 
 interface MarkdownProps {
-  children: string
+  children: string | null | undefined
 }
 
 export function Markdown({ children }: MarkdownProps) {
   return (
-    <ReactMarkdown components={markdownComponents}>{children}</ReactMarkdown>
+    <ReactMarkdown components={markdownComponents}>
+      {children ?? ''}
+    </ReactMarkdown>
   )
 }

@@ -12,14 +12,14 @@ export default function Layout() {
     <SidebarProvider>
       <AppSidebar variant="sidebar" />
       <SidebarInset>
-        <header className="flex h-14 items-center gap-2 border-b px-4">
+        <header className="flex h-14 items-center gap-2 border-b sm:px-4">
           <SidebarTrigger />
           <Separator
             orientation="vertical"
             className="mr-2 data-[orientation=vertical]:h-4"
           />
         </header>
-        <main className="flex-1 p-4">
+        <main className="flex-1 sm:p-4">
           <Outlet />
         </main>
       </SidebarInset>

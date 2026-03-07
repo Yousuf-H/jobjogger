@@ -23,34 +23,7 @@ import {
 } from 'lucide-react'
 import { ActionsCell } from './DashboardPage/ActionsCell'
 import { useJobActions } from '@/hooks/useJobActions'
-
-type StatusVariant =
-  | 'success'
-  | 'destructive'
-  | 'warning'
-  | 'secondary'
-  | 'outline'
-
-function getStatusVariant(status: string): StatusVariant {
-  switch (status) {
-    case 'offer':
-    case 'accepted':
-      return 'success'
-    case 'rejected':
-    case 'ghosted':
-      return 'destructive'
-    case 'interviewing':
-    case 'phone_screen':
-      return 'secondary'
-    case 'applied':
-      return 'warning'
-    case 'wishlist':
-    case 'withdrawn':
-      return 'outline'
-    default:
-      return 'secondary'
-  }
-}
+import { StatusBadge } from '@/components/job/StatusBadge'
 
 function normalizeUrl(url: string): string {
   if (!url) return ''
@@ -131,6 +104,10 @@ export default function JobDetailPage() {
 
   const { job, timeline_entries } = data
 
+  {
+    console.log(job)
+  }
+
   return (
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-5xl px-6 py-6">
@@ -156,12 +133,7 @@ export default function JobDetailPage() {
         <section className="mb-6">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3">
-              <Badge
-                variant={getStatusVariant(job.status)}
-                className="px-3 py-1 text-sm capitalize"
-              >
-                {formatLabel(job.status)}
-              </Badge>
+              <StatusBadge job={job} />
 
               <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
                 <div className="flex items-center gap-1.5">

@@ -1,9 +1,19 @@
 import { Card, CardContent } from '@/components/ui/card'
 import type { Job } from '@/types/job'
 import { Separator } from '@/components/ui/separator'
-import { FileText } from 'lucide-react'
-import EditJobDialog from '@/components/job/EditJobDialog'
 import { Button } from '../ui/button'
+import EditJobDialog from '@/components/job/EditJobDialog'
+import {
+  FileText,
+  BriefcaseBusiness,
+  DollarSign,
+  Globe,
+  ExternalLink,
+  Calendar,
+  CalendarClock,
+} from 'lucide-react'
+import type { ElementType, ReactNode } from 'react'
+import { Markdown } from '@/components/ui/markdown'
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString(undefined, {
@@ -13,38 +23,75 @@ function formatDate(date: string) {
   })
 }
 
+function normalizeUrl(url: string) {
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return `https://${url}`
+}
+
 function InfoItem({
   label,
+  icon: Icon,
   children,
+  tone = 'default',
 }: {
   label: string
-  children: React.ReactNode
+  icon: ElementType
+  children: ReactNode
+  tone?: 'default' | 'success' | 'warning' | 'info'
 }) {
+  const toneStyles = {
+    default: 'border-border bg-card/80',
+    success:
+      'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900 dark:bg-emerald-950/30',
+    warning:
+      'border-amber-200 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/30',
+    info: 'border-blue-200 bg-blue-50/70 dark:border-blue-900 dark:bg-blue-950/30',
+  }
+
+  const iconStyles = {
+    default: 'bg-muted text-muted-foreground',
+    success:
+      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300',
+    warning:
+      'bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300',
+    info: 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300',
+  }
+
   return (
-    <div>
-      <p className="text-sm font-medium">{label}</p>
-      <div className="text-muted-foreground mt-1 text-sm">{children}</div>
+    <div
+      className={`hover:bg-accent/40 rounded-xl border p-4 shadow-sm transition-colors ${toneStyles[tone]}`}
+    >
+      <div className="mb-3 flex items-center gap-3">
+        <div className={`rounded-lg p-2 ${iconStyles[tone]}`}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <p className="text-muted-foreground text-sm font-medium">{label}</p>
+      </div>
+
+      <div className="text-sm font-medium leading-6">{children}</div>
     </div>
   )
 }
 
 function EmptyJobInfoState({ job }: { job: Job }) {
   return (
-    <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center">
-      <div className="bg-muted mb-4 rounded-full p-3">
-        <FileText className="text-muted-foreground h-5 w-5" />
+    <div className="from-muted/50 to-background flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed bg-gradient-to-b px-6 py-10 text-center">
+      <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+        <FileText className="h-6 w-6" />
       </div>
 
-      <h3 className="text-lg font-semibold">No job details added yet</h3>
+      <h3 className="text-xl font-semibold tracking-tight">
+        No job details added yet
+      </h3>
 
-      <p className="text-muted-foreground mt-2 max-w-md text-sm leading-6">
-        Add details like employment type, salary range, source, dates, job link,
-        or a description to make this job easier to track.
+      <p className="text-muted-foreground mt-3 max-w-md text-sm leading-6">
+        Add employment type, salary, source, dates, a job link, or a description
+        to make this role easier to review and track later.
       </p>
 
       <EditJobDialog
         job={job}
-        trigger={<Button className="mt-5">Add job details</Button>}
+        trigger={<Button className="mt-6 shadow-sm">Add job details</Button>}
       />
     </div>
   )
@@ -60,12 +107,11 @@ export function JobInfoTab({ job }: { job: Job }) {
     Boolean(job?.follow_up_date)
 
   const hasDescription = Boolean(job?.job_description?.trim())
-
   const hasAnyJobInfo = hasTopLevelInfo || hasDescription
 
   if (!hasAnyJobInfo) {
     return (
-      <Card>
+      <Card className="border-border/70 shadow-sm">
         <CardContent className="p-6">
           <EmptyJobInfoState job={job} />
         </CardContent>
@@ -74,12 +120,12 @@ export function JobInfoTab({ job }: { job: Job }) {
   }
 
   return (
-    <Card>
+    <Card className="border-border/70 from-card to-card/80 bg-gradient-to-b shadow-sm">
       <CardContent className="p-6">
         {hasTopLevelInfo ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {job?.employment_type && (
-              <InfoItem label="Employment Type">
+              <InfoItem label="Employment Type" icon={BriefcaseBusiness}>
                 <span className="capitalize">
                   {job.employment_type.replaceAll('_', ' ')}
                 </span>
@@ -87,11 +133,15 @@ export function JobInfoTab({ job }: { job: Job }) {
             )}
 
             {job?.salary_range && (
-              <InfoItem label="Salary Range">{job.salary_range}</InfoItem>
+              <InfoItem label="Salary Range" icon={DollarSign} tone="success">
+                <span className="font-semibold text-emerald-700 dark:text-emerald-300">
+                  {job.salary_range}
+                </span>
+              </InfoItem>
             )}
 
             {job?.source && (
-              <InfoItem label="Source">
+              <InfoItem label="Source" icon={Globe}>
                 <span className="capitalize">
                   {job.source.replaceAll('_', ' ')}
                 </span>
@@ -99,47 +149,58 @@ export function JobInfoTab({ job }: { job: Job }) {
             )}
 
             {job?.job_url && (
-              <InfoItem label="Job Posting">
+              <InfoItem label="Job Posting" icon={ExternalLink} tone="info">
                 <a
-                  href={
-                    job.job_url.startsWith('http://') ||
-                    job.job_url.startsWith('https://')
-                      ? job.job_url
-                      : `https://${job.job_url}`
-                  }
+                  href={normalizeUrl(job.job_url)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="group inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400"
                 >
-                  View original posting →
+                  View original posting
+                  <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </a>
               </InfoItem>
             )}
 
             {job?.date_applied && (
-              <InfoItem label="Date Applied">
+              <InfoItem label="Date Applied" icon={Calendar}>
                 {formatDate(job.date_applied)}
               </InfoItem>
             )}
 
             {job?.follow_up_date && (
-              <InfoItem label="Follow-up Date">
-                {formatDate(job.follow_up_date)}
+              <InfoItem
+                label="Follow-up Date"
+                icon={CalendarClock}
+                tone="warning"
+              >
+                <span className="font-medium text-amber-700 dark:text-amber-300">
+                  {formatDate(job.follow_up_date)}
+                </span>
               </InfoItem>
             )}
           </div>
         ) : null}
 
         {hasTopLevelInfo && hasDescription ? (
-          <Separator className="my-6" />
+          <Separator className="my-8" />
         ) : null}
 
         {hasDescription ? (
-          <div>
-            <p className="text-sm font-medium">Job Description</p>
-            <p className="text-muted-foreground mt-2 whitespace-pre-wrap text-sm leading-6">
-              {job.job_description}
-            </p>
+          <div className="bg-muted/30 rounded-2xl border p-5">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="bg-muted rounded-lg p-2">
+                <FileText className="text-muted-foreground h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Job Description</p>
+                <p className="text-muted-foreground text-xs">
+                  Formatted from the original listing
+                </p>
+              </div>
+            </div>
+
+            <Markdown>{job.job_description}</Markdown>
           </div>
         ) : null}
       </CardContent>

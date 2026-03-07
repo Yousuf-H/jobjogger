@@ -71,8 +71,9 @@ export function NotesTab({ job }: NotesTabProps) {
                   size="sm"
                   onClick={handleSave}
                   disabled={saveMutation.isPending}
+                  variant="success"
                 >
-                  <Save className="mr-2 h-4 w-4" />
+                  <Save className="h-4 w-4" />
                   {saveMutation.isPending ? 'Saving...' : 'Save'}
                 </Button>
               </div>
