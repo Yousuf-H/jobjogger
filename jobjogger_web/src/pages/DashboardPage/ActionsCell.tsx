@@ -22,15 +22,19 @@ import {
 
 interface ActionsCellProps {
   jobId: number
-  onView: (id: number) => void
+  isArchived: boolean
+  onView?: (id: number) => void
   onArchive: (id: number) => void
+  onUnarchive: (id: number) => void
   onDelete: (id: number) => void
 }
 
 export function ActionsCell({
   jobId,
+  isArchived,
   onView,
   onArchive,
+  onUnarchive,
   onDelete,
 }: ActionsCellProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -46,12 +50,25 @@ export function ActionsCell({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => onView(jobId)}>
-            View
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onArchive(jobId)}>
-            Archive
-          </DropdownMenuItem>
+          {/* View */}
+          {onView && (
+            <DropdownMenuItem onSelect={() => onView(jobId)}>
+              View
+            </DropdownMenuItem>
+          )}
+
+          {/* Archive or Unarchive based on current state */}
+          {isArchived ? (
+            <DropdownMenuItem onSelect={() => onUnarchive(jobId)}>
+              Unarchive
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onSelect={() => onArchive(jobId)}>
+              Archive
+            </DropdownMenuItem>
+          )}
+
+          {/* Delete */}
           <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)}>
             Delete
           </DropdownMenuItem>

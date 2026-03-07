@@ -15,12 +15,14 @@ import { updateJob } from '@/services/api/jobs'
 import type { UpdateJobFormValues } from '@/lib/validations/job'
 import { toast } from 'sonner'
 import type { Job } from '@/types/job'
+import type { ReactNode } from 'react'
 
 interface EditJobDialogProps {
   job: Job
+  trigger?: ReactNode
 }
 
-export default function EditJobDialog({ job }: EditJobDialogProps) {
+export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
 
@@ -41,8 +43,8 @@ export default function EditJobDialog({ job }: EditJobDialogProps) {
 
   const handleSubmit = (formData: UpdateJobFormValues) => {
     const updatedJob: Job = {
-      ...job, // Start with all existing job fields
-      ...formData, // Override with form values
+      ...job,
+      ...formData,
       tags: formData.tags ? formData.tags.split(',').map((t) => t.trim()) : [],
     }
 
@@ -52,9 +54,11 @@ export default function EditJobDialog({ job }: EditJobDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="cursor-pointer" variant="outline">
-          Edit Job
-        </Button>
+        {trigger || (
+          <Button className="cursor-pointer" variant="outline">
+            Edit Job
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-h-[95vh] overflow-y-auto">
@@ -64,6 +68,7 @@ export default function EditJobDialog({ job }: EditJobDialogProps) {
             Fill in the details to update the job application
           </DialogDescription>
         </DialogHeader>
+
         <JobForm
           key={open ? 'open' : 'closed'}
           defaultValues={{

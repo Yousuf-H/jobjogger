@@ -24,7 +24,7 @@ export async function createJob(data: Partial<Job>): Promise<Job> {
   return response.data.job
 }
 
-export async function updateJob(id: number, data: Job): Promise<Job> {
+export async function updateJob(id: number, data: Partial<Job>): Promise<Job> {
   const response = await apiClient.patch(`/jobs/${id}`, { job: data })
 
   return response.data.job

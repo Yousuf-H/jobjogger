@@ -5,6 +5,7 @@ import { ActionsCell } from './ActionsCell'
 export const columns = (
   onView: (id: number) => void,
   onArchive: (id: number) => void,
+  onUnarchive: (id: number) => void,
   onDelete: (id: number) => void
 ): ColumnDef<Job>[] => [
   {
@@ -40,8 +41,10 @@ export const columns = (
         <div onClick={(e) => e.stopPropagation()}>
           <ActionsCell
             jobId={job.id}
+            isArchived={Boolean(job.archived_at)}
             onView={onView}
             onArchive={onArchive}
+            onUnarchive={onUnarchive}
             onDelete={onDelete}
           />
         </div>

@@ -11,7 +11,8 @@ import { useJobActions } from '@/hooks/useJobActions'
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { data, isLoading, error } = useJobs()
-  const { archiveMutation, deleteMutation, handleView } = useJobActions()
+  const { archiveMutation, unarchiveMutation, deleteMutation, handleView } =
+    useJobActions()
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
@@ -28,6 +29,7 @@ export default function DashboardPage() {
           columns={createColumns(
             handleView,
             archiveMutation.mutate,
+            unarchiveMutation.mutate,
             deleteMutation.mutate
           )}
           data={data?.slice(0, 10) || []}

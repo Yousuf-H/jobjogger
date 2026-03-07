@@ -10,11 +10,11 @@ export function NotesTab({ job }: { job: Job }) {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>(
     'saved'
   )
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
-    mutationFn: (notes: string) => updateJob(job.id, { ...job, notes }),
+    mutationFn: (notes: string) => updateJob(job.id, { notes }),
     onSuccess: () => {
       setSaveStatus('saved')
       queryClient.invalidateQueries({ queryKey: ['jobs', job.id.toString()] })
@@ -24,21 +24,30 @@ export function NotesTab({ job }: { job: Job }) {
     },
   })
 
-  const debouncedSave = (value: string) => {
+  const clearPendingSave = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
+  }
+
+  const debouncedSave = (value: string) => {
+    clearPendingSave()
 
     timeoutRef.current = setTimeout(() => {
       mutation.mutate(value)
+      timeoutRef.current = null
     }, 1000)
+  }
+
+  const flushSave = (value: string) => {
+    clearPendingSave()
+    mutation.mutate(value)
   }
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      clearPendingSave()
     }
   }, [])
 
@@ -46,14 +55,20 @@ export function NotesTab({ job }: { job: Job }) {
     <Card>
       <CardContent className="mt-4 space-y-6">
         <Textarea
-          placeholder="Add notes about this job application..."
+          placeholder="Write notes about this job application..."
           value={localNotes}
           onChange={(e) => {
-            setLocalNotes(e.target.value)
+            const value = e.target.value
+            setLocalNotes(value)
             setSaveStatus('saving')
-            debouncedSave(e.target.value)
+            debouncedSave(value)
           }}
-          className="min-h-[200px] resize-none"
+          onBlur={() => {
+            if (saveStatus === 'saving') {
+              flushSave(localNotes)
+            }
+          }}
+          className="min-h-[260px] resize-y"
         />
         <p className="text-muted-foreground mt-2 text-xs">
           {saveStatus === 'saving' && 'Saving...'}
