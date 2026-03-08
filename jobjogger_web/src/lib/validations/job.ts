@@ -27,6 +27,7 @@ export const createJobSchema = z
     source_other: z.string().optional().or(z.literal('')),
     priority: z.enum(['low', 'medium', 'high']).optional(),
     tags: z.string().optional().or(z.literal('')),
+    job_description: z.string().optional().or(z.literal('')),
   })
   .refine(
     (data) => {

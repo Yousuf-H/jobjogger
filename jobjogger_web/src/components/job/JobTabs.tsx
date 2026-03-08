@@ -29,7 +29,7 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
       </TabsContent>
 
       <TabsContent value="timeline">
-        <TimelineTab timelineEntries={timelineEntries} />
+        <TimelineTab timelineEntries={timelineEntries} job={job} />
       </TabsContent>
     </Tabs>
   )

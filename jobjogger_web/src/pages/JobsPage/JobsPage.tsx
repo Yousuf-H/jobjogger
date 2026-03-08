@@ -32,7 +32,8 @@ export default function JobsPage() {
   }
 
   const { data, isLoading, error } = useJobs(filters)
-  const { archiveMutation, deleteMutation, handleView } = useJobActions()
+  const { handleView, archiveMutation, unarchiveMutation, deleteMutation } =
+    useJobActions()
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
@@ -112,6 +113,7 @@ export default function JobsPage() {
         columns={createColumns(
           handleView,
           archiveMutation.mutate,
+          unarchiveMutation.mutate,
           deleteMutation.mutate
         )}
         data={data || []}

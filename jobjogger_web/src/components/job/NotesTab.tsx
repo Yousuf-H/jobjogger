@@ -1,65 +1,144 @@
-import { Card, CardContent } from '@/components/ui/card'
-import type { Job } from '@/types/job'
-import { Textarea } from '@/components/ui/textarea'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updateJob } from '@/services/api/jobs'
+import { toast } from 'sonner'
 
-export function NotesTab({ job }: { job: Job }) {
-  const [localNotes, setLocalNotes] = useState(job?.notes || '')
-  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>(
-    'saved'
-  )
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+import { updateJob } from '@/services/api/jobs'
+import type { Job } from '@/types/job'
+
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
+import { Save, Eye, Edit3 } from 'lucide-react'
+import { Markdown } from '@/components/ui/markdown'
+
+interface NotesTabProps {
+  job: Job
+}
+
+export function NotesTab({ job }: NotesTabProps) {
+  const [notes, setNotes] = useState(job.notes || '')
+  const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write')
   const queryClient = useQueryClient()
 
-  const mutation = useMutation({
-    mutationFn: (notes: string) => updateJob(job.id, { ...job, notes }),
+  const hasChanges = notes !== (job.notes || '')
+
+  const saveMutation = useMutation({
+    mutationFn: (newNotes: string) => updateJob(job.id, { notes: newNotes }),
     onSuccess: () => {
-      setSaveStatus('saved')
       queryClient.invalidateQueries({ queryKey: ['jobs', job.id.toString()] })
+      toast.success('Notes saved!')
     },
     onError: () => {
-      setSaveStatus('error')
+      toast.error('Failed to save notes')
     },
   })
 
-  const debouncedSave = (value: string) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-
-    timeoutRef.current = setTimeout(() => {
-      mutation.mutate(value)
-    }, 1000)
+  const handleSave = () => {
+    saveMutation.mutate(notes)
   }
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-    }
-  }, [])
+  const handleDiscard = () => {
+    setNotes(job.notes || '')
+  }
 
   return (
     <Card>
-      <CardContent className="mt-4 space-y-6">
-        <Textarea
-          placeholder="Add notes about this job application..."
-          value={localNotes}
-          onChange={(e) => {
-            setLocalNotes(e.target.value)
-            setSaveStatus('saving')
-            debouncedSave(e.target.value)
-          }}
-          className="min-h-[200px] resize-none"
-        />
-        <p className="text-muted-foreground mt-2 text-xs">
-          {saveStatus === 'saving' && 'Saving...'}
-          {saveStatus === 'saved' && 'Saved'}
-          {saveStatus === 'error' && 'Error saving'}
-        </p>
+      <CardHeader className="pb-3">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">Notes</h3>
+              {hasChanges && (
+                <Badge variant="secondary" className="text-xs">
+                  Unsaved changes
+                </Badge>
+              )}
+            </div>
+
+            {hasChanges && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDiscard}
+                  disabled={saveMutation.isPending}
+                >
+                  Discard
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={saveMutation.isPending}
+                  variant="success"
+                >
+                  <Save className="h-4 w-4" />
+                  {saveMutation.isPending ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Add this description */}
+          <div className="text-muted-foreground space-y-2 text-sm">
+            <p>
+              Keep interview prep, recruiter context, follow-up reminders, and
+              anything else worth remembering. Markdown is supported.
+            </p>
+            <div className="bg-muted/50 flex flex-wrap gap-4 rounded-md p-2 font-mono text-xs">
+              <span># Heading</span>
+              <span>**bold**</span>
+              <span>*italic*</span>
+              <span>- list item</span>
+              <span>[link](url)</span>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as 'write' | 'preview')}
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="write" className="gap-2">
+              <Edit3 className="h-4 w-4" />
+              Write
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="gap-2">
+              <Eye className="h-4 w-4" />
+              Preview
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="write" className="mt-4">
+            <Textarea
+              placeholder="Add notes about this job application..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[400px] resize-y font-mono text-sm"
+            />
+            <p className="text-muted-foreground mt-2 text-xs">
+              Supports Markdown formatting
+            </p>
+          </TabsContent>
+
+          <TabsContent value="preview" className="mt-4">
+            {notes ? (
+              <div className="prose prose-sm dark:prose-invert min-h-[400px] max-w-none rounded-md border p-4">
+                <Markdown>{notes}</Markdown>
+              </div>
+            ) : (
+              <div className="flex min-h-[400px] items-center justify-center rounded-md border border-dashed p-8">
+                <p className="text-muted-foreground text-sm">
+                  No notes yet. Switch to the Write tab to add notes.
+                </p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   )

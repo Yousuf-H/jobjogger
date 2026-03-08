@@ -11,7 +11,7 @@ class TimelineEntry < ApplicationRecord
     }
 
   validates :entry_type, presence: true
-  validates :description, presence: true
+  validates :description, presence: true, length: { maximum: 1000 }
   validates :occurred_at, presence: true
 
   validate :cannot_edit_status_change, on: :update
