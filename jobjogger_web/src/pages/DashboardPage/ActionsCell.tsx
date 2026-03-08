@@ -90,7 +90,6 @@ export function ActionsCell({
               onClick={() => {
                 onDelete(jobId)
                 setShowDeleteDialog(false)
-                
               }}
             >
               Delete

@@ -45,8 +45,8 @@ function formatDate(date: string) {
 function EmptyTimelineState() {
   return (
     <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center">
-      <div className="bg-muted mb-4 rounded-full p-3">
-        <History className="text-muted-foreground h-5 w-5" />
+      <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+        <History className="h-6 w-6" />
       </div>
 
       <h3 className="text-lg font-semibold">No timeline activity yet</h3>
