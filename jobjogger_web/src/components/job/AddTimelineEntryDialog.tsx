@@ -49,6 +49,13 @@ export default function AddTimelineEntryDialog({
 }: AddTimelineEntryDialogProps) {
   const [open, setOpen] = useState(false)
 
+  function getLocalDateInputValue(date = new Date()): string {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   const form = useForm<TimelineEntryFormValues>({
     resolver: zodResolver(timelineEntrySchema),
     defaultValues: entry
@@ -60,7 +67,7 @@ export default function AddTimelineEntryDialog({
       : {
           entry_type: 'note',
           description: '',
-          occurred_at: new Date().toISOString().split('T')[0],
+          occurred_at: getLocalDateInputValue(),
         },
   })
 

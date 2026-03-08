@@ -104,10 +104,6 @@ export default function JobDetailPage() {
 
   const { job, timeline_entries } = data
 
-  {
-    console.log(job)
-  }
-
   return (
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-5xl px-6 py-6">
