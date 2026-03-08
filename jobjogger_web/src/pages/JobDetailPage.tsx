@@ -83,7 +83,11 @@ function SnapshotField({
 export default function JobDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { archiveMutation, unarchiveMutation, deleteMutation } = useJobActions()
+  const { archiveMutation, unarchiveMutation, deleteMutation } = useJobActions({
+    onDeleteSuccess: () => {
+      navigate('/jobs')
+    },
+  })
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['jobs', id],

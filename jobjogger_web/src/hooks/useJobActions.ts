@@ -4,7 +4,11 @@ import { archiveJob, deleteJob, unarchiveJob } from '@/services/api/jobs'
 import { toast } from 'sonner'
 import { AxiosError } from 'axios'
 
-export function useJobActions() {
+interface UseJobActionsOptions {
+  onDeleteSuccess?: () => void
+}
+
+export function useJobActions(options?: UseJobActionsOptions) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -38,6 +42,7 @@ export function useJobActions() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Job Deleted Successfully!')
+      options?.onDeleteSuccess?.()
     },
     onError: (error: AxiosError<{ errors: string[] }>) => {
       const message =
