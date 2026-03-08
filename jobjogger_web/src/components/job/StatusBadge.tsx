@@ -4,7 +4,8 @@ import { toast } from 'sonner'
 import { Check, ChevronDown } from 'lucide-react'
 
 import { updateJob } from '@/services/api/jobs'
-import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,13 +87,29 @@ export function StatusBadge({ job }: StatusBadgeProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Badge
-          variant={getStatusVariant(job.status)}
-          className="cursor-pointer gap-1 px-3 py-1 text-sm capitalize transition-opacity hover:opacity-80"
+        <button
+          type="button"
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium capitalize transition-opacity hover:opacity-80',
+            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+            'disabled:pointer-events-none disabled:opacity-50',
+            getStatusVariant(job.status) === 'success' &&
+              'bg-success text-success-foreground',
+            getStatusVariant(job.status) === 'destructive' &&
+              'bg-destructive text-destructive-foreground',
+            getStatusVariant(job.status) === 'warning' &&
+              'bg-warning text-warning-foreground',
+            getStatusVariant(job.status) === 'secondary' &&
+              'bg-secondary text-secondary-foreground',
+            getStatusVariant(job.status) === 'outline' &&
+              'border-input bg-background hover:bg-accent hover:text-accent-foreground border'
+          )}
+          disabled={mutation.isPending}
+          aria-label={`Change status. Current status: ${currentLabel}`}
         >
           {currentLabel}
           <ChevronDown className="h-4 w-4" />
-        </Badge>
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" className="w-38">
