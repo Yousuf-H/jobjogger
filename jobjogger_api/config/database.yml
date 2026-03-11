@@ -22,3 +22,4 @@ production:
   username: <%= ENV.fetch("JOBJOGGER_API_DATABASE_USERNAME") { "postgres" } %>
   password: <%= ENV["JOBJOGGER_API_DATABASE_PASSWORD"] %>
   host: <%= ENV["JOBJOGGER_API_DATABASE_HOST"] %>
+  port: <%= ENV.fetch("JOBJOGGER_API_DATABASE_PORT") { 5432 } %>
