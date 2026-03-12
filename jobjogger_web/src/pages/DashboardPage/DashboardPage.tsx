@@ -14,7 +14,7 @@ import { useJobs } from '@/hooks/useJobs'
 import { useJobActions } from '@/hooks/useJobActions'
 import { StatsCards } from '@/components/dashboard/StatsCards'
 import { StatusChart } from '@/components/dashboard/StatusChart'
-import { calculateStatusBreakdown } from '@/utils/statsHelpers'
+import { calculateStatusBreakdown } from '@/lib/statsHelpers'
 
 export default function DashboardPage() {
   const navigate = useNavigate()

@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import DashboardPage from './pages/DashboardPage/DashboardPage'
-import JobDetailPage from './pages/JobDetailPage'
-import JobEditPage from './pages/JobEditPage'
-import Layout from './components/Layout'
+import JobDetailPage from './pages/JobDetailPage/JobDetailPage'
+import JobEditPage from './pages/JobEditPage/JobEditPage'
+import Layout from './components/layout/Layout'
 import JobsPage from './pages/JobsPage/JobsPage'
 
 function App() {
