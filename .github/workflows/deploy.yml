@@ -1,0 +1,39 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/jobjogger
+
+            echo "Pulling latest code..."
+            git pull origin main
+
+            echo "Updating Rails dependencies..."
+            cd jobjogger_api
+            export $(cat .env | xargs)
+            bundle install
+            rails db:migrate RAILS_ENV=production
+
+            echo "Building React app..."
+            cd ../jobjogger_web
+            npm install
+            npm run build
+
+            echo "Restarting Rails..."
+            sudo systemctl restart jobjogger
+
+            echo "Deployment complete!"
