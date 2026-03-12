@@ -21,7 +21,7 @@ import {
   Star,
   Tag as TagIcon,
 } from 'lucide-react'
-import { ActionsCell } from './DashboardPage/ActionsCell'
+import { ActionsCell } from '@/pages/DashboardPage/ActionsCell'
 import { useJobActions } from '@/hooks/useJobActions'
 import { StatusBadge } from '@/components/job/StatusBadge'
 

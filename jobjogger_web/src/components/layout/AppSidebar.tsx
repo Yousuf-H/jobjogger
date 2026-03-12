@@ -10,7 +10,7 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 import { Link } from 'react-router-dom'
-import { TypographyH3 } from './ui/typography'
+import { TypographyH3 } from '../ui/typography'
 
 const navItems = [
   { title: 'Dashboard', url: '/' },
