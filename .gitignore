@@ -22,6 +22,7 @@ jobjogger_api/tmp/*
 jobjogger_api/storage/*
 jobjogger_api/.env
 jobjogger_api/.env.*
+!jobjogger_api/.env.example
 jobjogger_api/config/master.key
 jobjogger_api/.bundle/
 
