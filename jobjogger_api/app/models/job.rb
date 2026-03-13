@@ -1,4 +1,5 @@
 class Job < ApplicationRecord
+  belongs_to :user
   has_many :timeline_entries, -> { order(occurred_at: :desc) }, dependent: :destroy
 
   TERMINAL_STATUSES = %w[accepted rejected ghosted withdrawn].freeze

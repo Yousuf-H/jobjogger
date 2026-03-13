@@ -1,8 +1,10 @@
-class Api::V1::JobsController < ApplicationController
+# frozen_string_literal: true
+
+class Api::V1::JobsController < Api::V1::AuthenticatedController
   before_action :set_job, only: [:show, :update, :destroy, :archive, :unarchive]
 
   def index
-    jobs = apply_filters(Job.all)
+    jobs = apply_filters(current_user.jobs)
 
     render json: jobs
   end
@@ -12,7 +14,7 @@ class Api::V1::JobsController < ApplicationController
   end
 
   def create
-    job = Job.new(job_params)
+    job = current_user.jobs.build(job_params)
 
     if job.save
       render json: job, status: :created
@@ -47,7 +49,9 @@ class Api::V1::JobsController < ApplicationController
   private
 
   def set_job
-    @job = Job.find(params[:id])
+    @job = current_user.jobs.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Job not found' }, status: :not_found
   end
 
   def apply_filters(jobs)
@@ -58,7 +62,6 @@ class Api::V1::JobsController < ApplicationController
 
     jobs = jobs.overdue if params[:overdue] == "true"
     jobs = jobs.due_this_week if params[:due_this_week] == "true"
-
 
     jobs = jobs.where("tags && ARRAY[?]::varchar[]", params[:tags_any]) if params[:tags_any].present?
 
