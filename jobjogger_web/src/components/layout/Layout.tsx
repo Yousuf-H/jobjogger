@@ -19,15 +19,15 @@ import { useAuth } from '@/hooks/useAuth'
 import { User, LogOut } from 'lucide-react'
 
 export default function Layout() {
-  const { user, logout } = useAuth()
+  const { user, signout } = useAuth()
 
-  const handleLogout = async () => {
-    await logout()
+  const handleSignout = async () => {
+    await signout()
   }
 
   return (
     <SidebarProvider>
-      <AppSidebar variant="sidebar" />
+      <AppSidebar collapsible="offcanvas" variant="floating" />
       <SidebarInset>
         <header className="flex h-14 items-center justify-between gap-2 border-b px-4">
           <div className="flex items-center gap-2">
@@ -52,9 +52,9 @@ export default function Layout() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem onClick={handleSignout}>
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span>Sign out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

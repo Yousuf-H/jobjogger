@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const logout = async () => {
+  const signout = async () => {
     setIsLoading(true)
     try {
       if (token) {
@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             },
           })
         } catch (error) {
-          console.error('Logout request failed:', error)
+          console.error('Signout request failed:', error)
         }
       }
 
@@ -115,7 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, signin, signup, logout, isLoading }}
+      value={{ user, token, signin, signup, signout, isLoading }}
     >
       {children}
     </AuthContext.Provider>
