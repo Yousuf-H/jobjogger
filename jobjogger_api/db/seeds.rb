@@ -88,4 +88,4 @@ Job.create!(
 )
 
 puts "Created #{Job.count} jobs for demo user"
-puts "Login with: demo@jobjogger.com / password123"
+puts "Signin with: demo@jobjogger.com / password123"
