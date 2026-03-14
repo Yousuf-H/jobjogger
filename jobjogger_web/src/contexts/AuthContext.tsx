@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { AuthContext } from './auth'
 import type { User } from './auth'
+import { apiClient } from '@/services/api/client'
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -18,25 +19,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signin = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      const response = await fetch(
-        'http://localhost:3000/api/v1/users/sign_in',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ user: { email, password } }),
-        }
+      const response = await apiClient.post('/users/sign_in', {
+        user: { email, password },
+      })
+
+      const authToken = response.headers['authorization']?.replace(
+        'Bearer ',
+        ''
       )
-
-      if (!response.ok) {
-        throw new Error('Signin failed')
-      }
-
-      const authToken = response.headers
-        .get('Authorization')
-        ?.replace('Bearer ', '')
-      const data = await response.json()
+      const data = response.data
 
       if (authToken && data.status.user) {
         setToken(authToken)
@@ -44,6 +35,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('auth_token', authToken)
         localStorage.setItem('user', JSON.stringify(data.status.user))
       }
+    } catch (err: unknown) {
+      throw new Error((err as Error).message || 'Signin failed')
     } finally {
       setIsLoading(false)
     }
@@ -52,30 +45,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signup = async (email: string, password: string, name: string) => {
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:3000/api/v1/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await apiClient.post('/users', {
+        user: {
+          email,
+          password,
+          password_confirmation: password,
+          name,
         },
-        body: JSON.stringify({
-          user: {
-            email,
-            password,
-            password_confirmation: password,
-            name,
-          },
-        }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.status?.message || 'Signup failed')
-      }
-
-      const authToken = response.headers
-        .get('Authorization')
-        ?.replace('Bearer ', '')
-      const data = await response.json()
+      const authToken = response.headers['authorization']?.replace(
+        'Bearer ',
+        ''
+      )
+      const data = response.data
 
       if (authToken && data.data) {
         setToken(authToken)
@@ -83,6 +66,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('auth_token', authToken)
         localStorage.setItem('user', JSON.stringify(data.data))
       }
+    } catch (err: unknown) {
+      const errorMessage =
+        (err as { response?: { data?: { status?: { message?: string } } } })
+          .response?.data?.status?.message || 'Signup failed'
+      throw new Error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -93,12 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (token) {
         try {
-          await fetch('http://localhost:3000/api/v1/users/sign_out', {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          await apiClient.delete('/users/sign_out')
         } catch (error) {
           console.error('Signout request failed:', error)
         }
