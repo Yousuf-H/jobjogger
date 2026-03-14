@@ -4,7 +4,6 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
 
   def create
-    Rails.logger.info "test123 Received registration request with params: #{sign_up_params.inspect}"
     build_resource(sign_up_params)
 
     resource.save
