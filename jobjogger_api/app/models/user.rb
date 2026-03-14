@@ -1,0 +1,12 @@
+class User < ApplicationRecord
+  has_many :jobs, dependent: :destroy
+  devise :database_authenticatable, :registerable,
+       :recoverable, :rememberable, :validatable,
+       :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
+
+  validates :name, presence: true, length: { minimum: 2 }
+  validates :name, format: {
+  with: /\A[^[:space:]]+.*[^[:space:]]+\z/,
+  message: "must contain at least 2 non-whitespace characters"
+  }, if: -> { name.present? && name.length >= 2 }
+end

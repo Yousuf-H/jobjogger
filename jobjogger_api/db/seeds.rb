@@ -1,6 +1,20 @@
+TimelineEntry.destroy_all
 Job.destroy_all
+User.destroy_all
+
+puts "Cleaned existing data"
+
+demo_user = User.create!(
+  email: "demo@jobjogger.com",
+  password: "password123",
+  password_confirmation: "password123",
+  name: "John Doe"
+)
+
+puts "Created demo user: #{demo_user.email}"
 
 Job.create!(
+  user: demo_user,
   company_name: "Addressfinder",
   job_title: "Junior Software Dev",
   status: "wishlist",
@@ -8,10 +22,8 @@ Job.create!(
   tags: ["software development", "junior"]
 )
 
-puts "Job Created!"
-
-# A job that's overdue (follow_up_date in the past)
 Job.create!(
+  user: demo_user,
   company_name: "Abeltec",
   job_title: "Senior Software Dev",
   status: "wishlist",
@@ -20,51 +32,42 @@ Job.create!(
   follow_up_date: 1.week.ago
 )
 
-puts "Overdue Job Created!"
-
-# A job due this week (follow_up_date = 2 days from now)
 Job.create!(
+  user: demo_user,
   company_name: "Amazon",
   job_title: "Data Engineer",
   status: "wishlist",
   job_url: "www.amazon.com",
   tags: ["Data Engineer", "Amazon"],
-  follow_up_date: 1.days.from_now
+  follow_up_date: 1.day.from_now
 )
 
-puts "Job due this week Created!"
-
-# An applied job (to test date_applied gets set)
 job_at_netflix = Job.create!(
+  user: demo_user,
   company_name: "Netflix",
   job_title: "Dev Ops",
   status: "wishlist",
   job_url: "www.netflix.com",
-  tags: ["Netflix", "Dev Ops"],
+  tags: ["Netflix", "Dev Ops"]
 )
-
 job_at_netflix.update!(status: "applied")
 
-puts "An applied job Created!"
-
-# A rejected job (to test terminal status)
 Job.create!(
+  user: demo_user,
   company_name: "Microsoft",
   job_title: "CEO",
   status: "rejected",
   job_url: "www.microsoft.com",
-  tags: ["Microsoft", "CEO"],
+  tags: ["Microsoft", "CEO"]
 )
 
-puts "Rejected job Created!"
-
-# A job with timeline entries (manually created)
 job_at_google = Job.create!(
+  user: demo_user,
   company_name: "Google",
   job_title: "CEO",
   status: "applied",
-  job_url: "www.faceboook.com",
-  tags: ["Google", "CEO"],
+  job_url: "www.google.com",
+  tags: ["Google", "CEO"]
 )
 
 TimelineEntry.create!(
@@ -74,10 +77,8 @@ TimelineEntry.create!(
   occurred_at: Time.current
 )
 
-puts "Job with timeline entries Created!"
-
-# An archived job
 Job.create!(
+  user: demo_user,
   company_name: "NASA",
   job_title: "HR",
   status: "phone_screen",
@@ -85,3 +86,6 @@ Job.create!(
   tags: ["NASA", "HR"],
   archived_at: Date.current
 )
+
+puts "Created #{Job.count} jobs for demo user"
+puts "Signin with: demo@jobjogger.com / password123"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_12_042410) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_13_020014) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -34,6 +34,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_12_042410) do
     t.string "status", null: false
     t.string "tags", default: [], array: true
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["archived_at"], name: "index_jobs_on_archived_at"
     t.index ["company_name"], name: "index_jobs_on_company_name"
     t.index ["follow_up_date"], name: "index_jobs_on_follow_up_date"
@@ -41,6 +42,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_12_042410) do
     t.index ["status", "follow_up_date"], name: "index_jobs_on_status_and_follow_up_date"
     t.index ["status"], name: "index_jobs_on_status"
     t.index ["tags"], name: "index_jobs_on_tags", using: :gin
+    t.index ["user_id"], name: "index_jobs_on_user_id"
+  end
+
+  create_table "jwt_denylists", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "exp"
+    t.string "jti", null: false
+    t.datetime "updated_at", null: false
+    t.index ["jti"], name: "index_jwt_denylists_on_jti", unique: true
   end
 
   create_table "timeline_entries", force: :cascade do |t|
@@ -55,5 +65,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_12_042410) do
     t.index ["job_id"], name: "index_timeline_entries_on_job_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "name", default: "", null: false
+    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
+  add_foreign_key "jobs", "users"
   add_foreign_key "timeline_entries", "jobs"
 end
