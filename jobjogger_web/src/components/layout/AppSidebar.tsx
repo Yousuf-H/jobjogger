@@ -1,44 +1,115 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarFooter,
 } from '@/components/ui/sidebar'
 import { Link } from 'react-router-dom'
-import { TypographyH3 } from '../ui/typography'
+import { NavUser } from '../nav/nav-user'
+import { useAuth } from '@/hooks/useAuth'
+import { FaPhoenixFramework } from 'react-icons/fa6'
+import {
+  IconArchive,
+  IconAward,
+  IconBellRinging,
+  IconChartBar,
+  IconDashboard,
+  IconFileDescription,
+  IconFileText,
+  IconHelp,
+  IconListDetails,
+  IconSettings,
+  IconTimeline,
+  IconUserCheck,
+  IconWorld,
+  IconBriefcase,
+  IconLogout,
+} from '@tabler/icons-react'
+import { NavMain } from '@/components/nav/nav-main'
+import { NavGrouped } from '@/components/nav/nav-grouped'
+import { NavSecondary } from '@/components/nav/nav-secondary'
 
-const navItems = [
-  { title: 'Dashboard', url: '/' },
-  { title: 'Jobs', url: '/jobs' },
-]
+const data = {
+  navMain: [
+    { title: 'Dashboard', url: '/', icon: IconDashboard },
+    { title: 'Jobs', url: '/jobs', icon: IconListDetails },
+    { title: 'Follow Ups', url: '#', icon: IconBellRinging },
+    { title: 'Timeline', url: '#', icon: IconTimeline },
+    { title: 'Analytics', url: '#', icon: IconChartBar },
+  ],
+
+  navJobs: [
+    { title: 'Active Applications', url: '#', icon: IconBriefcase },
+    { title: 'Interviews', url: '#', icon: IconUserCheck },
+    { title: 'Offers', url: '#', icon: IconAward },
+    { title: 'Archived', url: '#', icon: IconArchive },
+  ],
+
+  navTools: [
+    { title: 'Resume Versions', icon: IconFileDescription, url: '#' },
+    { title: 'Cover Letters', icon: IconFileText, url: '#' },
+    { title: 'Job Sources', icon: IconWorld, url: '#' },
+  ],
+
+  navSecondary: [
+    { title: 'Settings', url: '#', icon: IconSettings },
+    { title: 'Help', url: '#', icon: IconHelp },
+  ],
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, signout } = useAuth()
+
+  const handleSignout = async () => {
+    await signout()
+  }
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <TypographyH3>Job Jogger</TypographyH3>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+            >
+              <Link to="/" className="flex items-center gap-2">
+                <FaPhoenixFramework className="size-5!" />
+                <span className="text-base font-semibold">Job Jogger</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url}>{item.title}</Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavMain items={data.navMain} />
+        <NavGrouped title="Jobs" items={data.navJobs} />
+        <NavGrouped title="Tools" items={data.navTools} />
+        <NavSecondary
+          title="Secondary"
+          items={data.navSecondary}
+          className="mt-auto"
+        />
       </SidebarContent>
       <SidebarRail />
+      <SidebarFooter>
+        {user ? (
+          <NavUser user={user} signout={handleSignout} />
+        ) : (
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSignout}>
+                <IconLogout className="size-4" />
+                <span>Sign out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
+      </SidebarFooter>
     </Sidebar>
   )
 }
