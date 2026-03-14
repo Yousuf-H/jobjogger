@@ -27,6 +27,7 @@ import {
   IconUserCheck,
   IconWorld,
   IconBriefcase,
+  IconLogout,
 } from '@tabler/icons-react'
 import { NavMain } from '@/components/nav/nav-main'
 import { NavGrouped } from '@/components/nav/nav-grouped'
@@ -96,7 +97,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
-        {user && <NavUser user={user} signout={handleSignout} />}
+        {user ? (
+          <NavUser user={user} signout={handleSignout} />
+        ) : (
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSignout}>
+                <IconLogout className="size-4" />
+                <span>Sign out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
       </SidebarFooter>
     </Sidebar>
   )
