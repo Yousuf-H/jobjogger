@@ -10,7 +10,7 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
         token = request.headers['Authorization'].split(' ').last
         jwt_payload = JWT.decode(
           token,
-          ENV['DEVISE_JWT_SECRET_KEY'],
+          Rails.application.credentials.devise_jwt_secret_key || ENV['DEVISE_JWT_SECRET_KEY'],
           true,
           { algorithm: 'HS256' }
         ).first
