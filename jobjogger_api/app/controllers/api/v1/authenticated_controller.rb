@@ -13,7 +13,11 @@ class Api::V1::AuthenticatedController < ApplicationController
                                true,
                                { algorithm: 'HS256' }).first
 
-      @current_user = User.find(jwt_payload['sub'])
+      if JwtDenylist.find_by(jti: jwt_payload['jti'])
+        render json: { error: "Token has been revoked" }, status: :unauthorized
+      else
+        @current_user = User.find(jwt_payload['sub'])
+      end
     rescue JWT::ExpiredSignature
       render json: { error: 'Token has expired' }, status: :unauthorized
     rescue JWT::DecodeError, ActiveRecord::RecordNotFound
