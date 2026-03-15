@@ -55,4 +55,21 @@ group :development, :test do
 
   # dotenv for managing environment variables in development and test
   gem "dotenv-rails"
+
+  # RSpec for Rails testing
+  gem "rspec-rails"
+
+  # Factory for test data
+  gem "factory_bot_rails"
+
+  # Fake data generator
+  gem "faker"
+end
+
+group :test do
+  # Matchers for ActiveRecord validations and associations
+  gem "shoulda-matchers"
+
+  # Code coverage
+  gem "simplecov", require: false
 end
