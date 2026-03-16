@@ -4,13 +4,13 @@
 #
 # Usage:
 #   include_examples "requires authentication" do
-#     let(:make_request) { get "/api/v1/jobs", headers: {} }
+#     let(:make_request_*) { get "/api/v1/jobs", headers: {} }
 #   end
 #
-# The caller must define `make_request` via a `let` or a `before` block.
+# The caller must define `make_request_*` via a `let` or a `before` block.
 RSpec.shared_examples "requires authentication" do
   context "when no Authorization header is provided" do
-    before { make_request_without_token }
+    before { make_request_without_token.call }
 
     it "returns 401 Unauthorized" do
       expect(response).to have_http_status(:unauthorized)
@@ -22,7 +22,7 @@ RSpec.shared_examples "requires authentication" do
   end
 
   context "when an invalid token is provided" do
-    before { make_request_with_invalid_token }
+    before { make_request_with_invalid_token.call }
 
     it "returns 401 Unauthorized" do
       expect(response).to have_http_status(:unauthorized)
@@ -30,7 +30,7 @@ RSpec.shared_examples "requires authentication" do
   end
 
   context "when an expired token is provided" do
-    before { make_request_with_expired_token }
+    before { make_request_with_expired_token.call }
 
     it "returns 401 Unauthorized" do
       expect(response).to have_http_status(:unauthorized)
@@ -42,7 +42,7 @@ RSpec.shared_examples "requires authentication" do
   end
 
   context "when a revoked token is provided" do
-    before { make_request_with_revoked_token }
+    before { make_request_with_revoked_token.call }
 
     it "returns 401 Unauthorized" do
       expect(response).to have_http_status(:unauthorized)
@@ -57,7 +57,7 @@ end
 # Shared examples for verifying that a resource is scoped to the current user.
 RSpec.shared_examples "user-scoped resource" do
   context "when accessing another user's resource" do
-    before { make_request_for_other_user }
+    before { make_request_for_other_user.call }
 
     it "returns 404 Not Found" do
       expect(response).to have_http_status(:not_found)

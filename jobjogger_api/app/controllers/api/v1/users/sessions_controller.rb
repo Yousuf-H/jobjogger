@@ -8,6 +8,7 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
     if request.headers['Authorization'].present?
       begin
         token = request.headers['Authorization'].split(' ').last
+
         jwt_payload = JWT.decode(
           token,
           Rails.application.credentials.devise_jwt_secret_key || ENV['DEVISE_JWT_SECRET_KEY'],

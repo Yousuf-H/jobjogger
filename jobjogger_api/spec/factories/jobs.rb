@@ -74,7 +74,7 @@ FactoryBot.define do
     end
 
     trait :due_this_week do
-      follow_up_date { 2.days.from_now.to_date }
+      follow_up_date { Date.current.end_of_week(:sunday) }
     end
 
     # ── Source traits ──────────────────────────────────────────────────────────

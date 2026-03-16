@@ -109,11 +109,13 @@ RSpec.describe "Jobs API", type: :request do
         it "returns only jobs due this week" do
           create(:job, :wishlist, :due_this_week, user: user)
           get "/api/v1/jobs", params: { due_this_week: "true" }, headers: headers
+
           expect(response).to have_http_status(:ok)
           json_response.each do |job|
             due = Date.parse(job["follow_up_date"])
             expect(due).to be_between(Date.current, Date.current.end_of_week(:sunday))
           end
+          expect(json_response).not_to be_empty
         end
       end
 
@@ -273,7 +275,7 @@ RSpec.describe "Jobs API", type: :request do
         post "/api/v1/jobs",
              params: { job: valid_params[:job].merge(company_name: "") }.to_json,
              headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response["errors"]).to be_present
       end
 
@@ -281,14 +283,16 @@ RSpec.describe "Jobs API", type: :request do
         post "/api/v1/jobs",
              params: { job: valid_params[:job].merge(status: "not_a_status") }.to_json,
              headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(JSON.parse(response.body)["errors"]).to be_present
       end
 
       it "returns 422 when source is 'other' without source_other" do
         post "/api/v1/jobs",
              params: { job: valid_params[:job].merge(source: "other", source_other: nil) }.to_json,
              headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "does not create a job on failure" do
@@ -350,7 +354,7 @@ RSpec.describe "Jobs API", type: :request do
         patch "/api/v1/jobs/#{job.id}",
               params: { job: { company_name: "" } }.to_json,
               headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
@@ -394,7 +398,7 @@ RSpec.describe "Jobs API", type: :request do
     end
 
     context "when the job belongs to another user" do
-      let(:other_job) { create(:job, user: create(:user)) }
+      let!(:other_job) { create(:job, user: create(:user)) }
 
       it "returns 404 Not Found" do
         delete "/api/v1/jobs/#{other_job.id}", headers: headers

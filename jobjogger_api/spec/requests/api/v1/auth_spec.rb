@@ -62,7 +62,7 @@ RSpec.describe "Authentication", type: :request do
              params: { user: valid_params[:user].merge(email: "") }.to_json,
              headers: { "Content-Type" => "application/json" }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns 422 when name is missing" do
@@ -70,7 +70,7 @@ RSpec.describe "Authentication", type: :request do
              params: { user: valid_params[:user].merge(name: "") }.to_json,
              headers: { "Content-Type" => "application/json" }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns 422 when passwords don't match" do
@@ -78,7 +78,7 @@ RSpec.describe "Authentication", type: :request do
              params: { user: valid_params[:user].merge(password_confirmation: "WrongPass1!") }.to_json,
              headers: { "Content-Type" => "application/json" }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns 422 when email is already taken" do
@@ -86,7 +86,7 @@ RSpec.describe "Authentication", type: :request do
         post "/api/v1/users", params: valid_params.to_json,
              headers: { "Content-Type" => "application/json" }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response.dig("status", "message")).to match(/email/i)
       end
 

@@ -10,7 +10,7 @@ class Api::V1::TimelineEntriesController < Api::V1::AuthenticatedController
     if timeline_entry.save
       render json: timeline_entry, status: :created
     else
-      render json: { errors: timeline_entry.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: timeline_entry.errors.full_messages }, status: :unprocessable_content
     end
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Job not found' }, status: :not_found
@@ -20,7 +20,7 @@ class Api::V1::TimelineEntriesController < Api::V1::AuthenticatedController
     if @timeline_entry.update(timeline_entry_params)
       render json: @timeline_entry, status: :ok
     else
-      render json: { errors: @timeline_entry.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @timeline_entry.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -40,6 +40,6 @@ class Api::V1::TimelineEntriesController < Api::V1::AuthenticatedController
   end
 
   def timeline_entry_params
-    params.require(:timeline_entry).permit(:entry_type, :description, :occurred_at, :metadata)
+    params.require(:timeline_entry).permit(:entry_type, :description, :occurred_at, metadata: {})
   end
 end

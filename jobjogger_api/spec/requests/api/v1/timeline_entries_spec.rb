@@ -47,8 +47,9 @@ RSpec.describe "Timeline Entries API", type: :request do
           timeline_entry: { metadata: { interviewer: "Jane", format: "video" } }
         )
         post "/api/v1/jobs/#{job.id}/timeline_entries",
-             params: params_with_meta.to_json, headers: headers
+              params: params_with_meta.to_json, headers: headers
         entry = TimelineEntry.last
+
         expect(entry.metadata["interviewer"]).to eq("Jane")
       end
 
@@ -67,7 +68,7 @@ RSpec.describe "Timeline Entries API", type: :request do
         post "/api/v1/jobs/#{job.id}/timeline_entries",
              params: { timeline_entry: { entry_type: "note", description: "", occurred_at: Time.current } }.to_json,
              headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response["errors"]).to be_present
       end
 
@@ -75,14 +76,14 @@ RSpec.describe "Timeline Entries API", type: :request do
         post "/api/v1/jobs/#{job.id}/timeline_entries",
              params: { timeline_entry: { entry_type: nil, description: "Something", occurred_at: Time.current } }.to_json,
              headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns 422 when description exceeds 1000 characters" do
         post "/api/v1/jobs/#{job.id}/timeline_entries",
              params: { timeline_entry: { entry_type: "note", description: "x" * 1001, occurred_at: Time.current } }.to_json,
              headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "does not create an entry on failure" do
@@ -165,7 +166,7 @@ RSpec.describe "Timeline Entries API", type: :request do
         patch "/api/v1/timeline_entries/#{status_entry.id}",
               params: { timeline_entry: { description: "Hacked description" } }.to_json,
               headers: headers
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response["errors"]).to include(match(/Cannot edit auto-generated status change entries/))
       end
 

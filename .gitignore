@@ -25,6 +25,7 @@ jobjogger_api/.env.*
 !jobjogger_api/.env.example
 jobjogger_api/config/master.key
 jobjogger_api/.bundle/
+jobjogger_api/coverage/
 
 # -------------------------
 # React (jobjogger_web)

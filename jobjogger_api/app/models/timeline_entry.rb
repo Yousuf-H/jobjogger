@@ -19,7 +19,7 @@ class TimelineEntry < ApplicationRecord
   private
 
   def cannot_edit_status_change
-    if status_change? && (description_changed? || entry_type_changed?)
+    if entry_type_was == "status_change" && (description_changed? || entry_type_changed?)
       errors.add(:base, "Cannot edit auto-generated status change entries")
     end
   end
