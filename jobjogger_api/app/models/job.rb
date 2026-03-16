@@ -42,7 +42,7 @@ class Job < ApplicationRecord
   validates :status, presence: true
 
   before_validation :normalise_job_url
-  validates :job_url, format: { with: URI::DEFAULT_PARSER.make_regexp }, allow_blank: true
+  validate :valid_url_format
   validates :source_other, presence: true, if: :other_source?
 
   scope :active, -> { where(archived_at: nil).where.not(status: TERMINAL_STATUSES) }
@@ -63,6 +63,18 @@ class Job < ApplicationRecord
   end
 
   private
+
+
+  def valid_url_format
+    return if job_url.blank?
+
+    uri = URI.parse(job_url)
+    unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+      errors.add(:job_url, "is not a valid URL")
+    end
+  rescue URI::InvalidURIError
+    errors.add(:job_url, "is not a valid URL")
+  end
 
   def normalise_job_url
     return if job_url.blank?

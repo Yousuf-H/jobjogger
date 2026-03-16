@@ -19,15 +19,17 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
     if job.save
       render json: job, status: :created
     else
-      render json: { errors: job.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: job.errors.full_messages }, status: :unprocessable_content
     end
+  rescue ArgumentError => e
+    render json: { errors: [e.message] }, status: :unprocessable_content
   end
 
   def update
     if @job.update(job_params)
       render json: @job, status: :ok
     else
-      render json: { errors: @job.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @job.errors.full_messages }, status: :unprocessable_content
     end
   end
 
