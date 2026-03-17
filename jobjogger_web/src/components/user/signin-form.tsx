@@ -23,7 +23,7 @@ export function SigninForm({
 
     try {
       await signin(email, password)
-      navigate('/jobs')
+      navigate('/')
     } catch (err: unknown) {
       setError(
         err instanceof Error

@@ -17,7 +17,7 @@
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
   ],
   "containerEnv": {
-    "DB_HOST": "postgres"
+    "JOBJOGGER_API_DATABASE_HOST": "postgres"
   },
   "forwardPorts": [
     3000,

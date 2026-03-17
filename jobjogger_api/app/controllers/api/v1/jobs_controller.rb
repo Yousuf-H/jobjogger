@@ -57,9 +57,24 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   end
 
   def apply_filters(jobs)
-    jobs = params[:archived] == "true" ? jobs.archived : jobs.active
+    if params[:archived] == "true"
+      jobs = jobs.archived
+    elsif params[:status].present?
+      jobs = jobs.where(archived_at: nil)
+    else
+      jobs = jobs.active
+    end
 
-    jobs = jobs.where(status: params[:status]) if params[:status].present?
+    if params[:status].present?
+      statuses = Array(params[:status])
+      jobs = jobs.where(status: statuses)
+    end
+
+    if params[:priority].present?
+      priorities = Array(params[:priority])
+      jobs = jobs.where(priority: priorities)
+    end
+
     jobs = jobs.where(source: params[:source]) if params[:source].present?
 
     jobs = jobs.overdue if params[:overdue] == "true"
@@ -69,8 +84,10 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
 
     if params[:search].present?
       search_term = "%#{ActiveRecord::Base.sanitize_sql_like(params[:search])}%"
-      jobs = jobs.where("company_name ILIKE ? OR job_title ILIKE ? OR ARRAY_TO_STRING(tags, ',') ILIKE ?",
-                        search_term, search_term, search_term)
+      jobs = jobs.where(
+        "company_name ILIKE ? OR job_title ILIKE ? OR ARRAY_TO_STRING(tags, ',') ILIKE ?",
+        search_term, search_term, search_term
+      )
     end
 
     if ["created_at", "date_applied", "follow_up_date", "priority"].include?(params[:sort])

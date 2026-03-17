@@ -94,6 +94,24 @@ RSpec.describe "Jobs API", type: :request do
         end
       end
 
+      context "status filter for terminal statuses" do
+        it "returns terminal-status jobs even when archived is not set" do
+          get "/api/v1/jobs", params: { status: "rejected" }, headers: headers
+          expect(response).to have_http_status(:ok)
+          expect(json_response).not_to be_empty
+          expect(json_response.map { |j| j["status"] }.uniq).to eq(["rejected"])
+        end
+      end
+
+      context "multiple status filter" do
+        it "returns jobs matching any of the specified statuses" do
+          get "/api/v1/jobs", params: { status: ["wishlist", "rejected"] }, headers: headers
+          expect(response).to have_http_status(:ok)
+          returned_statuses = json_response.map { |j| j["status"] }.uniq
+          expect(returned_statuses).to all(be_in(["wishlist", "rejected"]))
+        end
+      end
+
       context "overdue=true" do
         it "returns only overdue active jobs" do
           create(:job, :wishlist, :overdue, user: user)
@@ -157,6 +175,18 @@ RSpec.describe "Jobs API", type: :request do
           returned_ids = json_response.map { |j| j["id"] }
           expect(returned_ids).to include(seek_job.id)
           expect(returned_ids).not_to include(linkedin_job.id)
+        end
+      end
+
+      context "priority filter" do
+        it "returns only jobs with the specified priority" do
+          high_job = create(:job, :wishlist, user: user, priority: "high")
+          low_job  = create(:job, :wishlist, user: user, priority: "low")
+
+          get "/api/v1/jobs", params: { priority: "high" }, headers: headers
+          returned_ids = json_response.map { |j| j["id"] }
+          expect(returned_ids).to include(high_job.id)
+          expect(returned_ids).not_to include(low_job.id)
         end
       end
     end

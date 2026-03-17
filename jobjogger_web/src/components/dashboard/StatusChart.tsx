@@ -4,7 +4,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { Pie, PieChart, Cell, ResponsiveContainer } from 'recharts'
+import { Pie, PieChart, Cell } from 'recharts'
 
 interface StatusData {
   status: string
@@ -51,7 +51,7 @@ export function StatusChart({ data }: StatusChartProps) {
   )
 
   return (
-    <Card className="border-border/70 shadow-sm">
+    <Card className="border-border/70 shadow-sm overflow-hidden">
       <CardHeader>
         <CardTitle>Pipeline Overview</CardTitle>
         <p className="text-muted-foreground text-sm">
@@ -61,40 +61,37 @@ export function StatusChart({ data }: StatusChartProps) {
 
       <CardContent>
         <div className="grid items-center gap-8 md:grid-cols-2">
-          <ChartContainer config={chartConfig} className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="count"
-                  nameKey="status"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={2}
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value, name) => (
-                        <div className="flex items-center gap-2">
-                          <span className="capitalize">
-                            {String(name).replaceAll('_', ' ')}
-                          </span>
-                          <span className="font-bold">{value}</span>
-                        </div>
-                      )}
-                    />
-                  }
-                />
-              </PieChart>
-            </ResponsiveContainer>
+          <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[200px]">
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="count"
+                nameKey="status"
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={80}
+                paddingAngle={2}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name) => (
+                      <div className="flex items-center gap-2">
+                        <span className="capitalize">
+                          {String(name).replaceAll('_', ' ')}
+                        </span>
+                        <span className="font-bold">{value}</span>
+                      </div>
+                    )}
+                  />
+                }
+              />
+            </PieChart>
           </ChartContainer>
 
           <div className="space-y-3 rounded-md border p-4">
@@ -113,7 +110,7 @@ export function StatusChart({ data }: StatusChartProps) {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 ">
                   <span className="text-sm font-semibold">{item.count}</span>
                   <span className="text-muted-foreground text-xs">
                     ({Math.round((item.count / total) * 100)}%)
