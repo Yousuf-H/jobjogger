@@ -58,8 +58,8 @@ export function JobsToolbar({ onFiltersChange, resultCount }: JobsToolbarProps) 
   // Build filters object whenever state changes
   const filters: JobFilters = useMemo(() => ({
     ...(selectedStatuses.size > 0 && { status: Array.from(selectedStatuses) as JobStatus[] }),
-    ...(selectedPriorities.size > 0 && { priority: Array.from(selectedPriorities)[0] as Priority }),
-    ...(selectedSources.size > 0 && { source: Array.from(selectedSources)[0] as JobSource }),
+    ...(selectedPriorities.size > 0 && { priority: Array.from(selectedPriorities) as Priority[] }),
+    ...(selectedSources.size > 0 && { source: Array.from(selectedSources) as JobSource[] }),
     ...(debouncedSearch && { search: debouncedSearch }),
     ...(dueThisWeek && { due_this_week: true }),
     ...(overdue && { overdue: true }),

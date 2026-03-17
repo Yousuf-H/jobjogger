@@ -75,7 +75,10 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
       jobs = jobs.where(priority: priorities)
     end
 
-    jobs = jobs.where(source: params[:source]) if params[:source].present?
+    if params[:source].present?
+      sources = Array(params[:source])
+      jobs = jobs.where(source: sources)
+    end
 
     jobs = jobs.overdue if params[:overdue] == "true"
     jobs = jobs.due_this_week if params[:due_this_week] == "true"
