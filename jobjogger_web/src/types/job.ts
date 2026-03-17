@@ -44,10 +44,10 @@ export interface Job {
 
 export interface JobFilters {
   status?: JobStatus[]
-  source?: JobSource
   tags_any?: string[]
   employment_type?: EmploymentType
-  priority?: Priority
+  priority?: Priority[]
+  source?: JobSource[]
   overdue?: boolean
   due_this_week?: boolean
   archived?: boolean
