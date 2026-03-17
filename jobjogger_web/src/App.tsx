@@ -7,6 +7,7 @@ import JobsPage from './pages/JobsPage/JobsPage'
 import { SigninPage } from './pages/SigninPage/SigninPage'
 import { SignupPage } from './pages/SignupPage/SignupPage'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
+import AnalyticsPage from './pages/AnalyticsPage'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:id" element={<JobDetailPage />} />
           <Route path="/jobs/:id/edit" element={<JobEditPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

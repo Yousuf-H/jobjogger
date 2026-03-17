@@ -22,6 +22,8 @@ Rails.application.routes.draw do
         resources :timeline_entries, only: [:create]
       end
 
+      resources :analytics, only: [:index]
+
       resources :timeline_entries, only: [:update, :destroy]
     end
   end

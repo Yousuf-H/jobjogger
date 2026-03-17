@@ -39,7 +39,7 @@ const data = {
     { title: 'Jobs', url: '/jobs', icon: IconListDetails },
     { title: 'Follow Ups', url: '#', icon: IconBellRinging },
     { title: 'Timeline', url: '#', icon: IconTimeline },
-    { title: 'Analytics', url: '#', icon: IconChartBar },
+    { title: 'Analytics', url: '/analytics', icon: IconChartBar },
   ],
 
   navJobs: [
