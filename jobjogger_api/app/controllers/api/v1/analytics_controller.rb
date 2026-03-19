@@ -20,7 +20,7 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   def summary_stats
     total_applied = jobs.where.not(status: "wishlist").count
     total_with_response = jobs.where(status: %w[phone_screen interviewing offer accepted]).count
-    total_with_interview = jobs.where(status: %w[phone_screen interviewing offer accepted]).count
+    total_with_interview = jobs.where(status: %w[interviewing offer accepted]).count
 
     # Average days from applied to first response (phone_screen or interviewing)
     avg_response_days = average_days_between_statuses("applied", %w[phone_screen interviewing offer accepted rejected ghosted])
@@ -102,19 +102,24 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   end
 
   def average_days_between_statuses(from_status, to_statuses)
-    # Use timeline entries to calculate time between status changes
-    # Find pairs of status_change entries for the same job
+    to_conditions = to_statuses.map { "te_to.description LIKE ?" }.join(" OR ")
+
     query = <<-SQL
-      SELECT AVG(EXTRACT(EPOCH FROM (te_to.occurred_at - te_from.occurred_at)) / 86400) AS avg_days
-      FROM timeline_entries te_from
-      INNER JOIN timeline_entries te_to ON te_from.job_id = te_to.job_id
-      INNER JOIN jobs ON jobs.id = te_from.job_id
-      WHERE jobs.user_id = ?
-        AND te_from.entry_type = 'status_change'
-        AND te_to.entry_type = 'status_change'
-        AND te_from.description LIKE ?
-        AND (#{to_statuses.map { "te_to.description LIKE ?" }.join(" OR ")})
-        AND te_to.occurred_at > te_from.occurred_at
+      SELECT AVG(days) AS avg_days
+      FROM (
+        SELECT DISTINCT ON (te_from.job_id, te_from.id)
+          EXTRACT(EPOCH FROM (te_to.occurred_at - te_from.occurred_at)) / 86400 AS days
+        FROM timeline_entries te_from
+        INNER JOIN timeline_entries te_to ON te_from.job_id = te_to.job_id
+        INNER JOIN jobs ON jobs.id = te_from.job_id
+        WHERE jobs.user_id = ?
+          AND te_from.entry_type = 'status_change'
+          AND te_to.entry_type = 'status_change'
+          AND te_from.description LIKE ?
+          AND (#{to_conditions})
+          AND te_to.occurred_at > te_from.occurred_at
+        ORDER BY te_from.job_id, te_from.id, te_to.occurred_at ASC
+      ) earliest_transitions
     SQL
 
     from_pattern = "%to #{from_status}%"
