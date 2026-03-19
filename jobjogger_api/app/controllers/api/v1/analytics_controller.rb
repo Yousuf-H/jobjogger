@@ -17,8 +17,6 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
     @jobs ||= current_user.jobs
   end
 
-  # ── Summary metric cards ──────────────────────────────────────────────────────
-
   def summary_stats
     total_applied = jobs.where.not(status: "wishlist").count
     total_with_response = jobs.where(status: %w[phone_screen interviewing offer accepted]).count
@@ -34,8 +32,6 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
       avg_days_to_respond: avg_response_days
     }
   end
-
-  # ── Application activity over time ────────────────────────────────────────────
 
   def activity_data
     {
@@ -60,8 +56,6 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
     end
   end
 
-  # ── Pipeline funnel (current snapshot) ────────────────────────────────────────
-
   def funnel_data
     status_order = %w[wishlist applied phone_screen interviewing offer accepted rejected ghosted withdrawn]
 
@@ -74,8 +68,6 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
       }
     end
   end
-
-  # ── Response rate by source ───────────────────────────────────────────────────
 
   def source_performance_data
     sources = %w[seek linkedin referral company_site other]
@@ -91,8 +83,6 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
       }
     end
   end
-
-  # ── Average time between stages ───────────────────────────────────────────────
 
   def stage_duration_data
     transitions = [
@@ -110,8 +100,6 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
       }
     end
   end
-
-  # ── Helpers ───────────────────────────────────────────────────────────────────
 
   def average_days_between_statuses(from_status, to_statuses)
     # Use timeline entries to calculate time between status changes
