@@ -52,6 +52,7 @@ class Job < ApplicationRecord
 
   before_save :normalise_tags
   before_update :set_date_applied_if_needed
+  after_create_commit :create_initial_timeline_entry
   after_update_commit :auto_create_timeline_entry
 
   def archive!
@@ -99,10 +100,21 @@ class Job < ApplicationRecord
     self.date_applied = Date.current
   end
 
+  def create_initial_timeline_entry
+    return if wishlist?
+
+    timeline_entries.create!(
+      entry_type: "status_change",
+      description: "Job created as #{status}",
+      occurred_at: created_at,
+      metadata: { from: nil, to: status }
+    )
+  end
+
   def auto_create_timeline_entry
     return unless saved_change_to_status?
 
-    self.timeline_entries.create!(
+    timeline_entries.create!(
       entry_type: "status_change",
       description: "Status changed from #{status_before_last_save} to #{status}",
       occurred_at: updated_at,
