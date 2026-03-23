@@ -105,7 +105,8 @@ class Job < ApplicationRecord
     self.timeline_entries.create!(
       entry_type: "status_change",
       description: "Status changed from #{status_before_last_save} to #{status}",
-      occurred_at: updated_at
+      occurred_at: updated_at,
+      metadata: { from: status_before_last_save , to: status }
     )
   end
 end
