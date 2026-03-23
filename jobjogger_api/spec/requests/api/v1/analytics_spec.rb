@@ -6,6 +6,13 @@ RSpec.describe "Analytics API", type: :request do
   let(:user)    { create(:user) }
   let(:headers) { auth_headers_for(user) }
 
+  # Helper: create a job and walk it through statuses via update! so callbacks fire
+  def create_job_through_statuses(user:, statuses:, **attrs)
+    job = create(:job, :wishlist, user: user, **attrs)
+    statuses.each { |s| job.update!(status: s) }
+    job
+  end
+
   describe "GET /api/v1/analytics" do
 
     # ── Authentication guard ──────────────────────────────────────────────────
@@ -57,10 +64,11 @@ RSpec.describe "Analytics API", type: :request do
 
     context "user scoping" do
       it "only includes the current user's jobs" do
-        create_list(:job, 3, :applied, user: user, source: "seek")
+        # Walk jobs through applied so timeline entries exist
+        3.times { create_job_through_statuses(user: user, statuses: ["applied"], source: "seek") }
 
         other_user = create(:user)
-        create_list(:job, 5, :applied, user: other_user, source: "seek")
+        5.times { create_job_through_statuses(user: other_user, statuses: ["applied"], source: "seek") }
 
         get "/api/v1/analytics", headers: headers
         expect(json_response["summary_stats"]["total_applied"]).to eq(3)
@@ -85,9 +93,9 @@ RSpec.describe "Analytics API", type: :request do
       context "with jobs at various stages" do
         before do
           create_list(:job, 2, :wishlist, user: user)
-          create_list(:job, 3, :applied, user: user)
-          create_list(:job, 2, user: user, status: "interviewing")
-          create(:job, user: user, status: "offer")
+          3.times { create_job_through_statuses(user: user, statuses: ["applied"]) }
+          2.times { create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing]) }
+          create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing offer])
         end
 
         it "counts total_applied excluding wishlist jobs" do
@@ -96,22 +104,22 @@ RSpec.describe "Analytics API", type: :request do
           expect(json_response["summary_stats"]["total_applied"]).to eq(6)
         end
 
-        it "calculates response_rate correctly" do
+        it "calculates response_rate from timeline history" do
           get "/api/v1/analytics", headers: headers
-          # responded = 2 interviewing + 1 offer = 3, total = 6 → 50%
+          # 2 reached interviewing + 1 reached offer = 3 responded, total = 6 → 50%
           expect(json_response["summary_stats"]["response_rate"]).to eq(50.0)
         end
 
-        it "calculates interview_rate correctly" do
+        it "calculates interview_rate from timeline history" do
           get "/api/v1/analytics", headers: headers
-          # interviewed = 2 interviewing + 1 offer = 3, total = 6 → 50%
+          # 2 reached interviewing + 1 reached offer = 3, total = 6 → 50%
           expect(json_response["summary_stats"]["interview_rate"]).to eq(50.0)
         end
       end
 
       context "when all applied jobs got responses" do
         before do
-          create_list(:job, 4, user: user, status: "interviewing")
+          4.times { create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing]) }
         end
 
         it "returns 100% response rate" do
@@ -122,7 +130,7 @@ RSpec.describe "Analytics API", type: :request do
 
       context "when no applied jobs got responses" do
         before do
-          create_list(:job, 3, :applied, user: user)
+          3.times { create_job_through_statuses(user: user, statuses: ["applied"]) }
         end
 
         it "returns 0% response rate" do
@@ -131,10 +139,10 @@ RSpec.describe "Analytics API", type: :request do
         end
       end
 
-      context "when rejected jobs are present" do
+      context "when a job goes applied → rejected (no interview)" do
         before do
-          create_list(:job, 2, :applied, user: user)
-          create(:job, user: user, status: "rejected")
+          2.times { create_job_through_statuses(user: user, statuses: ["applied"]) }
+          create_job_through_statuses(user: user, statuses: %w[applied rejected])
         end
 
         it "counts rejected as a response in response_rate" do
@@ -148,6 +156,30 @@ RSpec.describe "Analytics API", type: :request do
           expect(json_response["summary_stats"]["interview_rate"]).to eq(0.0)
         end
       end
+
+      context "when a job goes applied → interviewing → rejected" do
+        before do
+          create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing rejected])
+        end
+
+        it "still counts in response_rate even though current status is rejected" do
+          get "/api/v1/analytics", headers: headers
+          expect(json_response["summary_stats"]["response_rate"]).to eq(100.0)
+        end
+
+        it "still counts in interview_rate even though current status is rejected" do
+          get "/api/v1/analytics", headers: headers
+          # Job reached interviewing historically, so it counts
+          expect(json_response["summary_stats"]["interview_rate"]).to eq(100.0)
+        end
+
+        it "shows rejected as the current status in the funnel" do
+          get "/api/v1/analytics", headers: headers
+          funnel = json_response["funnel_data"]
+          rejected = funnel.find { |f| f["status"] == "rejected" }
+          expect(rejected["count"]).to eq(1)
+        end
+      end
     end
 
     # ── Funnel data ───────────────────────────────────────────────────────────
@@ -156,9 +188,9 @@ RSpec.describe "Analytics API", type: :request do
       context "with jobs at various stages" do
         before do
           create_list(:job, 3, :wishlist, user: user)
-          create_list(:job, 2, :applied, user: user)
-          create(:job, user: user, status: "interviewing")
-          create(:job, user: user, status: "rejected")
+          2.times { create_job_through_statuses(user: user, statuses: ["applied"]) }
+          create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing])
+          create_job_through_statuses(user: user, statuses: %w[applied rejected])
         end
 
         it "returns all 9 status types in the correct order" do
@@ -270,12 +302,15 @@ RSpec.describe "Analytics API", type: :request do
     describe "source_performance" do
       context "with jobs from different sources" do
         before do
-          create_list(:job, 2, :applied, user: user, source: "seek")
-          create(:job, user: user, status: "interviewing", source: "seek")
+          # Seek: 2 applied only + 1 that reached interviewing
+          2.times { create_job_through_statuses(user: user, statuses: ["applied"], source: "seek") }
+          create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing], source: "seek")
 
-          create_list(:job, 2, :applied, user: user, source: "linkedin")
+          # LinkedIn: 2 applied only
+          2.times { create_job_through_statuses(user: user, statuses: ["applied"], source: "linkedin") }
 
-          create(:job, user: user, status: "phone_screen", source: "referral")
+          # Referral: 1 that reached phone_screen
+          create_job_through_statuses(user: user, statuses: %w[applied phone_screen], source: "referral")
 
           # Wishlist jobs should NOT count as applied
           create(:job, :wishlist, user: user, source: "seek")
@@ -297,7 +332,7 @@ RSpec.describe "Analytics API", type: :request do
           expect(perf.find { |s| s["source"] == "referral" }["applied"]).to eq(1)
         end
 
-        it "counts interviews correctly per source" do
+        it "counts interviews correctly per source using timeline history" do
           get "/api/v1/analytics", headers: headers
           perf = json_response["source_performance"]
 
@@ -313,6 +348,25 @@ RSpec.describe "Analytics API", type: :request do
           company_site = perf.find { |s| s["source"] == "company_site" }
           expect(company_site["applied"]).to eq(0)
           expect(company_site["got_interview"]).to eq(0)
+        end
+      end
+
+      context "when a source job reached interviewing then was rejected" do
+        before do
+          create_job_through_statuses(
+            user: user,
+            statuses: %w[applied phone_screen interviewing rejected],
+            source: "linkedin"
+          )
+        end
+
+        it "still counts the source as producing an interview" do
+          get "/api/v1/analytics", headers: headers
+          perf = json_response["source_performance"]
+          linkedin = perf.find { |s| s["source"] == "linkedin" }
+
+          expect(linkedin["applied"]).to eq(1)
+          expect(linkedin["got_interview"]).to eq(1)
         end
       end
     end
@@ -432,7 +486,8 @@ RSpec.describe "Analytics API", type: :request do
 
       context "with non-status_change timeline entries" do
         before do
-          job = create(:job, :applied, user: user)
+          job = create(:job, :wishlist, user: user)
+          job.update!(status: "applied")
 
           create(:timeline_entry, :note, job: job,
             description: "Spoke to recruiter about phone_screen process",
@@ -478,8 +533,8 @@ RSpec.describe "Analytics API", type: :request do
 
       context "with archived jobs" do
         before do
-          create(:job, :applied, user: user)
-          archived = create(:job, :applied, user: user)
+          create_job_through_statuses(user: user, statuses: ["applied"])
+          archived = create_job_through_statuses(user: user, statuses: ["applied"])
           archived.archive!
         end
 
@@ -490,7 +545,7 @@ RSpec.describe "Analytics API", type: :request do
       end
 
       context "with a single job" do
-        before { create(:job, :applied, user: user, source: "linkedin") }
+        before { create_job_through_statuses(user: user, statuses: ["applied"], source: "linkedin") }
 
         it "returns valid analytics" do
           get "/api/v1/analytics", headers: headers

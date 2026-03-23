@@ -17,9 +17,18 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
     current_user.jobs
   end
 
-  def calculate_percentage(statuses, denominator)
+  def calculate_percentage(numerator, denominator)
     return 0 if denominator < 1
-    (jobs.where(status: statuses).count / denominator.to_f * 100).round(1)
+    (numerator / denominator.to_f * 100).round(1)
+  end
+
+  # Count jobs that EVER reached any of the given statuses (via timeline history)
+  def jobs_that_reached(statuses, scope = jobs)
+    scope
+      .joins(:timeline_entries)
+      .where(timeline_entries: { entry_type: "status_change" })
+      .where("timeline_entries.metadata->>'to' IN (?)", statuses)
+      .distinct
   end
 
   # ── Funnel ────────────────────────────────────────────────────────────────────
@@ -37,9 +46,18 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
 
   def summary_stats
     total_applied = jobs.where.not(status: "wishlist").count
-    response_rate = calculate_percentage(%w[phone_screen interviewing offer accepted rejected], total_applied)
-    interview_rate = calculate_percentage(%w[interviewing offer accepted], total_applied)
-    avg_days_to_respond = average_days_between_statuses("applied", %w[phone_screen interviewing offer accepted rejected])
+
+    # Response = jobs that EVER reached any response status (via timeline)
+    response_statuses = %w[phone_screen interviewing offer accepted rejected]
+    response_count = jobs_that_reached(response_statuses).count
+    response_rate = calculate_percentage(response_count, total_applied)
+
+    # Interview = jobs that EVER reached an interview stage (via timeline)
+    interview_statuses = %w[interviewing offer accepted]
+    interview_count = jobs_that_reached(interview_statuses).count
+    interview_rate = calculate_percentage(interview_count, total_applied)
+
+    avg_days_to_respond = average_days_between_statuses("applied", response_statuses)
 
     {
       total_applied: total_applied,
@@ -80,7 +98,14 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
     sources = %w[seek linkedin referral company_site other]
 
     total_by_source = jobs.where.not(status: "wishlist").group(:source).count
-    interview_by_source = jobs.where(status: %w[phone_screen interviewing offer accepted]).group(:source).count
+
+    # Count jobs per source that EVER reached an interview stage (via timeline)
+    interview_statuses = %w[phone_screen interviewing offer accepted]
+    interview_by_source = {}
+    sources.each do |source|
+      scoped = jobs.where(source: source)
+      interview_by_source[source] = jobs_that_reached(interview_statuses, scoped).count
+    end
 
     sources.map do |source|
       {
