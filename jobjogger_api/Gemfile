@@ -50,6 +50,11 @@ group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
+  # rubocop for linting and code style
+  gem "rubocop", "~> 1.84"
+  gem "rubocop-rails", "~> 2.34"
+  gem "rubocop-performance", "~> 1.26"
+
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
