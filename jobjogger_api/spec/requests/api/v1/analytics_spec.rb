@@ -6,7 +6,10 @@ RSpec.describe "Analytics API", type: :request do
   let(:user)    { create(:user) }
   let(:headers) { auth_headers_for(user) }
 
-  # Helper: create a job and walk it through statuses via update! so callbacks fire
+  # Helper: create a job and walk it through statuses via update! so callbacks fire.
+  # Always starts at wishlist, then walks through each status in order.
+  # The new auto_create_timeline_entry handles wishlist → beyond-applied jumps
+  # by synthesizing an applied entry automatically.
   def create_job_through_statuses(user:, statuses:, **attrs)
     job = create(:job, :wishlist, user: user, **attrs)
     statuses.each { |s| job.update!(status: s) }
@@ -64,7 +67,6 @@ RSpec.describe "Analytics API", type: :request do
 
     context "user scoping" do
       it "only includes the current user's jobs" do
-        # Walk jobs through applied so timeline entries exist
         3.times { create_job_through_statuses(user: user, statuses: ["applied"], source: "seek") }
 
         other_user = create(:user)
@@ -106,7 +108,7 @@ RSpec.describe "Analytics API", type: :request do
 
         it "calculates response_rate from timeline history" do
           get "/api/v1/analytics", headers: headers
-          # 2 reached interviewing + 1 reached offer = 3 responded, total = 6 → 50%
+          # 2 reached phone_screen/interviewing + 1 reached offer = 3 responded, total = 6 → 50%
           expect(json_response["summary_stats"]["response_rate"]).to eq(50.0)
         end
 
@@ -169,7 +171,6 @@ RSpec.describe "Analytics API", type: :request do
 
         it "still counts in interview_rate even though current status is rejected" do
           get "/api/v1/analytics", headers: headers
-          # Job reached interviewing historically, so it counts
           expect(json_response["summary_stats"]["interview_rate"]).to eq(100.0)
         end
 
@@ -178,6 +179,36 @@ RSpec.describe "Analytics API", type: :request do
           funnel = json_response["funnel_data"]
           rejected = funnel.find { |f| f["status"] == "rejected" }
           expect(rejected["count"]).to eq(1)
+        end
+      end
+
+      context "when a job is moved back to wishlist after reaching interviewing" do
+        before do
+          # This job reached interviewing then was moved back to wishlist
+          job = create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing])
+          job.update!(status: "wishlist")
+
+          # Another normal applied job
+          create_job_through_statuses(user: user, statuses: ["applied"])
+        end
+
+        it "still counts the reverted job in total_applied (timeline history)" do
+          get "/api/v1/analytics", headers: headers
+          # Both jobs reached applied via timeline, so total = 2
+          expect(json_response["summary_stats"]["total_applied"]).to eq(2)
+        end
+
+        it "still counts the reverted job in interview_rate" do
+          get "/api/v1/analytics", headers: headers
+          # 1 out of 2 reached interviewing = 50%
+          expect(json_response["summary_stats"]["interview_rate"]).to eq(50.0)
+        end
+
+        it "does not produce rates above 100%" do
+          get "/api/v1/analytics", headers: headers
+          summary = json_response["summary_stats"]
+          expect(summary["response_rate"]).to be <= 100.0
+          expect(summary["interview_rate"]).to be <= 100.0
         end
       end
     end
@@ -309,8 +340,8 @@ RSpec.describe "Analytics API", type: :request do
           # LinkedIn: 2 applied only
           2.times { create_job_through_statuses(user: user, statuses: ["applied"], source: "linkedin") }
 
-          # Referral: 1 that reached phone_screen
-          create_job_through_statuses(user: user, statuses: %w[applied phone_screen], source: "referral")
+          # Referral: 1 that reached interviewing (uses INTERVIEW_STATUSES, not phone_screen)
+          create_job_through_statuses(user: user, statuses: %w[applied phone_screen interviewing], source: "referral")
 
           # Wishlist jobs should NOT count as applied
           create(:job, :wishlist, user: user, source: "seek")
@@ -332,12 +363,15 @@ RSpec.describe "Analytics API", type: :request do
           expect(perf.find { |s| s["source"] == "referral" }["applied"]).to eq(1)
         end
 
-        it "counts interviews correctly per source using timeline history" do
+        it "counts got_interview using INTERVIEW_STATUSES (interviewing/offer/accepted)" do
           get "/api/v1/analytics", headers: headers
           perf = json_response["source_performance"]
 
+          # Seek: 1 reached interviewing
           expect(perf.find { |s| s["source"] == "seek" }["got_interview"]).to eq(1)
+          # LinkedIn: none reached interviewing
           expect(perf.find { |s| s["source"] == "linkedin" }["got_interview"]).to eq(0)
+          # Referral: 1 reached interviewing
           expect(perf.find { |s| s["source"] == "referral" }["got_interview"]).to eq(1)
         end
 
@@ -367,6 +401,25 @@ RSpec.describe "Analytics API", type: :request do
 
           expect(linkedin["applied"]).to eq(1)
           expect(linkedin["got_interview"]).to eq(1)
+        end
+      end
+
+      context "when a source job only reached phone_screen" do
+        before do
+          create_job_through_statuses(
+            user: user,
+            statuses: %w[applied phone_screen],
+            source: "referral"
+          )
+        end
+
+        it "does not count phone_screen as got_interview" do
+          get "/api/v1/analytics", headers: headers
+          perf = json_response["source_performance"]
+          referral = perf.find { |s| s["source"] == "referral" }
+
+          expect(referral["applied"]).to eq(1)
+          expect(referral["got_interview"]).to eq(0)
         end
       end
     end
@@ -493,6 +546,8 @@ RSpec.describe "Analytics API", type: :request do
             description: "Spoke to recruiter about phone_screen process",
             occurred_at: 5.days.ago)
 
+          # An interview entry with matching metadata — should NOT count
+          # because entry_type is "interview", not "status_change"
           create(:timeline_entry, :interview, job: job,
             description: "Status changed from applied to phone_screen",
             occurred_at: 3.days.ago,
@@ -558,16 +613,77 @@ RSpec.describe "Analytics API", type: :request do
       end
     end
 
-    # ── Metadata in timeline entries ──────────────────────────────────────────
+    # ── Timeline entry business logic ─────────────────────────────────────────
 
-    describe "timeline entry metadata" do
-      it "stores from and to statuses when a job status changes" do
+    describe "timeline entry creation" do
+      it "stores from and to statuses in metadata on status change" do
         job = create(:job, :wishlist, user: user)
         job.update!(status: "applied")
 
         entry = job.timeline_entries.status_change.last
         expect(entry.metadata["from"]).to eq("wishlist")
         expect(entry.metadata["to"]).to eq("applied")
+      end
+
+      it "synthesizes an applied entry when jumping from wishlist past applied" do
+        job = create(:job, :wishlist, user: user)
+        job.update!(status: "interviewing")
+
+        entries = job.timeline_entries.status_change.reorder(occurred_at: :asc, id: :asc)
+        expect(entries.length).to eq(2)
+
+        # First entry: synthetic applied
+        expect(entries.first.metadata["from"]).to eq("wishlist")
+        expect(entries.first.metadata["to"]).to eq("applied")
+
+        # Second entry: actual transition
+        expect(entries.second.metadata["from"]).to eq("applied")
+        expect(entries.second.metadata["to"]).to eq("interviewing")
+      end
+
+      it "creates a single entry for normal wishlist → applied transition" do
+        job = create(:job, :wishlist, user: user)
+        job.update!(status: "applied")
+
+        entries = job.timeline_entries.status_change
+        expect(entries.length).to eq(1)
+        expect(entries.first.metadata["to"]).to eq("applied")
+      end
+
+      it "creates initial timeline entries when a job is created beyond wishlist" do
+        job = create(:job, user: user, status: "interviewing")
+
+        entries = job.timeline_entries.status_change.reorder(occurred_at: :asc, id: :asc)
+
+        expect(entries.length).to eq(2)
+
+        # First: synthetic applied entry
+        expect(entries.first.metadata["to"]).to eq("applied")
+
+        # Second: the created status
+        expect(entries.second.metadata["to"]).to eq("interviewing")
+      end
+
+      it "creates a single entry when a job is created as applied" do
+        job = create(:job, user: user, status: "applied")
+
+        entries = job.timeline_entries.status_change
+        expect(entries.length).to eq(1)
+        expect(entries.first.metadata["to"]).to eq("applied")
+      end
+
+      it "does not create timeline entries for wishlist jobs" do
+        job = create(:job, :wishlist, user: user)
+
+        expect(job.timeline_entries.status_change).to be_empty
+      end
+
+      it "uses date_applied for the applied entry timestamp when present" do
+        applied_date = 10.days.ago.to_date
+        job = create(:job, user: user, status: "applied", date_applied: applied_date)
+
+        entry = job.timeline_entries.status_change.first
+        expect(entry.occurred_at.to_date).to eq(applied_date)
       end
     end
   end

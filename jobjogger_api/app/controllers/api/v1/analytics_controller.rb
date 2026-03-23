@@ -13,6 +13,10 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
 
   private
 
+  APPLIED_STATUSES = %w[applied phone_screen interviewing offer accepted rejected ghosted withdrawn].freeze
+  RESPONSE_STATUSES = %w[phone_screen interviewing offer accepted rejected].freeze
+  INTERVIEW_STATUSES = %w[interviewing offer accepted].freeze
+
   def jobs
     current_user.jobs
   end
@@ -45,18 +49,15 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   # ── Summary stats ─────────────────────────────────────────────────────────────
 
   def summary_stats
-    applied_statuses = %w[applied phone_screen interviewing offer accepted rejected ghosted withdrawn]
-    total_applied = jobs_that_reached(applied_statuses).count
+    total_applied = jobs_that_reached(APPLIED_STATUSES).count
 
-    response_statuses = %w[phone_screen interviewing offer accepted rejected]
-    response_count = jobs_that_reached(response_statuses).count
+    response_count = jobs_that_reached(RESPONSE_STATUSES).count
     response_rate = calculate_percentage(response_count, total_applied)
 
-    interview_statuses = %w[interviewing offer accepted]
-    interview_count = jobs_that_reached(interview_statuses).count
+    interview_count = jobs_that_reached(INTERVIEW_STATUSES).count
     interview_rate = calculate_percentage(interview_count, total_applied)
 
-    avg_days_to_respond = average_days_between_statuses("applied", response_statuses)
+    avg_days_to_respond = average_days_between_statuses("applied", RESPONSE_STATUSES)
 
     {
       total_applied: total_applied,
@@ -96,16 +97,13 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   def source_performance_data
     sources = %w[seek linkedin referral company_site other]
 
-    applied_statuses = %w[applied phone_screen interviewing offer accepted rejected ghosted withdrawn]
-    interview_statuses = %w[phone_screen interviewing offer accepted]
-
     total_by_source = {}
     interview_by_source = {}
 
     sources.each do |source|
       scoped = jobs.where(source: source)
-      total_by_source[source] = jobs_that_reached(applied_statuses, scoped).count
-      interview_by_source[source] = jobs_that_reached(interview_statuses, scoped).count
+      total_by_source[source] = jobs_that_reached(APPLIED_STATUSES, scoped).count
+      interview_by_source[source] = jobs_that_reached(INTERVIEW_STATUSES, scoped).count
     end
 
     sources.map do |source|
