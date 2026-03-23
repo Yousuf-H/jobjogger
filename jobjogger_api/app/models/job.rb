@@ -103,10 +103,12 @@ class Job < ApplicationRecord
   def create_initial_timeline_entry
     return if wishlist?
 
+    timestamp = (applied? && date_applied.present?) ? date_applied.beginning_of_day : created_at
+
     timeline_entries.create!(
       entry_type: "status_change",
       description: "Job created as #{status}",
-      occurred_at: created_at,
+      occurred_at: timestamp,
       metadata: { from: nil, to: status }
     )
   end
