@@ -225,6 +225,14 @@ RSpec.describe Job, type: :model do
       expect(entry.description).to match(/wishlist.*applied/i)
     end
 
+    it "stores from and to statuses in metadata" do
+      job = create(:job, :wishlist)
+      job.update!(status: "applied")
+      entry = job.timeline_entries.status_change.last
+      expect(entry.metadata["from"]).to eq("wishlist")
+      expect(entry.metadata["to"]).to eq("applied")
+    end
+
     it "does not create a timeline entry when status is unchanged" do
       job = create(:job, :wishlist)
       expect { job.update!(notes: "just updating notes") }

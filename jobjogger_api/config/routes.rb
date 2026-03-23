@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users, skip: :all
 
+  # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :api do
@@ -12,6 +13,9 @@ Rails.application.routes.draw do
         post 'users', to: 'users/registrations#create'
       end
 
+      # Analytics
+      resources :analytics, only: [:index]
+
       # Job routes
       resources :jobs, only: [:create, :index, :show, :update, :destroy] do
         member do
@@ -19,9 +23,11 @@ Rails.application.routes.draw do
           patch :unarchive
         end
 
+        # Timeline entries (nested under jobs for creation)
         resources :timeline_entries, only: [:create]
       end
 
+      # Timeline entries (top-level for update/destroy)
       resources :timeline_entries, only: [:update, :destroy]
     end
   end

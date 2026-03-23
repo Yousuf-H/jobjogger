@@ -4,6 +4,9 @@ class Job < ApplicationRecord
 
   TERMINAL_STATUSES = %w[accepted rejected ghosted withdrawn].freeze
 
+  # Pipeline order for detecting skipped stages
+  PIPELINE_ORDER = %w[wishlist applied phone_screen interviewing offer accepted].freeze
+
   enum :status, {
       wishlist: 'wishlist',
       applied: 'applied',
@@ -52,6 +55,7 @@ class Job < ApplicationRecord
 
   before_save :normalise_tags
   before_update :set_date_applied_if_needed
+  after_create_commit :create_initial_timeline_entry
   after_update_commit :auto_create_timeline_entry
 
   def archive!
@@ -63,7 +67,6 @@ class Job < ApplicationRecord
   end
 
   private
-
 
   def valid_url_format
     return if job_url.blank?
@@ -99,13 +102,75 @@ class Job < ApplicationRecord
     self.date_applied = Date.current
   end
 
+  # Called after create — records timeline entries for jobs created beyond wishlist.
+  # Only creates entries for the actual status, plus an applied entry if the job
+  # skipped past applied (since we know it must have been applied at some point).
+  # Does NOT fabricate intermediate stages (phone_screen, interviewing, etc.)
+  # because we don't know when those happened — synthetic timestamps would
+  # pollute the stage duration analytics.
+  def create_initial_timeline_entry
+    return if wishlist?
+
+    timestamp = date_applied.present? ? date_applied.beginning_of_day : created_at
+
+    if applied?
+      # Simple case: job created as applied
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Job created as applied",
+        occurred_at: timestamp,
+        metadata: { from: nil, to: "applied" }
+      )
+    else
+      # Job created beyond applied — create an applied entry first
+      # (we know it must have been applied at some point)
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Job created as applied",
+        occurred_at: timestamp,
+        metadata: { from: nil, to: "applied" }
+      )
+
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Job created as #{status}",
+        occurred_at: timestamp + 1.second,
+        metadata: { from: "applied", to: status }
+      )
+    end
+  end
+
+  # Called after update — records the status change, plus synthesizes an
+  # applied entry if the job jumped from wishlist to a stage beyond applied.
   def auto_create_timeline_entry
     return unless saved_change_to_status?
 
-    self.timeline_entries.create!(
-      entry_type: "status_change",
-      description: "Status changed from #{status_before_last_save} to #{status}",
-      occurred_at: updated_at
-    )
+    from_status = status_before_last_save
+    to_status = status
+
+    # If jumping from wishlist past applied, create an applied entry first
+    # so the analytics can track the application start point
+    if from_status == "wishlist" && to_status != "applied"
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Status changed from wishlist to applied",
+        occurred_at: updated_at,
+        metadata: { from: "wishlist", to: "applied" }
+      )
+
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Status changed from applied to #{to_status}",
+        occurred_at: updated_at + 1.second,
+        metadata: { from: "applied", to: to_status }
+      )
+    else
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Status changed from #{from_status} to #{to_status}",
+        occurred_at: updated_at,
+        metadata: { from: from_status, to: to_status }
+      )
+    end
   end
 end
