@@ -65,7 +65,6 @@ class Job < ApplicationRecord
 
   private
 
-
   def valid_url_format
     return if job_url.blank?
 
@@ -103,14 +102,37 @@ class Job < ApplicationRecord
   def create_initial_timeline_entry
     return if wishlist?
 
-    timestamp = (applied? && date_applied.present?) ? date_applied.beginning_of_day : created_at
+    pipeline = %w[applied phone_screen interviewing offer accepted]
 
-    timeline_entries.create!(
-      entry_type: "status_change",
-      description: "Job created as #{status}",
-      occurred_at: timestamp,
-      metadata: { from: nil, to: status }
-    )
+    current_index = pipeline.index(status)
+    timestamp = date_applied.present? ? date_applied.beginning_of_day : created_at
+
+    if current_index
+      pipeline[0..current_index].each_with_index do |stage, i|
+        previous = i == 0 ? nil : pipeline[i - 1]
+
+        timeline_entries.create!(
+          entry_type: "status_change",
+          description: i == 0 ? "Job created as #{stage}" : "Job imported at #{stage}",
+          occurred_at: timestamp + i.seconds,
+          metadata: { from: previous, to: stage }
+        )
+      end
+    else
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Job created as applied",
+        occurred_at: timestamp,
+        metadata: { from: nil, to: "applied" }
+      )
+
+      timeline_entries.create!(
+        entry_type: "status_change",
+        description: "Job created as #{status}",
+        occurred_at: timestamp + 1.second,
+        metadata: { from: "applied", to: status }
+      )
+    end
   end
 
   def auto_create_timeline_entry
@@ -120,7 +142,7 @@ class Job < ApplicationRecord
       entry_type: "status_change",
       description: "Status changed from #{status_before_last_save} to #{status}",
       occurred_at: updated_at,
-      metadata: { from: status_before_last_save , to: status }
+      metadata: { from: status_before_last_save, to: status }
     )
   end
 end

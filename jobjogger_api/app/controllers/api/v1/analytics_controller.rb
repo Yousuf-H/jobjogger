@@ -45,14 +45,13 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   # ── Summary stats ─────────────────────────────────────────────────────────────
 
   def summary_stats
-    total_applied = jobs.where.not(status: "wishlist").count
+    applied_statuses = %w[applied phone_screen interviewing offer accepted rejected ghosted withdrawn]
+    total_applied = jobs_that_reached(applied_statuses).count
 
-    # Response = jobs that EVER reached any response status (via timeline)
     response_statuses = %w[phone_screen interviewing offer accepted rejected]
     response_count = jobs_that_reached(response_statuses).count
     response_rate = calculate_percentage(response_count, total_applied)
 
-    # Interview = jobs that EVER reached an interview stage (via timeline)
     interview_statuses = %w[interviewing offer accepted]
     interview_count = jobs_that_reached(interview_statuses).count
     interview_rate = calculate_percentage(interview_count, total_applied)
@@ -97,13 +96,15 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   def source_performance_data
     sources = %w[seek linkedin referral company_site other]
 
-    total_by_source = jobs.where.not(status: "wishlist").group(:source).count
-
-    # Count jobs per source that EVER reached an interview stage (via timeline)
+    applied_statuses = %w[applied phone_screen interviewing offer accepted rejected ghosted withdrawn]
     interview_statuses = %w[phone_screen interviewing offer accepted]
+
+    total_by_source = {}
     interview_by_source = {}
+
     sources.each do |source|
       scoped = jobs.where(source: source)
+      total_by_source[source] = jobs_that_reached(applied_statuses, scoped).count
       interview_by_source[source] = jobs_that_reached(interview_statuses, scoped).count
     end
 
