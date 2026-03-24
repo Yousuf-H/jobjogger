@@ -1,8 +1,8 @@
 'use client'
 
+import type { Icon } from '@tabler/icons-react'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import type { Icon } from '@tabler/icons-react'
 
 import {
   SidebarGroup,

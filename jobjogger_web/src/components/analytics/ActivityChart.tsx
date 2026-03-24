@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { Area, AreaChart, XAxis, YAxis, CartesianGrid } from 'recharts'
-import type { ActivityDataPoint } from '@/types/analytic'
+import type { ActivityDataPoint } from '@/types/analytics'
+import { useState } from 'react'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 interface ActivityChartProps {
   weekly: ActivityDataPoint[]

@@ -1,5 +1,5 @@
-import type { ColumnDef } from '@tanstack/react-table'
 import type { Job } from '@/types/job'
+import type { ColumnDef } from '@tanstack/react-table'
 import { ActionsCell } from './ActionsCell'
 
 export const columns = (

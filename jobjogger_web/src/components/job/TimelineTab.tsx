@@ -1,14 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import AddTimelineEntryDialog from '@/components/job/AddTimelineEntryDialog'
+import TimelineHelpDialog from '@/components/job/TimelineHelpDialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import type { TimelineEntry } from '@/types/timelineEntry'
-import { History, Trash2 } from 'lucide-react'
-import AddTimelineEntryDialog from '@/components/job/AddTimelineEntryDialog'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteTimelineEntry } from '@/services/api/timelineEntries'
+import type { TimelineEntry } from '@/types/timelineEntry'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { History, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import TimelineHelpDialog from '@/components/job/TimelineHelpDialog'
 
 interface TimelineTabProps {
   timelineEntries: TimelineEntry[]

@@ -1,10 +1,10 @@
-import { useAnalytics } from '@/hooks/useAnalytics'
-import { SummaryCards } from '@/components/analytics/SummaryCards'
-import { PipelineFunnel } from '@/components/analytics/PipelineFunnel'
 import { ActivityChart } from '@/components/analytics/ActivityChart'
+import { PipelineFunnel } from '@/components/analytics/PipelineFunnel'
 import { SourcePerformance } from '@/components/analytics/SourcePerformance'
 import { StageDurations } from '@/components/analytics/StageDurations'
+import { SummaryCards } from '@/components/analytics/SummaryCards'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 export default function AnalyticsPage() {
   const { data, isLoading, error } = useAnalytics()

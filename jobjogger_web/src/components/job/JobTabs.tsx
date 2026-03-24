@@ -2,9 +2,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { Job } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
-import { TimelineTab } from './TimelineTab'
 import { JobInfoTab } from './JobInfoTab'
 import { NotesTab } from './NotesTab'
+import { TimelineTab } from './TimelineTab'
 
 interface JobTabsProps {
   job: Job

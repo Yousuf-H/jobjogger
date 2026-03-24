@@ -5,8 +5,8 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart'
-import { Bar, BarChart, CartesianGrid, XAxis, LabelList } from 'recharts'
-import type { SourcePerformanceDataPoint } from '@/types/analytic'
+import type { SourcePerformanceDataPoint } from '@/types/analytics'
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from 'recharts'
 
 interface SourcePerformanceProps {
   data: SourcePerformanceDataPoint[]

@@ -4,7 +4,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { Pie, PieChart, Cell } from 'recharts'
+import { Cell, Pie, PieChart } from 'recharts'
 
 interface StatusData {
   status: string

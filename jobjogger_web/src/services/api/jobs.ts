@@ -1,6 +1,6 @@
-import { apiClient } from './client'
 import type { Job, JobFilters } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
+import { apiClient } from './client'
 
 export async function fetchJobs(filters?: JobFilters): Promise<Job[]> {
   const response = await apiClient.get('/jobs', {

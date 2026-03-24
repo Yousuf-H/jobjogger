@@ -1,19 +1,19 @@
+import { ArrowRight, BriefcaseBusiness, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { BriefcaseBusiness, ArrowRight, Sparkles } from 'lucide-react'
 
 import { DataTable } from '@/pages/DashboardPage/DataTable'
 import { columns as createColumns } from '@/pages/DashboardPage/columns'
 import type { Job } from '@/types/job'
 
 import CreateJobDialog from '@/components/job/CreateJobDialog'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 
-import { useJobs } from '@/hooks/useJobs'
-import { useJobActions } from '@/hooks/useJobActions'
 import { StatsCards } from '@/components/dashboard/StatsCards'
 import { StatusChart } from '@/components/dashboard/StatusChart'
+import { useJobActions } from '@/hooks/useJobActions'
+import { useJobs } from '@/hooks/useJobs'
 import { calculateStatusBreakdown } from '@/lib/statsHelpers'
 
 export default function DashboardPage() {

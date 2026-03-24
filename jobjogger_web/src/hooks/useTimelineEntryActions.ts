@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { toast } from 'sonner'
 
+import type { TimelineEntryFormValues } from '@/lib/validations/timelineEntry'
 import {
   createTimelineEntry,
   updateTimelineEntry,
 } from '@/services/api/timelineEntries'
-import type { TimelineEntryFormValues } from '@/lib/validations/timelineEntry'
 
 interface UseTimelineEntryActionsOptions {
   jobId: number

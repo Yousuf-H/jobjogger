@@ -1,6 +1,6 @@
-import { Send, MessageSquareReply, UserCheck, Clock } from 'lucide-react'
-import type { SummaryStats } from '@/types/analytic'
 import StatisticsCard from '@/components/ui/statistics-card'
+import type { SummaryStats } from '@/types/analytics'
+import { Clock, MessageSquareReply, Send, UserCheck } from 'lucide-react'
 
 interface SummaryStatsProps {
   data: SummaryStats

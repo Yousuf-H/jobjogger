@@ -1,16 +1,18 @@
-import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
+import { useNavigate, useParams } from 'react-router-dom'
 
-import { fetchJob } from '@/services/api/jobs'
-import { JobTabs } from '@/components/job/JobTabs'
 import EditJobDialog from '@/components/job/EditJobDialog'
+import { JobTabs } from '@/components/job/JobTabs'
+import { fetchJob } from '@/services/api/jobs'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import type { ElementType, ReactNode } from 'react'
+import { StatusBadge } from '@/components/job/StatusBadge'
+import { useJobActions } from '@/hooks/useJobActions'
+import { ActionsCell } from '@/pages/DashboardPage/ActionsCell'
 import {
   ArrowLeft,
   Clock,
@@ -21,9 +23,7 @@ import {
   Star,
   Tag as TagIcon,
 } from 'lucide-react'
-import { ActionsCell } from '@/pages/DashboardPage/ActionsCell'
-import { useJobActions } from '@/hooks/useJobActions'
-import { StatusBadge } from '@/components/job/StatusBadge'
+import type { ElementType, ReactNode } from 'react'
 
 function normalizeUrl(url: string): string {
   if (!url) return ''

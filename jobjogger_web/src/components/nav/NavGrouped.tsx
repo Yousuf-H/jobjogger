@@ -1,17 +1,19 @@
 'use client'
 
-import { Link } from 'react-router-dom'
 import type { Icon } from '@tabler/icons-react'
+import { Link } from 'react-router-dom'
 
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
-type NavMainProps = {
+type NavGroupedProps = {
+  title: string
   items: {
     title: string
     url: string
@@ -19,9 +21,10 @@ type NavMainProps = {
   }[]
 }
 
-export function NavMain({ items }: NavMainProps) {
+export function NavGrouped({ title, items }: NavGroupedProps) {
   return (
     <SidebarGroup>
+      <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (

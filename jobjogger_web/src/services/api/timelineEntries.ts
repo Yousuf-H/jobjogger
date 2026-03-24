@@ -1,5 +1,5 @@
-import { apiClient } from './client'
 import type { TimelineEntry } from '@/types/timelineEntry'
+import { apiClient } from './client'
 
 export async function createTimelineEntry(
   job_id: number,

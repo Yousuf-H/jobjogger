@@ -1,10 +1,10 @@
-import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { Check, ChevronDown } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
-import { updateJob } from '@/services/api/jobs'
 import { cn } from '@/lib/utils'
+import { updateJob } from '@/services/api/jobs'
 
 import {
   DropdownMenu,

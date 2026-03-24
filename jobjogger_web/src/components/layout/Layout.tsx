@@ -1,4 +1,3 @@
-import { Outlet } from 'react-router-dom'
 import { AppSidebar } from '@/components/layout/AppSidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -6,6 +5,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { Outlet } from 'react-router-dom'
 
 export default function Layout() {
   return (

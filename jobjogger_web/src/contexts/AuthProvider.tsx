@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import type { ReactNode } from 'react'
-import { AuthContext } from './auth'
-import type { User } from './auth'
 import { apiClient } from '@/services/api/client'
+import type { ReactNode } from 'react'
+import { useState } from 'react'
+import type { User } from './AuthContext'
+import { AuthContext } from './AuthContext'
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {

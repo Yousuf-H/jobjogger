@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react'
-import { useJobs } from '@/hooks/useJobs'
+import { JobsToolbar } from '@/components/job/JobsToolbar'
 import { useJobActions } from '@/hooks/useJobActions'
+import { useJobs } from '@/hooks/useJobs'
 import { columns as createColumns } from '@/pages/DashboardPage/columns'
 import { DataTable } from '@/pages/DashboardPage/DataTable'
-import { JobsToolbar } from '@/components/job/JobsToolbar'
-import type { JobFilters, Job } from '@/types/job'
+import type { Job, JobFilters } from '@/types/job'
+import { useCallback, useState } from 'react'
 
 export default function JobsPage() {
   const [filters, setFilters] = useState<JobFilters>({})
