@@ -29,7 +29,7 @@ interface ActionsCellProps {
   onDelete: (id: number) => void
 }
 
-export function ActionsCell({
+export default function ActionsCell({
   jobId,
   isArchived,
   onView,

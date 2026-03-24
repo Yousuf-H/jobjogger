@@ -1,6 +1,6 @@
+import ActionsCell from '@/components/job/ActionsCell'
 import type { Job } from '@/types/job'
 import type { ColumnDef } from '@tanstack/react-table'
-import { ActionsCell } from './ActionsCell'
 
 export const columns = (
   onView: (id: number) => void,

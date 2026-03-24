@@ -1,18 +1,17 @@
-import { useQuery } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import EditJobDialog from '@/components/job/EditJobDialog'
 import { JobTabs } from '@/components/job/JobTabs'
-import { fetchJob } from '@/services/api/jobs'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+import ActionsCell from '@/components/job/ActionsCell'
 import { StatusBadge } from '@/components/job/StatusBadge'
+import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
-import { ActionsCell } from '@/pages/DashboardPage/ActionsCell'
 import {
   ArrowLeft,
   Clock,
@@ -89,10 +88,7 @@ export default function JobDetailPage() {
     },
   })
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['jobs', id],
-    queryFn: () => fetchJob(Number(id)),
-  })
+  const { data, isLoading, error } = useJob(id)
 
   if (isLoading) {
     return <div className="p-8">Loading...</div>

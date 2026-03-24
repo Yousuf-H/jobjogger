@@ -1,8 +1,8 @@
 import { ArrowRight, BriefcaseBusiness, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-import { DataTable } from '@/pages/DashboardPage/DataTable'
-import { columns as createColumns } from '@/pages/DashboardPage/columns'
+import DataTable from '@/components/job/DataTable'
+import { columns as createColumns } from '@/components/job/columns'
 import type { Job } from '@/types/job'
 
 import CreateJobDialog from '@/components/job/CreateJobDialog'
