@@ -1,20 +1,19 @@
-import { ArrowRight, BriefcaseBusiness, Sparkles } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-
+import { StatsCards } from '@/components/dashboard/StatsCards'
+import { StatusChart } from '@/components/dashboard/StatusChart'
+import CreateJobDialog from '@/components/job/CreateJobDialog'
 import DataTable from '@/components/job/DataTable'
 import { columns as createColumns } from '@/components/job/columns'
-import type { Job } from '@/types/job'
-
-import CreateJobDialog from '@/components/job/CreateJobDialog'
+import { PageError } from '@/components/layout/PageError'
+import { PageLoading } from '@/components/layout/PageLoading'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-import { StatsCards } from '@/components/dashboard/StatsCards'
-import { StatusChart } from '@/components/dashboard/StatusChart'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
 import { calculateStatusBreakdown } from '@/lib/statsHelpers'
+import type { Job } from '@/types/job'
+import { ArrowRight, BriefcaseBusiness, Sparkles } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -22,58 +21,12 @@ export default function DashboardPage() {
   const { archiveMutation, unarchiveMutation, deleteMutation, handleView } =
     useJobActions()
 
-  if (isLoading) {
+  if (isLoading) return <PageLoading variant="dashboard" />
+
+  if (error)
     return (
-      <div className="page-container space-y-6">
-        <Card className="border-border/70 overflow-hidden">
-          <CardContent className="p-6">
-            <div className="space-y-3">
-              <div className="bg-muted h-8 w-48 animate-pulse rounded-md" />
-              <div className="bg-muted h-4 w-80 animate-pulse rounded-md" />
-              <div className="bg-muted mt-4 h-10 w-36 animate-pulse rounded-md" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <div className="bg-muted h-4 w-24 animate-pulse rounded" />
-                  <div className="bg-muted h-8 w-16 animate-pulse rounded" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <div className="bg-muted h-6 w-40 animate-pulse rounded" />
-              <div className="bg-muted h-64 w-full animate-pulse rounded-xl" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <PageError title="Could not load dashboard" message={error.message} />
     )
-  }
-
-  if (error) {
-    return (
-      <div className="page-container">
-        <Card className="border-destructive/30 bg-destructive/5">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-semibold">Could not load dashboard</h2>
-            <p className="text-muted-foreground mt-2 text-sm">
-              {error.message}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
 
   const recentJobs = data?.slice(0, 10) || []
 

@@ -1,6 +1,8 @@
 import { columns as createColumns } from '@/components/job/columns'
 import DataTable from '@/components/job/DataTable'
 import { JobsToolbar } from '@/components/job/JobsToolbar'
+import { PageError } from '@/components/layout/PageError'
+import { PageLoading } from '@/components/layout/PageLoading'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
 import type { Job, JobFilters } from '@/types/job'
@@ -26,9 +28,9 @@ export default function JobsPage() {
 
       <div className="mt-4">
         {isLoading ? (
-          <div>Loading...</div>
+          <PageLoading variant="table" />
         ) : error ? (
-          <div>Error: {error.message}</div>
+          <PageError message={error.message} />
         ) : (
           <DataTable
             columns={createColumns(
