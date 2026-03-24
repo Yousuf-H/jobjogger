@@ -1,4 +1,10 @@
-type TimelineEntryType = 'note' | 'contact' | 'interview' | 'assessment' | 'follow_up' | 'status_change'
+export type TimelineEntryType =
+  | 'note'
+  | 'contact'
+  | 'interview'
+  | 'assessment'
+  | 'follow_up'
+  | 'status_change'
 
 export interface TimelineEntry {
   id: number

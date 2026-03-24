@@ -9,15 +9,28 @@ export type JobStatus =
   | 'ghosted'
   | 'withdrawn'
 
-type EmploymentType = 'full_time' | 'part_time' | 'casual' | 'contract'
+export type JobEmploymentType =
+  | 'full_time'
+  | 'part_time'
+  | 'casual'
+  | 'contract'
 
-type JobSource = 'seek' | 'linkedin' | 'referral' | 'company_site' | 'other'
+export type JobSource =
+  | 'seek'
+  | 'linkedin'
+  | 'referral'
+  | 'company_site'
+  | 'other'
 
-type Priority = 'low' | 'medium' | 'high' | null
+export type JobPriority = 'low' | 'medium' | 'high' | null
 
-type Sort = 'created_at' | 'date_applied' | 'follow_up_date' | 'priority'
+export type JobSort =
+  | 'created_at'
+  | 'date_applied'
+  | 'follow_up_date'
+  | 'priority'
 
-type Direction = 'asc' | 'desc'
+export type JobSortDirection = 'asc' | 'desc'
 
 export interface Job {
   id: number
@@ -25,13 +38,13 @@ export interface Job {
   job_title: string
   status: JobStatus
   location?: string
-  employment_type?: EmploymentType
+  employment_type?: JobEmploymentType
   salary_range?: string
   source?: JobSource
   source_other?: string
   job_url?: string
   job_description?: string
-  priority?: Priority
+  priority?: JobPriority
   next_action?: string
   follow_up_date?: string
   notes?: string
@@ -45,13 +58,13 @@ export interface Job {
 export interface JobFilters {
   status?: JobStatus[]
   tags_any?: string[]
-  employment_type?: EmploymentType
-  priority?: Priority[]
+  employment_type?: JobEmploymentType
+  priority?: JobPriority[]
   source?: JobSource[]
   overdue?: boolean
   due_this_week?: boolean
   archived?: boolean
   search?: string
-  sort?: Sort
-  direction?: Direction
+  sort?: JobSort
+  direction?: JobSortDirection
 }
