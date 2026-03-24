@@ -36,7 +36,7 @@ export async function fetchJob(
 }
 
 export async function createJob(data: Partial<Job>): Promise<Job> {
-  const response = await apiClient.post(`/jobs`, { job: data })
+  const response = await apiClient.post('/jobs', { job: data })
 
   return response.data.job
 }
