@@ -1,6 +1,7 @@
 import { NavGrouped } from '@/components/nav/NavGrouped'
 import { NavMain } from '@/components/nav/NavMain'
 import { NavSecondary } from '@/components/nav/NavSecondary'
+import { NavUser } from '@/components/nav/NavUser'
 import {
   Sidebar,
   SidebarContent,
@@ -31,7 +32,6 @@ import {
 } from '@tabler/icons-react'
 import { FaPhoenixFramework } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
-import { NavUser } from '../nav/NavUser'
 
 const data = {
   navMain: [

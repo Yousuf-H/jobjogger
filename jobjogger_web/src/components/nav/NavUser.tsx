@@ -1,5 +1,3 @@
-'use client'
-
 import { IconDotsVertical, IconLogout } from '@tabler/icons-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -19,16 +17,15 @@ import {
 
 import { useSidebar } from '@/hooks/useSidebar'
 
-export function NavUser({
-  user,
-  signout,
-}: {
+interface NavUserProps {
   user: {
     name: string
     email: string
   }
   signout: () => Promise<void>
-}) {
+}
+
+export function NavUser({ user, signout }: NavUserProps) {
   const { isMobile } = useSidebar()
 
   const getInitials = (name: string) => {
@@ -83,7 +80,6 @@ export function NavUser({
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer" onClick={signout}>
               <IconLogout />
