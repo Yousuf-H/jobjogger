@@ -3,8 +3,8 @@ import {
   ChartContainer,
   type ChartConfig,
 } from '@/components/ui/chart'
-import { Bar, BarChart, XAxis, YAxis, Cell, LabelList } from 'recharts'
-import type { FunnelDataPoint } from '@/types/analytic'
+import type { FunnelDataPoint } from '@/types/analytics'
+import { Bar, BarChart, Cell, LabelList, XAxis, YAxis } from 'recharts'
 
 interface PipelineFunnelProps {
   data: FunnelDataPoint[]

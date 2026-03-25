@@ -1,6 +1,4 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { cn } from '@/lib/utils'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Field,
@@ -9,10 +7,12 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/hooks/useAuth'
+import { cn } from '@/lib/utils'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
-export function SignupForm({
+export default function SignupForm({
   className,
   ...props
 }: React.ComponentProps<'form'>) {

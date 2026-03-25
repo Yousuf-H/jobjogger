@@ -1,16 +1,15 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { formatDistanceToNow } from 'date-fns'
-
-import { fetchJob } from '@/services/api/jobs'
-import { JobTabs } from '@/components/job/JobTabs'
+import ActionsCell from '@/components/job/ActionsCell'
 import EditJobDialog from '@/components/job/EditJobDialog'
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { JobTabs } from '@/components/job/JobTabs'
+import { StatusBadge } from '@/components/job/StatusBadge'
+import { PageError } from '@/components/layout/PageError'
+import { PageLoading } from '@/components/layout/PageLoading'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-
-import type { ElementType, ReactNode } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useJob } from '@/hooks/useJob'
+import { useJobActions } from '@/hooks/useJobActions'
+import { formatDistanceToNow } from 'date-fns'
 import {
   ArrowLeft,
   Clock,
@@ -21,9 +20,8 @@ import {
   Star,
   Tag as TagIcon,
 } from 'lucide-react'
-import { ActionsCell } from '@/pages/DashboardPage/ActionsCell'
-import { useJobActions } from '@/hooks/useJobActions'
-import { StatusBadge } from '@/components/job/StatusBadge'
+import type { ElementType, ReactNode } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 function normalizeUrl(url: string): string {
   if (!url) return ''
@@ -89,22 +87,17 @@ export default function JobDetailPage() {
     },
   })
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['jobs', id],
-    queryFn: () => fetchJob(Number(id)),
-  })
+  const { data, isLoading, error } = useJob(id)
 
-  if (isLoading) {
-    return <div className="p-8">Loading...</div>
-  }
-
-  if (error) {
-    return <div className="p-8">Error: {error.message}</div>
-  }
-
-  if (!data?.job) {
-    return <div className="p-8">Job not found</div>
-  }
+  if (isLoading) return <PageLoading variant="detail" />
+  if (error) return <PageError message={error.message} />
+  if (!data?.job)
+    return (
+      <PageError
+        title="Job not found"
+        message="This job may have been deleted."
+      />
+    )
 
   const { job, timeline_entries } = data
 

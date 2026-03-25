@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
 import { archiveJob, deleteJob, unarchiveJob } from '@/services/api/jobs'
-import { toast } from 'sonner'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 interface UseJobActionsOptions {
   onDeleteSuccess?: () => void

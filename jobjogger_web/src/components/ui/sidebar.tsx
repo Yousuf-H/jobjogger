@@ -25,7 +25,7 @@ import {
 import {
   SidebarContext,
   type SidebarContextProps,
-} from '@/contexts/sidebarContext'
+} from '@/contexts/SidebarContext.ts'
 import { useSidebar } from '@/hooks/useSidebar'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'

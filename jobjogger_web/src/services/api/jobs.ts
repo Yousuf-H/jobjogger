@@ -1,6 +1,6 @@
-import { apiClient } from './client'
 import type { Job, JobFilters } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
+import { apiClient } from './client'
 
 export async function fetchJobs(filters?: JobFilters): Promise<Job[]> {
   const response = await apiClient.get('/jobs', {
@@ -36,7 +36,7 @@ export async function fetchJob(
 }
 
 export async function createJob(data: Partial<Job>): Promise<Job> {
-  const response = await apiClient.post(`/jobs`, { job: data })
+  const response = await apiClient.post('/jobs', { job: data })
 
   return response.data.job
 }

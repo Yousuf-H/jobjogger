@@ -3,8 +3,8 @@ import {
   ChartContainer,
   type ChartConfig,
 } from '@/components/ui/chart'
-import { Bar, BarChart, XAxis, YAxis, LabelList } from 'recharts'
-import type { StageDurationDataPoint } from '@/types/analytic'
+import type { StageDurationDataPoint } from '@/types/analytics'
+import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts'
 
 interface StageDurationsProps {
   data: StageDurationDataPoint[]

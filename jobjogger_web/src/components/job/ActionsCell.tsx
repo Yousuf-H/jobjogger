@@ -1,14 +1,3 @@
-import { useState } from 'react'
-import { MoreHorizontal } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +8,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { MoreHorizontal } from 'lucide-react'
+import { useState } from 'react'
 
 interface ActionsCellProps {
   jobId: number
@@ -29,7 +29,7 @@ interface ActionsCellProps {
   onDelete: (id: number) => void
 }
 
-export function ActionsCell({
+export default function ActionsCell({
   jobId,
   isArchived,
   onView,

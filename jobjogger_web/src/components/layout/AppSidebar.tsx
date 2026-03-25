@@ -1,37 +1,37 @@
+import { NavGrouped } from '@/components/nav/NavGrouped'
+import { NavMain } from '@/components/nav/NavMain'
+import { NavSecondary } from '@/components/nav/NavSecondary'
+import { NavUser } from '@/components/nav/NavUser'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarFooter,
 } from '@/components/ui/sidebar'
-import { Link } from 'react-router-dom'
-import { NavUser } from '../nav/nav-user'
 import { useAuth } from '@/hooks/useAuth'
-import { FaPhoenixFramework } from 'react-icons/fa6'
 import {
   IconArchive,
   IconAward,
   IconBellRinging,
+  IconBriefcase,
   IconChartBar,
   IconDashboard,
   IconFileDescription,
   IconFileText,
   IconHelp,
   IconListDetails,
+  IconLogout,
   IconSettings,
   IconTimeline,
   IconUserCheck,
   IconWorld,
-  IconBriefcase,
-  IconLogout,
 } from '@tabler/icons-react'
-import { NavMain } from '@/components/nav/nav-main'
-import { NavGrouped } from '@/components/nav/nav-grouped'
-import { NavSecondary } from '@/components/nav/nav-secondary'
+import { FaPhoenixFramework } from 'react-icons/fa6'
+import { Link } from 'react-router-dom'
 
 const data = {
   navMain: [

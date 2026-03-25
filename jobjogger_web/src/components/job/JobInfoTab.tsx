@@ -1,19 +1,19 @@
-import { Card, CardContent } from '@/components/ui/card'
-import type { Job } from '@/types/job'
-import { Separator } from '@/components/ui/separator'
-import { Button } from '../ui/button'
 import EditJobDialog from '@/components/job/EditJobDialog'
+import { Card, CardContent } from '@/components/ui/card'
+import { Markdown } from '@/components/ui/markdown'
+import { Separator } from '@/components/ui/separator'
+import type { Job } from '@/types/job'
 import {
-  FileText,
   BriefcaseBusiness,
-  DollarSign,
-  Globe,
-  ExternalLink,
   Calendar,
   CalendarClock,
+  DollarSign,
+  ExternalLink,
+  FileText,
+  Globe,
 } from 'lucide-react'
 import type { ElementType, ReactNode } from 'react'
-import { Markdown } from '@/components/ui/markdown'
+import { Button } from '../ui/button'
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString(undefined, {

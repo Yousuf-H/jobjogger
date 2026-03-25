@@ -1,21 +1,21 @@
-import { useState } from 'react'
-import { AxiosError } from 'axios'
+import { JobForm } from '@/components/job/JobForm'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogTrigger,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { JobForm } from '@/components/job/JobForm'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updateJob } from '@/services/api/jobs'
 import type { UpdateJobFormValues } from '@/lib/validations/job'
-import { toast } from 'sonner'
+import { updateJob } from '@/services/api/jobs'
 import type { Job } from '@/types/job'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import type { ReactNode } from 'react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface EditJobDialogProps {
   job: Job

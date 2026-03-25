@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card'
-import { Briefcase, Clock, Calendar, Trophy } from 'lucide-react'
+import { Briefcase, Calendar, Clock, Trophy } from 'lucide-react'
 
 interface StatCardProps {
   title: string

@@ -1,7 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Pencil } from 'lucide-react'
 
 import { useTimelineEntryActions } from '@/hooks/useTimelineEntryActions'
 import {
@@ -10,6 +10,7 @@ import {
 } from '@/lib/validations/timelineEntry'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -17,7 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -26,6 +26,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -34,7 +35,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
 
 interface AddTimelineEntryDialogProps {
   jobId: number
