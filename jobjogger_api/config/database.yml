@@ -21,6 +21,7 @@ test:
 
 production:
   <<: *default
+  url: <%= ENV["DATABASE_URL"] %>
   database: jobjogger_api_production
   username: <%= ENV.fetch("JOBJOGGER_API_DATABASE_USERNAME") { "postgres" } %>
   password: <%= ENV["JOBJOGGER_API_DATABASE_PASSWORD"] %>
