@@ -59,6 +59,7 @@ jobs:
       JOBJOGGER_API_TEST_DATABASE_PASSWORD: postgres
       JOBJOGGER_API_TEST_DATABASE_HOST: localhost
       DEVISE_JWT_SECRET_KEY: test-secret-key-for-ci-only
+      FRONTEND_URL: http://localhost:5173
 
     steps:
       - uses: actions/checkout@v4
