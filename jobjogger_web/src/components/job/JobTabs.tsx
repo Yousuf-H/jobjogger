@@ -1,3 +1,4 @@
+import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { Job } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
@@ -13,24 +14,50 @@ interface JobTabsProps {
 
 export function JobTabs({ job, timelineEntries }: JobTabsProps) {
   return (
-    <Tabs defaultValue="job_info" className="w-full">
-      <TabsList className="w-full justify-start">
-        <TabsTrigger value="job_info">Job Info</TabsTrigger>
-        <TabsTrigger value="notes">Notes</TabsTrigger>
-        <TabsTrigger value="timeline">Timeline</TabsTrigger>
-      </TabsList>
+    <Card className="overflow-hidden border-0 shadow-sm">
+      <Tabs defaultValue="description" className="w-full">
+        <div className="px-6 pt-2">
+          <TabsList className="h-auto w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
+            <TabsTrigger
+              value="description"
+              className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Description
+            </TabsTrigger>
+            <TabsTrigger
+              value="notes"
+              className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Notes
+            </TabsTrigger>
+            <TabsTrigger
+              value="timeline"
+              className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Timeline
+              {timelineEntries.length > 0 && (
+                <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
+                  {timelineEntries.length}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-      <TabsContent value="job_info">
-        <JobInfoTab job={job} />
-      </TabsContent>
+        <div className="p-6">
+          <TabsContent value="description" className="mt-0">
+            <JobInfoTab job={job} />
+          </TabsContent>
 
-      <TabsContent value="notes">
-        <NotesTab job={job} />
-      </TabsContent>
+          <TabsContent value="notes" className="mt-0">
+            <NotesTab job={job} />
+          </TabsContent>
 
-      <TabsContent value="timeline">
-        <TimelineTab timelineEntries={timelineEntries} job={job} />
-      </TabsContent>
-    </Tabs>
+          <TabsContent value="timeline" className="mt-0">
+            <TimelineTab timelineEntries={timelineEntries} job={job} />
+          </TabsContent>
+        </div>
+      </Tabs>
+    </Card>
   )
 }

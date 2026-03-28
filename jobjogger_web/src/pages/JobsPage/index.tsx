@@ -3,12 +3,15 @@ import DataTable from '@/components/job/DataTable'
 import { JobsToolbar } from '@/components/job/JobsToolbar'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
+import { Card } from '@/components/ui/card'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Job, JobFilters } from '@/types/job'
 import { useCallback, useState } from 'react'
 
 export default function JobsPage() {
+  usePageTitle('Jobs')
   const [filters, setFilters] = useState<JobFilters>({})
 
   const handleFiltersChange = useCallback((newFilters: JobFilters) => {
@@ -20,13 +23,20 @@ export default function JobsPage() {
     useJobActions()
 
   return (
-    <div className="page-container">
+    <div className="page-container space-y-4">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Jobs</h1>
+        <p className="text-muted-foreground text-sm">
+          Manage and track all your job applications.
+        </p>
+      </div>
+
       <JobsToolbar
         onFiltersChange={handleFiltersChange}
         resultCount={data?.length || 0}
       />
 
-      <div className="mt-4">
+      <Card className="overflow-hidden border-0 p-4 shadow-sm">
         {isLoading ? (
           <PageLoading variant="table" />
         ) : error ? (
@@ -43,7 +53,7 @@ export default function JobsPage() {
             onRowClick={(row) => handleView((row as Job).id)}
           />
         )}
-      </div>
+      </Card>
     </div>
   )
 }

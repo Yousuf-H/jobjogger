@@ -1,4 +1,5 @@
 import ActionsCell from '@/components/job/ActionsCell'
+import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
 import type { Job } from '@/types/job'
 import type { ColumnDef } from '@tanstack/react-table'
 
@@ -19,6 +20,16 @@ export const columns = (
   {
     accessorKey: 'status',
     header: 'Status',
+    cell: ({ row }) => {
+      const config = getStatusConfig(row.getValue('status'))
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.badgeClass}`}
+        >
+          {config.label}
+        </span>
+      )
+    },
   },
   {
     accessorKey: 'location',
@@ -27,10 +38,42 @@ export const columns = (
   {
     accessorKey: 'priority',
     header: 'Priority',
+    cell: ({ row }) => {
+      const priority = row.getValue('priority') as string
+      if (!priority) return null
+      const config = getPriorityConfig(priority)
+      if (!config) return null
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.badgeClass}`}
+        >
+          {config.label}
+        </span>
+      )
+    },
   },
   {
     accessorKey: 'follow_up_date',
     header: 'Follow Up Date',
+    cell: ({ row }) => {
+      const date = row.getValue('follow_up_date') as string
+      if (!date) return null
+      const formatted = new Date(date).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const [year, month, day] = date.split('-').map(Number)
+      const followUpDay = new Date(year, month - 1, day)
+      const isOverdue = followUpDay < today
+      return (
+        <span className={isOverdue ? 'text-destructive font-medium' : ''}>
+          {formatted}
+        </span>
+      )
+    },
   },
   {
     id: 'actions',

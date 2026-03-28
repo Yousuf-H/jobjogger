@@ -12,6 +12,7 @@ export interface AuthContextType {
   signin: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<void>
   signout: () => Promise<void>
+  updateUser: (user: User) => void
   isLoading: boolean
 }
 

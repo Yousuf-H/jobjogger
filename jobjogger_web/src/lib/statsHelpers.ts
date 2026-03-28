@@ -1,21 +1,10 @@
-import type { Job } from '@/types/job'
+import { STATUS_CONFIG } from '@/lib/statusConfig'
+import type { Job, JobStatus } from '@/types/job'
 
 export interface StatusBreakdown {
   status: string
   count: number
   fill: string
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  wishlist: '#94a3b8', // slate
-  applied: '#f59e0b', // amber/warning
-  phone_screen: '#8b5cf6', // violet
-  interviewing: '#6366f1', // indigo
-  offer: '#10b981', // emerald/success
-  accepted: '#22c55e', // green
-  rejected: '#ef4444', // red/destructive
-  ghosted: '#64748b', // slate-500
-  withdrawn: '#71717a', // zinc-500
 }
 
 export function calculateStatusBreakdown(jobs: Job[]): StatusBreakdown[] {
@@ -41,7 +30,7 @@ export function calculateStatusBreakdown(jobs: Job[]): StatusBreakdown[] {
     .map(([status, count]) => ({
       status,
       count,
-      fill: STATUS_COLORS[status] || '#94a3b8',
+      fill: STATUS_CONFIG[status as JobStatus]?.color ?? '#94a3b8',
     }))
-    .filter((item) => item.count > 0) // Only include statuses with jobs
+    .filter((item) => item.count > 0)
 }

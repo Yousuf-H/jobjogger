@@ -163,7 +163,7 @@ JOBS = [
              salary_range: "$75k - $85k", job_url: "https://www.telstra.com.au/careers",
              tags: ["graduate", "telco"],
              notes: "Withdrew after Redbubble offer.", created_offset: 50 },
-    progression: ["applied", "phone_screen", "withdrawn"], days_between: 7 },
+    progression: ["applied", "phone_screen", "withdrawn"], days_between: 7 }
 ].freeze
 
 # ── Create all jobs ─────────────────────────────────────────────────────────────
@@ -200,18 +200,18 @@ MANUAL_ENTRIES = [
     { entry_type: "contact", description: "Spoke with Sarah about the role and team structure.",
       occurred_at: 25.days.ago, metadata: { contact_name: "Sarah Chen", contact_role: "Recruiter" } },
     { entry_type: "interview", description: "Technical pair programming. Built a small Rails feature.",
-      occurred_at: 15.days.ago, metadata: { interviewer: "Tom Nguyen", format: "video", duration: "90 mins" } },
+      occurred_at: 15.days.ago, metadata: { interviewer: "Tom Nguyen", format: "video", duration: "90 mins" } }
   ] },
   { company: "Carsales", entries: [
     { entry_type: "interview", description: "Final round panel interview with CTO and team lead.",
       occurred_at: 10.days.ago, metadata: { interviewer: "Panel", format: "in-person", duration: "60 mins" } },
     { entry_type: "note", description: "Received verbal offer! Written offer to follow.",
-      occurred_at: 5.days.ago },
+      occurred_at: 5.days.ago }
   ] },
   { company: "Buildkite", entries: [
     { entry_type: "follow_up", description: "Sent follow-up email to check on application status.",
-      occurred_at: 5.days.ago },
-  ] },
+      occurred_at: 5.days.ago }
+  ] }
 ].freeze
 
 MANUAL_ENTRIES.each do |group|

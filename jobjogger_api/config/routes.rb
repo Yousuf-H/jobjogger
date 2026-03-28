@@ -11,6 +11,9 @@ Rails.application.routes.draw do
         post 'users/sign_in', to: 'users/sessions#create'
         delete 'users/sign_out', to: 'users/sessions#destroy'
         post 'users', to: 'users/registrations#create'
+        patch 'users', to: 'users/registrations#update'
+        delete 'users', to: 'users/registrations#destroy'
+        patch 'users/password', to: 'users/registrations#update_password'
       end
 
       # Analytics

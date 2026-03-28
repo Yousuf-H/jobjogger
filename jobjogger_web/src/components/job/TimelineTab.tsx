@@ -2,7 +2,6 @@ import AddTimelineEntryDialog from '@/components/job/AddTimelineEntryDialog'
 import TimelineHelpDialog from '@/components/job/TimelineHelpDialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { deleteTimelineEntry } from '@/services/api/timelineEntries'
 import type { TimelineEntry } from '@/types/timelineEntry'
@@ -40,23 +39,6 @@ function formatDate(date: string) {
     day: 'numeric',
     year: 'numeric',
   })
-}
-
-function EmptyTimelineState() {
-  return (
-    <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center">
-      <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-        <History className="h-6 w-6" />
-      </div>
-
-      <h3 className="text-lg font-semibold">No timeline activity yet</h3>
-
-      <p className="text-muted-foreground mt-2 max-w-md text-sm leading-6">
-        Timeline events will appear here as you track status changes,
-        interviews, recruiter contact, and other job activity.
-      </p>
-    </div>
-  )
 }
 
 function TimelineEntryItem({
@@ -112,7 +94,6 @@ function TimelineEntryItem({
               {formatDate(entry.occurred_at)}
             </span>
 
-            {/* Edit/Delete buttons - only for manual entries */}
             {isManualEntry && (
               <div className="flex gap-1">
                 <AddTimelineEntryDialog
@@ -144,37 +125,35 @@ function TimelineEntryItem({
 
 export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
-        <div className="space-y-1">
-          <CardTitle>Timeline</CardTitle>
-          <p className="text-muted-foreground text-sm">
-            Follow the history of this job application, including updates,
-            conversations, interviews, and important changes.
+    <div className="space-y-4">
+      <div className="flex items-center justify-end gap-2">
+        <TimelineHelpDialog />
+        <AddTimelineEntryDialog jobId={job.id} />
+      </div>
+
+      {timelineEntries.length === 0 ? (
+        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
+          <div className="mb-4 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+            <History className="h-5 w-5" />
+          </div>
+          <h3 className="text-base font-semibold">No timeline activity yet</h3>
+          <p className="text-muted-foreground mt-2 max-w-md text-sm">
+            Timeline events will appear here as you track status changes,
+            interviews, recruiter contact, and other job activity.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <TimelineHelpDialog />
-          <AddTimelineEntryDialog jobId={job.id} />
+      ) : (
+        <div className="space-y-4">
+          {timelineEntries.map((entry, index) => (
+            <TimelineEntryItem
+              key={entry.id}
+              entry={entry}
+              isLast={index === timelineEntries.length - 1}
+              jobId={job.id}
+            />
+          ))}
         </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {timelineEntries.length === 0 ? (
-          <EmptyTimelineState />
-        ) : (
-          <div className="space-y-4">
-            {timelineEntries.map((entry, index) => (
-              <TimelineEntryItem
-                key={entry.id}
-                entry={entry}
-                isLast={index === timelineEntries.length - 1}
-                jobId={job.id}
-              />
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      )}
+    </div>
   )
 }

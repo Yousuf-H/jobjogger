@@ -2,12 +2,12 @@ import CreateJobDialog from '@/components/job/CreateJobDialog'
 import { FacetedFilter } from '@/components/job/FacetedFilter'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { useDebounce } from '@/hooks/useDebounce'
 import type { JobFilters, JobStatus } from '@/types/job'
-import { AlertTriangle, CalendarClock, X } from 'lucide-react'
+import { AlertTriangle, Archive, CalendarClock, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 type Priority = 'low' | 'medium' | 'high'
@@ -44,10 +44,17 @@ interface JobsToolbarProps {
   resultCount: number
 }
 
-export function JobsToolbar({ onFiltersChange, resultCount }: JobsToolbarProps) {
+export function JobsToolbar({
+  onFiltersChange,
+  resultCount,
+}: JobsToolbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedStatuses, setSelectedStatuses] = useState<Set<string>>(new Set())
-  const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(new Set())
+  const [selectedStatuses, setSelectedStatuses] = useState<Set<string>>(
+    new Set()
+  )
+  const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(
+    new Set()
+  )
   const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set())
   const [dueThisWeek, setDueThisWeek] = useState(false)
   const [overdue, setOverdue] = useState(false)
@@ -55,18 +62,33 @@ export function JobsToolbar({ onFiltersChange, resultCount }: JobsToolbarProps) 
 
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  // Build filters object whenever state changes
-  const filters: JobFilters = useMemo(() => ({
-    ...(selectedStatuses.size > 0 && { status: Array.from(selectedStatuses) as JobStatus[] }),
-    ...(selectedPriorities.size > 0 && { priority: Array.from(selectedPriorities) as Priority[] }),
-    ...(selectedSources.size > 0 && { source: Array.from(selectedSources) as JobSource[] }),
-    ...(debouncedSearch && { search: debouncedSearch }),
-    ...(dueThisWeek && { due_this_week: true }),
-    ...(overdue && { overdue: true }),
-    archived: showArchived,
-  }), [selectedStatuses, selectedPriorities, selectedSources, debouncedSearch, dueThisWeek, overdue, showArchived])
+  const filters: JobFilters = useMemo(
+    () => ({
+      ...(selectedStatuses.size > 0 && {
+        status: Array.from(selectedStatuses) as JobStatus[],
+      }),
+      ...(selectedPriorities.size > 0 && {
+        priority: Array.from(selectedPriorities) as Priority[],
+      }),
+      ...(selectedSources.size > 0 && {
+        source: Array.from(selectedSources) as JobSource[],
+      }),
+      ...(debouncedSearch && { search: debouncedSearch }),
+      ...(dueThisWeek && { due_this_week: true }),
+      ...(overdue && { overdue: true }),
+      archived: showArchived,
+    }),
+    [
+      selectedStatuses,
+      selectedPriorities,
+      selectedSources,
+      debouncedSearch,
+      dueThisWeek,
+      overdue,
+      showArchived,
+    ]
+  )
 
-  // Notify parent of filter changes
   useEffect(() => {
     onFiltersChange(filters)
   }, [filters, onFiltersChange])
@@ -144,111 +166,125 @@ export function JobsToolbar({ onFiltersChange, resultCount }: JobsToolbarProps) 
     })
   }
 
+  if (showArchived) {
+    activeChips.push({
+      key: 'archived',
+      label: 'Archived',
+      onRemove: () => setShowArchived(false),
+    })
+  }
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 flex-wrap">
-        <Input
-          placeholder="Search jobs..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-8 w-[200px] lg:w-[280px] text-sm"
-        />
-
-        <FacetedFilter
-          title="Status"
-          options={STATUS_OPTIONS}
-          selected={selectedStatuses}
-          onSelectionChange={setSelectedStatuses}
-        />
-
-        <FacetedFilter
-          title="Priority"
-          options={PRIORITY_OPTIONS}
-          selected={selectedPriorities}
-          onSelectionChange={setSelectedPriorities}
-        />
-
-        <FacetedFilter
-          title="Source"
-          options={SOURCE_OPTIONS}
-          selected={selectedSources}
-          onSelectionChange={setSelectedSources}
-        />
-
-        <Separator orientation="vertical" className="h-5" />
-
-        <Button
-          type='button'
-          variant={dueThisWeek ? 'default' : 'outline'}
-          size="sm"
-          className="h-8 text-xs"
-          onClick={() => setDueThisWeek(!dueThisWeek)}
-        >
-          <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
-          Due this week
-        </Button>
-
-        <Button
-          type='button'
-          variant={overdue ? 'destructive' : 'outline'}
-          size="sm"
-          className="h-8 text-xs"
-          onClick={() => setOverdue(!overdue)}
-        >
-          <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
-          Overdue
-        </Button>
-
-        <div>
-          <CreateJobDialog />
-        </div>
-      </div>
-
-      {activeChips.length > 0 && (
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {activeChips.map((chip) => (
-            <Badge
-              key={chip.key}
-              variant="secondary"
-              className="gap-1 pr-1 text-xs font-normal"
-            >
-              {chip.label}
-              <Button
-                type='button'
-                variant="ghost"
-                size="icon"
-                onClick={chip.onRemove}
-                className="ml-0.5 rounded-full p-0.5 hover:bg-muted-foreground/20 cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </Badge>
-          ))}
-          <Separator orientation="vertical" className="h-4" />
-          <Button
-            type='button'
-            variant="outline"
-            size="sm"
-            onClick={clearAllFilters}
-            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            Clear all
-          </Button>
-        </div>
-      )}
-
-      <div className="flex items-center gap-3">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <Checkbox
-            checked={showArchived}
-            onCheckedChange={(checked) => setShowArchived(!!checked)}
+    <Card className="border-0 shadow-sm">
+      <CardContent className="space-y-3 p-4">
+        {/* Search + filters row */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Search jobs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-8 w-full text-sm sm:w-[200px] lg:w-[280px]"
           />
-          <span className="text-sm text-muted-foreground">Show archived</span>
-        </label>
-        <span className="text-xs text-muted-foreground">
-          {resultCount} {resultCount === 1 ? 'job' : 'jobs'}
-        </span>
-      </div>
-    </div>
+
+          <FacetedFilter
+            title="Status"
+            options={STATUS_OPTIONS}
+            selected={selectedStatuses}
+            onSelectionChange={setSelectedStatuses}
+          />
+
+          <FacetedFilter
+            title="Priority"
+            options={PRIORITY_OPTIONS}
+            selected={selectedPriorities}
+            onSelectionChange={setSelectedPriorities}
+          />
+
+          <FacetedFilter
+            title="Source"
+            options={SOURCE_OPTIONS}
+            selected={selectedSources}
+            onSelectionChange={setSelectedSources}
+          />
+
+          <Separator orientation="vertical" className="hidden h-5 sm:block" />
+
+          <Button
+            type="button"
+            variant={dueThisWeek ? 'default' : 'outline'}
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => setDueThisWeek(!dueThisWeek)}
+          >
+            <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
+            Due this week
+          </Button>
+
+          <Button
+            type="button"
+            variant={overdue ? 'destructive' : 'outline'}
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => setOverdue(!overdue)}
+          >
+            <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
+            Overdue
+          </Button>
+
+          <Button
+            type="button"
+            variant={showArchived ? 'default' : 'outline'}
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => setShowArchived(!showArchived)}
+          >
+            <Archive className="mr-1.5 h-3.5 w-3.5" />
+            Archived
+          </Button>
+
+          <div className="sm:ml-auto">
+            <CreateJobDialog />
+          </div>
+        </div>
+
+        {/* Active filter chips + result count */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-muted-foreground text-xs font-medium">
+            {resultCount} {resultCount === 1 ? 'job' : 'jobs'}
+          </span>
+
+          {activeChips.length > 0 && (
+            <>
+              <Separator orientation="vertical" className="h-4" />
+
+              {activeChips.map((chip) => (
+                <Badge
+                  key={chip.key}
+                  variant="secondary"
+                  className="gap-1 pr-1 text-xs font-normal"
+                >
+                  {chip.label}
+                  <button
+                    type="button"
+                    onClick={chip.onRemove}
+                    className="hover:bg-muted-foreground/20 ml-0.5 cursor-pointer rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="text-muted-foreground hover:text-foreground cursor-pointer text-xs"
+              >
+                Clear all
+              </button>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 }

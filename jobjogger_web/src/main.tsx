@@ -5,16 +5,19 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import { AuthProvider } from './contexts/AuthProvider.tsx'
 import './index.css'
+import { ThemeProvider } from 'next-themes'
 
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-        <Toaster />
-      </AuthProvider>
+       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <AuthProvider>
+          <App />
+          <Toaster />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
 )

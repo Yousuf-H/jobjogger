@@ -1,4 +1,3 @@
-import { NavGrouped } from '@/components/nav/NavGrouped'
 import { NavMain } from '@/components/nav/NavMain'
 import { NavSecondary } from '@/components/nav/NavSecondary'
 import { NavUser } from '@/components/nav/NavUser'
@@ -14,21 +13,11 @@ import {
 } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
 import {
-  IconArchive,
-  IconAward,
-  IconBellRinging,
-  IconBriefcase,
   IconChartBar,
   IconDashboard,
-  IconFileDescription,
-  IconFileText,
-  IconHelp,
   IconListDetails,
   IconLogout,
   IconSettings,
-  IconTimeline,
-  IconUserCheck,
-  IconWorld,
 } from '@tabler/icons-react'
 import { FaPhoenixFramework } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
@@ -37,28 +26,10 @@ const data = {
   navMain: [
     { title: 'Dashboard', url: '/', icon: IconDashboard },
     { title: 'Jobs', url: '/jobs', icon: IconListDetails },
-    { title: 'Follow Ups', url: '#', icon: IconBellRinging },
-    { title: 'Timeline', url: '#', icon: IconTimeline },
     { title: 'Analytics', url: '/analytics', icon: IconChartBar },
   ],
 
-  navJobs: [
-    { title: 'Active Applications', url: '#', icon: IconBriefcase },
-    { title: 'Interviews', url: '#', icon: IconUserCheck },
-    { title: 'Offers', url: '#', icon: IconAward },
-    { title: 'Archived', url: '#', icon: IconArchive },
-  ],
-
-  navTools: [
-    { title: 'Resume Versions', icon: IconFileDescription, url: '#' },
-    { title: 'Cover Letters', icon: IconFileText, url: '#' },
-    { title: 'Job Sources', icon: IconWorld, url: '#' },
-  ],
-
-  navSecondary: [
-    { title: 'Settings', url: '#', icon: IconSettings },
-    { title: 'Help', url: '#', icon: IconHelp },
-  ],
+  navSecondary: [{ title: 'Settings', url: '/settings', icon: IconSettings }],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -87,10 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavGrouped title="Jobs" items={data.navJobs} />
-        <NavGrouped title="Tools" items={data.navTools} />
         <NavSecondary
-          title="Secondary"
           items={data.navSecondary}
           className="mt-auto"
         />

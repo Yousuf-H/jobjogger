@@ -126,7 +126,7 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
     ]
 
     transitions.map do |t|
-      avg_days = average_days_between_statuses(t[:from], [t[:to]])
+      avg_days = average_days_between_statuses(t[:from], [ t[:to] ])
       {
         label: t[:label],
         avg_days: avg_days
@@ -158,7 +158,7 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
     SQL
 
     result = ActiveRecord::Base.connection.exec_query(
-      ActiveRecord::Base.sanitize_sql_array([query, current_user.id, from_status] + to_statuses)
+      ActiveRecord::Base.sanitize_sql_array([ query, current_user.id, from_status ] + to_statuses)
     )
 
     avg = result.rows.first&.first

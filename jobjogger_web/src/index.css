@@ -62,9 +62,9 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.955 0 0);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: oklch(0.995 0.003 280);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -108,27 +108,27 @@
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-accent: oklch(0.95 0.02 250);
+  --sidebar-accent-foreground: oklch(0.35 0.15 250);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Status colours */
-  --status-wishlist: oklch(0.680 0.020 260);
-  --status-applied: oklch(0.620 0.170 255);
-  --status-phone-screen: oklch(0.700 0.155 195);
-  --status-interviewing: oklch(0.700 0.150 55);
-  --status-offer: oklch(0.660 0.170 145);
-  --status-accepted: oklch(0.600 0.180 150);
-  --status-rejected: oklch(0.600 0.170 20);
-  --status-ghosted: oklch(0.550 0.025 260);
-  --status-withdrawn: oklch(0.620 0.130 325);
+  --status-wishlist: oklch(0.68 0.02 260);
+  --status-applied: oklch(0.62 0.17 255);
+  --status-phone-screen: oklch(0.7 0.155 195);
+  --status-interviewing: oklch(0.7 0.15 55);
+  --status-offer: oklch(0.66 0.17 145);
+  --status-accepted: oklch(0.6 0.18 150);
+  --status-rejected: oklch(0.6 0.17 20);
+  --status-ghosted: oklch(0.55 0.025 260);
+  --status-withdrawn: oklch(0.62 0.13 325);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --background: oklch(0.155 0.005 280);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.22 0.005 280);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
@@ -172,21 +172,21 @@
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.25 0.02 250);
+  --sidebar-accent-foreground: oklch(0.85 0.1 250);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 
   /* Status colours */
-  --status-wishlist: oklch(0.750 0.020 260);
-  --status-applied: oklch(0.720 0.140 255);
-  --status-phone-screen: oklch(0.770 0.130 195);
-  --status-interviewing: oklch(0.780 0.130 55);
-  --status-offer: oklch(0.740 0.145 145);
-  --status-accepted: oklch(0.690 0.155 150);
-  --status-rejected: oklch(0.700 0.140 20);
-  --status-ghosted: oklch(0.650 0.020 260);
-  --status-withdrawn: oklch(0.720 0.110 325);
+  --status-wishlist: oklch(0.65 0.025 265);
+  --status-applied: oklch(0.6 0.12 250);
+  --status-phone-screen: oklch(0.65 0.1 200);
+  --status-interviewing: oklch(0.7 0.12 80);
+  --status-offer: oklch(0.65 0.12 160);
+  --status-accepted: oklch(0.6 0.12 155);
+  --status-rejected: oklch(0.6 0.12 25);
+  --status-ghosted: oklch(0.55 0.02 265);
+  --status-withdrawn: oklch(0.6 0.1 300);
 }
 
 @layer base {
