@@ -5,7 +5,37 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { Outlet } from 'react-router-dom'
+import { useSidebar } from '@/hooks/useSidebar'
+import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
+
+function LayoutContent() {
+  const location = useLocation()
+  const { setOpenMobile, isMobile } = useSidebar()
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }, [location.pathname, isMobile, setOpenMobile])
+
+  return (
+    <SidebarInset>
+      <header className="flex h-14 items-center justify-between gap-2 border-b px-4">
+        <div className="flex items-center gap-2">
+          <SidebarTrigger />
+          <Separator
+            orientation="vertical"
+            className="mr-2 data-[orientation=vertical]:h-4"
+          />
+        </div>
+      </header>
+      <main className="flex-1 sm:p-4">
+        <Outlet />
+      </main>
+    </SidebarInset>
+  )
+}
 
 export default function Layout() {
   return (
@@ -18,20 +48,7 @@ export default function Layout() {
       }
     >
       <AppSidebar collapsible="offcanvas" variant="floating" />
-      <SidebarInset>
-        <header className="flex h-14 items-center justify-between gap-2 border-b px-4">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-          </div>
-        </header>
-        <main className="flex-1 sm:p-4">
-          <Outlet />
-        </main>
-      </SidebarInset>
+      <LayoutContent />
     </SidebarProvider>
   )
 }
