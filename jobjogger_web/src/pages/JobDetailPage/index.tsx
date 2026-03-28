@@ -6,28 +6,27 @@ import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
+import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
 import { formatDistanceToNow } from 'date-fns'
 import {
   ArrowLeft,
+  Briefcase,
+  Calendar,
+  CalendarClock,
   Clock,
+  DollarSign,
   ExternalLink,
   Globe,
-  Link as LinkIcon,
   MapPin,
   Star,
   Tag as TagIcon,
 } from 'lucide-react'
-import type { ElementType, ReactNode } from 'react'
+import type { ElementType } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-
-function normalizeUrl(url: string): string {
-  if (!url) return ''
-  if (url.startsWith('http://') || url.startsWith('https://')) return url
-  return `https://${url}`
-}
 
 function formatRelativeDate(dateString?: string | null): string {
   if (!dateString) return 'Not available'
@@ -39,41 +38,52 @@ function formatLabel(value?: string | null): string {
   return value.replaceAll('_', ' ')
 }
 
-interface SnapshotFieldProps {
-  icon: ElementType
-  label: string
-  value?: string | null
-  placeholder: string
-  capitalize?: boolean
-  children?: ReactNode
+function formatDate(dateString?: string | null): string {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }
 
-function SnapshotField({
+function MetaItem({
+  icon: Icon,
+  children,
+}: {
+  icon: ElementType
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex items-center gap-1.5 text-sm">
+      <Icon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+      <span>{children}</span>
+    </div>
+  )
+}
+
+function QuickStat({
   icon: Icon,
   label,
   value,
-  placeholder,
-  capitalize = false,
-  children,
-}: SnapshotFieldProps) {
-  const hasValue = Boolean(value)
-
+  iconClassName,
+}: {
+  icon: ElementType
+  label: string
+  value: string
+  iconClassName?: string
+}) {
   return (
-    <div className="rounded-lg border p-4">
-      <div className="mb-2 flex items-center gap-2">
-        <Icon className="text-muted-foreground h-4 w-4" />
-        <p className="text-muted-foreground text-sm font-medium">{label}</p>
+    <div className="flex items-center gap-3">
+      <div
+        className={`flex size-9 items-center justify-center rounded-lg ${iconClassName ?? 'bg-muted text-muted-foreground'}`}
+      >
+        <Icon className="h-4 w-4" />
       </div>
-
-      {children ? (
-        children
-      ) : hasValue ? (
-        <p className={`font-medium ${capitalize ? 'capitalize' : ''}`}>
-          {value}
-        </p>
-      ) : (
-        <p className="text-muted-foreground text-sm">{placeholder}</p>
-      )}
+      <div>
+        <p className="text-muted-foreground text-xs">{label}</p>
+        <p className="text-sm font-medium">{value}</p>
+      </div>
     </div>
   )
 }
@@ -100,19 +110,21 @@ export default function JobDetailPage() {
     )
 
   const { job, timeline_entries } = data
+  const statusConfig = getStatusConfig(job.status)
+  const priorityConfig = job.priority ? getPriorityConfig(job.priority) : null
 
   return (
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-5xl px-6 py-6">
+        {/* Top bar */}
         <div className="mb-6 flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/jobs')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Jobs
+            Back
           </Button>
 
           <div className="flex items-center gap-2">
             <EditJobDialog job={job} />
-
             <ActionsCell
               jobId={job.id}
               isArchived={Boolean(job.archived_at)}
@@ -123,126 +135,131 @@ export default function JobDetailPage() {
           </div>
         </div>
 
-        <section className="mb-6">
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-3">
+        {/* Header card */}
+        <Card className="mb-6 overflow-hidden border-0 shadow-sm">
+          {/* Status accent bar */}
+          <div
+            className="h-1.5"
+            style={{ backgroundColor: statusConfig.color }}
+          />
+
+          <CardContent className="p-6">
+            {/* Top row: status + priority + meta */}
+            <div className="mb-4 flex flex-wrap items-center gap-3">
               <StatusBadge job={job} />
-
-              <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4" />
-                  <span>Updated {formatRelativeDate(job.updated_at)}</span>
-                </div>
-
-                {job.source ? (
-                  <div className="flex items-center gap-1.5 capitalize">
-                    <Globe className="h-4 w-4" />
-                    <span>{formatLabel(job.source)}</span>
-                  </div>
-                ) : null}
+              {priorityConfig && (
+                <Badge variant="outline" className="gap-1 capitalize">
+                  <Star className="h-3 w-3" />
+                  {priorityConfig.label} priority
+                </Badge>
+              )}
+              <Separator
+                orientation="vertical"
+                className="hidden h-4 sm:block"
+              />
+              <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                <MetaItem icon={Clock}>
+                  Updated {formatRelativeDate(job.updated_at)}
+                </MetaItem>
+                {job.source && (
+                  <MetaItem icon={Globe}>
+                    <span className="capitalize">
+                      {formatLabel(job.source)}
+                    </span>
+                  </MetaItem>
+                )}
               </div>
             </div>
 
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                {job.job_title || 'Untitled role'}
-              </h1>
-              <p className="text-muted-foreground mt-2 text-lg">
-                {job.company_name || 'No company recorded'}
-              </p>
-            </div>
-          </div>
-        </section>
+            {/* Title */}
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              {job.job_title || 'Untitled role'}
+            </h1>
+            <p className="text-muted-foreground mt-1 text-base">
+              {job.company_name || 'No company recorded'}
+            </p>
 
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Job Snapshot</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <SnapshotField
-                icon={MapPin}
-                label="Location"
-                value={job.location}
-                placeholder="No location recorded"
-                capitalize
-              />
-
-              <SnapshotField
-                icon={Star}
-                label="Priority"
-                value={job.priority}
-                placeholder="No priority set"
-                capitalize
-              />
-
-              <SnapshotField
-                icon={Globe}
-                label="Source"
-                value={formatLabel(job.source)}
-                placeholder="No source recorded"
-                capitalize
-              />
-
-              <SnapshotField
-                icon={Clock}
-                label="Last updated"
-                value={formatRelativeDate(job.updated_at)}
-                placeholder="Not available"
-              />
-
-              <SnapshotField
-                icon={LinkIcon}
-                label="Job link"
-                value={job.job_url}
-                placeholder="No job link saved"
-              >
-                {job.job_url ? (
-                  <Button variant="outline" size="sm" asChild>
+            {/* Quick stats row */}
+            <div className="mt-6 flex flex-wrap gap-6 border-t pt-5">
+              {job.location && (
+                <QuickStat
+                  icon={MapPin}
+                  label="Location"
+                  value={job.location}
+                  iconClassName="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
+                />
+              )}
+              {job.employment_type && (
+                <QuickStat
+                  icon={Briefcase}
+                  label="Type"
+                  value={formatLabel(job.employment_type)}
+                  iconClassName="bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300"
+                />
+              )}
+              {job.salary_range && (
+                <QuickStat
+                  icon={DollarSign}
+                  label="Salary"
+                  value={job.salary_range}
+                  iconClassName="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300"
+                />
+              )}
+              {job.date_applied && (
+                <QuickStat
+                  icon={Calendar}
+                  label="Applied"
+                  value={formatDate(job.date_applied)}
+                  iconClassName="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300"
+                />
+              )}
+              {job.follow_up_date && (
+                <QuickStat
+                  icon={CalendarClock}
+                  label="Follow up"
+                  value={formatDate(job.follow_up_date)}
+                  iconClassName="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300"
+                />
+              )}
+              {job.job_url && (
+                <div className="flex items-center gap-3">
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300">
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Posting</p>
                     <a
-                      href={normalizeUrl(job.job_url)}
+                      href={
+                        job.job_url.startsWith('http')
+                          ? job.job_url
+                          : `https://${job.job_url}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="text-sm font-medium text-sky-600 hover:underline dark:text-sky-400"
                     >
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      View job posting
+                      View original
                     </a>
-                  </Button>
-                ) : (
-                  <p className="text-muted-foreground text-sm">
-                    No job link saved
-                  </p>
-                )}
-              </SnapshotField>
-
-              <SnapshotField
-                icon={TagIcon}
-                label="Tags"
-                placeholder="No tags added yet"
-              >
-                {job.tags && job.tags.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {job.tags.map((tag: string, index: number) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="capitalize"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
                   </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm">
-                    No tags added yet
-                  </p>
-                )}
-              </SnapshotField>
+                </div>
+              )}
             </div>
+
+            {/* Tags */}
+            {job.tags && job.tags.length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-4">
+                <TagIcon className="text-muted-foreground h-3.5 w-3.5" />
+                {job.tags.map((tag: string, index: number) => (
+                  <Badge key={index} variant="secondary" className="capitalize">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* Tabs */}
         <section>
           <JobTabs job={job} timelineEntries={timeline_entries || []} />
         </section>

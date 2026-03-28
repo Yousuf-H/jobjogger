@@ -7,11 +7,10 @@ import type { Job } from '@/types/job'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Markdown } from '@/components/ui/markdown'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { Edit3, Eye, Save } from 'lucide-react'
+import { Edit3, Eye, PenLine, Save } from 'lucide-react'
 
 interface NotesTabProps {
   job: Job
@@ -19,10 +18,11 @@ interface NotesTabProps {
 
 export function NotesTab({ job }: NotesTabProps) {
   const [notes, setNotes] = useState(job.notes || '')
-  const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write')
+  const [activeTab, setActiveTab] = useState<'write' | 'preview'>('preview')
   const queryClient = useQueryClient()
 
   const hasChanges = notes !== (job.notes || '')
+  const hasNotes = Boolean(notes.trim())
 
   const saveMutation = useMutation({
     mutationFn: (newNotes: string) => updateJob(job.id, { notes: newNotes }),
@@ -44,102 +44,84 @@ export function NotesTab({ job }: NotesTabProps) {
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">Notes</h3>
-              {hasChanges && (
-                <Badge variant="secondary" className="text-xs">
-                  Unsaved changes
-                </Badge>
-              )}
-            </div>
-
-            {hasChanges && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDiscard}
-                  disabled={saveMutation.isPending}
-                >
-                  Discard
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={saveMutation.isPending}
-                  variant="success"
-                >
-                  <Save className="h-4 w-4" />
-                  {saveMutation.isPending ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Add this description */}
-          <div className="text-muted-foreground space-y-2 text-sm">
-            <p>
-              Keep interview prep, recruiter context, follow-up reminders, and
-              anything else worth remembering. Markdown is supported.
-            </p>
-            <div className="bg-muted/50 flex flex-wrap gap-4 rounded-md p-2 font-mono text-xs">
-              <span># Heading</span>
-              <span>**bold**</span>
-              <span>*italic*</span>
-              <span>- list item</span>
-              <span>[link](url)</span>
-            </div>
-          </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {hasChanges && (
+            <Badge variant="secondary" className="text-xs">
+              Unsaved changes
+            </Badge>
+          )}
         </div>
-      </CardHeader>
 
-      <CardContent>
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) => setActiveTab(v as 'write' | 'preview')}
-        >
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="write" className="gap-2">
-              <Edit3 className="h-4 w-4" />
-              Write
-            </TabsTrigger>
-            <TabsTrigger value="preview" className="gap-2">
-              <Eye className="h-4 w-4" />
-              Preview
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex items-center gap-2">
+          {hasChanges && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDiscard}
+                disabled={saveMutation.isPending}
+              >
+                Discard
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={saveMutation.isPending}
+                variant="success"
+              >
+                <Save className="h-4 w-4" />
+                {saveMutation.isPending ? 'Saving...' : 'Save'}
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
 
-          <TabsContent value="write" className="mt-4">
-            <Textarea
-              placeholder="Add notes about this job application..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="min-h-[400px] resize-y font-mono text-sm"
-            />
-            <p className="text-muted-foreground mt-2 text-xs">
-              Supports Markdown formatting
-            </p>
-          </TabsContent>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as 'write' | 'preview')}
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="preview" className="gap-2">
+            <Eye className="h-4 w-4" />
+            Preview
+          </TabsTrigger>
+          <TabsTrigger value="write" className="gap-2">
+            <Edit3 className="h-4 w-4" />
+            Write
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="preview" className="mt-4">
-            {notes ? (
-              <div className="prose prose-sm dark:prose-invert min-h-[400px] max-w-none rounded-md border p-4">
-                <Markdown>{notes}</Markdown>
+        <TabsContent value="preview" className="mt-4">
+          {hasNotes ? (
+            <div className="prose prose-sm dark:prose-invert max-w-none">
+              <Markdown>{notes}</Markdown>
+            </div>
+          ) : (
+            <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
+              <div className="mb-4 rounded-full bg-amber-100 p-3 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300">
+                <PenLine className="h-5 w-5" />
               </div>
-            ) : (
-              <div className="flex min-h-[400px] items-center justify-center rounded-md border border-dashed p-8">
-                <p className="text-muted-foreground text-sm">
-                  No notes yet. Switch to the Write tab to add notes.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+              <h3 className="text-base font-semibold">No notes yet</h3>
+              <p className="text-muted-foreground mt-2 max-w-md text-sm">
+                Switch to Write to add interview prep, recruiter context, or
+                anything worth remembering. Markdown is supported.
+              </p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="write" className="mt-4">
+          <Textarea
+            placeholder="Add notes about this job application..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="min-h-[300px] resize-y font-mono text-sm"
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
   )
 }
