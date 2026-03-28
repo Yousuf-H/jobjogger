@@ -93,9 +93,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser)
+    localStorage.setItem('user', JSON.stringify(updatedUser))
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, token, signin, signup, signout, isLoading }}
+      value={{ user, token, signin, signup, signout, updateUser, isLoading }}
     >
       {children}
     </AuthContext.Provider>
