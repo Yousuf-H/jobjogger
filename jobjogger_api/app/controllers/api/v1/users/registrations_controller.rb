@@ -54,7 +54,10 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def update_password
-    if current_user.valid_password?(params[:user][:current_password])
+    current_password = params.dig(:user, :current_password)
+    return render json: { status: { message: 'Missing required parameters.' } }, status: :bad_request if current_password.nil?
+
+    if current_user.valid_password?(current_password)
       if current_user.update(password_params)
         render json: {
           status: { code: 200, message: 'Password updated successfully.' }
@@ -74,7 +77,10 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def destroy
-    if current_user.valid_password?(params[:user][:password])
+    password = params.dig(:user, :password)
+    return render json: { status: { message: 'Missing required parameters.' } }, status: :bad_request if password.nil?
+
+    if current_user.valid_password?(password)
       current_user.destroy
       render json: {
         status: { code: 200, message: 'Account deleted successfully.' }
