@@ -1,7 +1,9 @@
 import SigninForm from '@/components/user/SigninForm'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { Award, BarChart3, Briefcase, TrendingUp } from 'lucide-react'
 
 export default function SigninPage() {
+  usePageTitle('Sign in')
   return (
     <div className="grid min-h-svh lg:grid-cols-5">
       <div className="bg-primary relative hidden overflow-hidden lg:col-span-2 lg:flex lg:flex-col">

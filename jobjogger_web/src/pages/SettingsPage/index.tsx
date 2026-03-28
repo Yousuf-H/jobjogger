@@ -15,6 +15,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { cn } from '@/lib/utils'
 import {
   deleteAccount,
@@ -74,6 +75,7 @@ function ThemeOption({
 }
 
 export default function SettingsPage() {
+  usePageTitle('Settings')
   const { theme, setTheme } = useTheme()
   const { user, updateUser, signout } = useAuth()
   const navigate = useNavigate()

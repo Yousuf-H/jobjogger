@@ -1,7 +1,9 @@
 import SignupForm from '@/components/user/SignupForm'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { Briefcase, CheckCircle2 } from 'lucide-react'
 
 export default function SignupPage() {
+  usePageTitle('Sign up')
   const benefits = [
     'Track unlimited job applications',
     'Monitor your response and interview rates',

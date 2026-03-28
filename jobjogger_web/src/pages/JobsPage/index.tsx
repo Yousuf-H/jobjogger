@@ -6,10 +6,12 @@ import { PageLoading } from '@/components/layout/PageLoading'
 import { Card } from '@/components/ui/card'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Job, JobFilters } from '@/types/job'
 import { useCallback, useState } from 'react'
 
 export default function JobsPage() {
+  usePageTitle('Jobs')
   const [filters, setFilters] = useState<JobFilters>({})
 
   const handleFiltersChange = useCallback((newFilters: JobFilters) => {
@@ -34,7 +36,7 @@ export default function JobsPage() {
         resultCount={data?.length || 0}
       />
 
-      <Card className="overflow-hidden border-0 shadow-sm p-4">
+      <Card className="overflow-hidden border-0 p-4 shadow-sm">
         {isLoading ? (
           <PageLoading variant="table" />
         ) : error ? (

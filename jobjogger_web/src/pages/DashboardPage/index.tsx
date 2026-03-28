@@ -11,12 +11,14 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import { useAuth } from '@/hooks/useAuth'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { calculateStatusBreakdown } from '@/lib/statsHelpers'
 import type { Job } from '@/types/job'
 import { ArrowRight, BriefcaseBusiness } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function DashboardPage() {
+  usePageTitle('Dashboard')
   const navigate = useNavigate()
   const { user } = useAuth()
   const { data, isLoading, error } = useJobs()

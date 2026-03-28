@@ -6,8 +6,10 @@ import { SummaryCards } from '@/components/analytics/SummaryCards'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function AnalyticsPage() {
+  usePageTitle('Analytics')
   const { data, isLoading, error } = useAnalytics()
 
   if (error)

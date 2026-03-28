@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
 import { formatDistanceToNow } from 'date-fns'
 import {
@@ -99,9 +100,14 @@ export default function JobDetailPage() {
 
   const { data, isLoading, error } = useJob(id)
 
+  const job = data?.job
+  usePageTitle(
+    job?.job_title ? `${job.job_title} — ${job.company_name}` : 'Job Detail'
+  )
+
   if (isLoading) return <PageLoading variant="detail" />
   if (error) return <PageError message={error.message} />
-  if (!data?.job)
+  if (!job)
     return (
       <PageError
         title="Job not found"
@@ -109,7 +115,7 @@ export default function JobDetailPage() {
       />
     )
 
-  const { job, timeline_entries } = data
+  const { timeline_entries } = data!
   const statusConfig = getStatusConfig(job.status)
   const priorityConfig = job.priority ? getPriorityConfig(job.priority) : null
 
