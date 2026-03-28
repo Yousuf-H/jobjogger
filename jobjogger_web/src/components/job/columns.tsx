@@ -55,6 +55,21 @@ export const columns = (
   {
     accessorKey: 'follow_up_date',
     header: 'Follow Up Date',
+    cell: ({ row }) => {
+      const date = row.getValue('follow_up_date') as string
+      if (!date) return null
+      const formatted = new Date(date).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+      const isOverdue = new Date(date) < new Date()
+      return (
+        <span className={isOverdue ? 'text-destructive font-medium' : ''}>
+          {formatted}
+        </span>
+      )
+    },
   },
   {
     id: 'actions',
