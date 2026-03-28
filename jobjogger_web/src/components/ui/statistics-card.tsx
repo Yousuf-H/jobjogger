@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import type { ReactNode } from 'react'
 
 type StatisticsCardProps = {
   icon: ReactNode
@@ -8,24 +7,60 @@ type StatisticsCardProps = {
   title: string
   subtitle?: string
   className?: string
+  iconClassName?: string
+  cardClassName?: string
+  textClassName?: string
 }
 
-const StatisticsCard = ({ icon, value, title, subtitle, className }: StatisticsCardProps) => {
+const StatisticsCard = ({
+  icon,
+  value,
+  title,
+  subtitle,
+  className,
+  iconClassName,
+  cardClassName,
+  textClassName,
+}: StatisticsCardProps) => {
   return (
-    <Card className={cn('gap-3', className)}>
-      <CardHeader className='flex items-center gap-3 flex-row'>
-        <div className='bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-md lg:size-10'>
+    <div
+      className={cn(
+        'flex flex-col gap-3 rounded-xl p-4 lg:p-5',
+        cardClassName ?? 'bg-card border',
+        className
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className={cn(
+            'flex size-9 shrink-0 items-center justify-center rounded-full lg:size-11',
+            iconClassName ?? 'bg-primary/10 text-primary'
+          )}
+        >
           {icon}
         </div>
-        <span className='items-center justify-center text-lg font-medium lg:text-2xl'>{value}</span>
-      </CardHeader>
-      <CardContent className='flex flex-col gap-1'>
-        <span className='text-sm font-semibold lg:text-base'>{title}</span>
+        <span className={cn('text-lg font-bold lg:text-2xl', textClassName)}>
+          {value}
+        </span>
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <span
+          className={cn('text-sm font-semibold lg:text-base', textClassName)}
+        >
+          {title}
+        </span>
         {subtitle && (
-          <span className='text-muted-foreground text-xs lg:text-sm'>{subtitle}</span>
+          <span
+            className={cn(
+              'text-xs lg:text-sm',
+              textClassName ? 'opacity-70' : 'text-muted-foreground'
+            )}
+          >
+            {subtitle}
+          </span>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
