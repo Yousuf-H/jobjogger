@@ -34,9 +34,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(data.status.user)
         localStorage.setItem('auth_token', authToken)
         localStorage.setItem('user', JSON.stringify(data.status.user))
+      } else {
+        throw new Error('Invalid email or password.')
       }
-    } catch (err: unknown) {
-      throw new Error((err as Error).message || 'Signin failed')
     } finally {
       setIsLoading(false)
     }
@@ -65,12 +65,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(data.data)
         localStorage.setItem('auth_token', authToken)
         localStorage.setItem('user', JSON.stringify(data.data))
+      } else {
+        throw new Error('Signup failed. Please try again.')
       }
-    } catch (err: unknown) {
-      const errorMessage =
-        (err as { response?: { data?: { status?: { message?: string } } } })
-          .response?.data?.status?.message || 'Signup failed'
-      throw new Error(errorMessage)
     } finally {
       setIsLoading(false)
     }

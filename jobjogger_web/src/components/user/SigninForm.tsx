@@ -25,11 +25,21 @@ export default function SigninForm({
       await signin(email, password)
       navigate('/')
     } catch (err: unknown) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Invalid email or password. Please try again.'
-      )
+      const axiosError = err as {
+        response?: { status?: number; data?: { error?: string } }
+      }
+
+      if (axiosError.response?.status === 401) {
+        setError('Invalid email or password. Please try again.')
+      } else if (axiosError.response?.data?.error) {
+        setError(axiosError.response.data.error)
+      } else if (!navigator.onLine) {
+        setError(
+          'You appear to be offline. Check your connection and try again.'
+        )
+      } else {
+        setError('Something went wrong. Please try again later.')
+      }
     }
   }
 
@@ -39,31 +49,34 @@ export default function SigninForm({
       onSubmit={handleSubmit}
       {...props}
     >
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Signin to your account</h1>
-        <p className="text-muted-foreground text-balance text-sm">
-          Enter your email below to signin to your account
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
+        <p className="text-muted-foreground text-sm">
+          Enter your credentials to access your account
         </p>
       </div>
-      <div className="grid gap-6">
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
 
-        <div className="grid gap-2">
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-4">
+        <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
-            placeholder="demo@jobjogger.com"
+            placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
           />
         </div>
-        <div className="grid gap-2">
+
+        <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
@@ -72,18 +85,21 @@ export default function SigninForm({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="current-password"
           />
         </div>
+
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Signing in...' : 'Signin'}
+          {isLoading ? 'Signing in...' : 'Sign in'}
         </Button>
       </div>
-      <div className="text-center text-sm">
+
+      <p className="text-muted-foreground text-center text-sm">
         Don&apos;t have an account?{' '}
-        <Link to="/signup" className="underline underline-offset-4">
-          Sign up
+        <Link to="/signup" className="text-primary font-medium hover:underline">
+          Create one
         </Link>
-      </div>
+      </p>
     </form>
   )
 }

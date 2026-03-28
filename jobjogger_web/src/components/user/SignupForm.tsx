@@ -1,12 +1,7 @@
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -28,14 +23,13 @@ export default function SignupForm({
     e.preventDefault()
     setError('')
 
-    // Validation
     if (!name.trim()) {
       setError('Name is required')
       return
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long')
+      setError('Password must be at least 6 characters')
       return
     }
 
@@ -48,9 +42,20 @@ export default function SignupForm({
       await signup(email, password, name)
       navigate('/jobs')
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'Signup failed. Please try again.'
-      )
+      const axiosError = err as {
+        response?: { data?: { status?: { message?: string } } }
+      }
+      const message = axiosError.response?.data?.status?.message
+
+      if (!navigator.onLine) {
+        setError(
+          'You appear to be offline. Check your connection and try again.'
+        )
+      } else if (message) {
+        setError(message)
+      } else {
+        setError('Something went wrong. Please try again later.')
+      }
     }
   }
 
@@ -60,34 +65,35 @@ export default function SignupForm({
       onSubmit={handleSubmit}
       {...props}
     >
-      <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-muted-foreground text-balance text-sm">
-            Fill in the form below to create your account
-          </p>
-        </div>
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
+        <p className="text-muted-foreground text-sm">
+          Get started with JobJogger for free
+        </p>
+      </div>
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-        <Field>
-          <FieldLabel htmlFor="name">Full Name</FieldLabel>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Full name</Label>
           <Input
             id="name"
             type="text"
-            placeholder="John Smith"
+            placeholder="Joseph Tesfa"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            autoComplete="name"
           />
-        </Field>
+        </div>
 
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
@@ -95,55 +101,51 @@ export default function SignupForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
           />
-          <FieldDescription>
-            We&apos;ll use this to contact you. We will not share your email
-            with anyone else.
-          </FieldDescription>
-        </Field>
+        </div>
 
-        <Field>
-          <FieldLabel htmlFor="password">Password</FieldLabel>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
+            autoComplete="new-password"
           />
-          <FieldDescription>
-            Must be at least 6 characters long.
-          </FieldDescription>
-        </Field>
+          <p className="text-muted-foreground text-xs">
+            Must be at least 6 characters
+          </p>
+        </div>
 
-        <Field>
-          <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
+        <div className="space-y-2">
+          <Label htmlFor="confirm-password">Confirm password</Label>
           <Input
             id="confirm-password"
             type="password"
+            placeholder="••••••••"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            autoComplete="new-password"
           />
-          <FieldDescription>Please confirm your password.</FieldDescription>
-        </Field>
+        </div>
 
-        <Field>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Create Account'}
-          </Button>
-        </Field>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? 'Creating account...' : 'Create account'}
+        </Button>
+      </div>
 
-        <Field>
-          <FieldDescription className="px-6 text-center">
-            Already have an account?{' '}
-            <Link to="/signin" className="underline underline-offset-4">
-              Sign in
-            </Link>
-          </FieldDescription>
-        </Field>
-      </FieldGroup>
+      <p className="text-muted-foreground text-center text-sm">
+        Already have an account?{' '}
+        <Link to="/signin" className="text-primary font-medium hover:underline">
+          Sign in
+        </Link>
+      </p>
     </form>
   )
 }
