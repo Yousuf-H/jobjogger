@@ -63,7 +63,11 @@ export const columns = (
         day: 'numeric',
         year: 'numeric',
       })
-      const isOverdue = new Date(date) < new Date()
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const [year, month, day] = date.split('-').map(Number)
+      const followUpDay = new Date(year, month - 1, day)
+      const isOverdue = followUpDay < today
       return (
         <span className={isOverdue ? 'text-destructive font-medium' : ''}>
           {formatted}
