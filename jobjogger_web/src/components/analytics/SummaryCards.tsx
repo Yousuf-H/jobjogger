@@ -13,7 +13,8 @@ export function SummaryCards({ data }: SummaryStatsProps) {
       value: String(data.total_applied),
       icon: <Rocket className="h-4 w-4 lg:h-5 lg:w-5" />,
       subtitle: 'Applications sent',
-      cardClassName: 'bg-purple-100 dark:bg-purple-950/30',
+      cardClassName:
+        'bg-purple-100 border border-purple-200/50 dark:bg-purple-950/30 dark:border-purple-800/30',
       iconClassName:
         'bg-white text-purple-500 dark:bg-purple-900/50 dark:text-purple-300 shadow-sm',
       textClassName: 'text-purple-700 dark:text-purple-300',
@@ -23,7 +24,8 @@ export function SummaryCards({ data }: SummaryStatsProps) {
       value: `${data.response_rate}%`,
       icon: <TrendingUp className="h-4 w-4 lg:h-5 lg:w-5" />,
       subtitle: 'Got a reply back',
-      cardClassName: 'bg-pink-100 dark:bg-pink-950/30',
+      cardClassName:
+        'bg-pink-100 border border-pink-200/50 dark:bg-pink-950/30 dark:border-pink-800/30',
       iconClassName:
         'bg-white text-pink-500 dark:bg-pink-900/50 dark:text-pink-300 shadow-sm',
       textClassName: 'text-pink-700 dark:text-pink-300',
@@ -33,7 +35,8 @@ export function SummaryCards({ data }: SummaryStatsProps) {
       value: `${data.interview_rate}%`,
       icon: <Award className="h-4 w-4 lg:h-5 lg:w-5" />,
       subtitle: 'Made it to interview',
-      cardClassName: 'bg-sky-100 dark:bg-sky-950/30',
+      cardClassName:
+        'bg-sky-100 border border-sky-200/50 dark:bg-sky-950/30 dark:border-sky-800/30',
       iconClassName:
         'bg-white text-sky-500 dark:bg-sky-900/50 dark:text-sky-300 shadow-sm',
       textClassName: 'text-sky-700 dark:text-sky-300',
@@ -46,7 +49,8 @@ export function SummaryCards({ data }: SummaryStatsProps) {
           : '—',
       icon: <Timer className="h-4 w-4 lg:h-5 lg:w-5" />,
       subtitle: 'Time to first reply',
-      cardClassName: 'bg-violet-100 dark:bg-violet-950/30',
+      cardClassName:
+        'bg-violet-100 border border-violet-200/50 dark:bg-violet-950/30 dark:border-violet-800/30',
       iconClassName:
         'bg-white text-violet-500 dark:bg-violet-900/50 dark:text-violet-300 shadow-sm',
       textClassName: 'text-violet-700 dark:text-violet-300',
