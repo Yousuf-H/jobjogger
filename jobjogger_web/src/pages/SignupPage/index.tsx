@@ -1,4 +1,5 @@
 import SignupForm from '@/components/user/SignupForm'
+import { TypographyH2 } from '@/components/ui/typography'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { Briefcase, CheckCircle2 } from 'lucide-react'
 
@@ -29,11 +30,11 @@ export default function SignupPage() {
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <h2 className="text-primary-foreground text-3xl font-bold leading-tight">
+              <TypographyH2 className="text-primary-foreground text-3xl font-bold leading-tight border-0 pb-0">
                 Your job search,
                 <br />
                 finally organised.
-              </h2>
+              </TypographyH2>
               <p className="text-primary-foreground/60 max-w-sm text-sm leading-relaxed">
                 Join JobJogger to stay on top of every application, interview,
                 and follow-up — all in one place.

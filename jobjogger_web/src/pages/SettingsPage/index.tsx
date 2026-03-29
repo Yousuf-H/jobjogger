@@ -23,6 +23,7 @@ import {
   updateProfile,
 } from '@/services/api/user'
 import { Monitor, Moon, Save, Sun } from 'lucide-react'
+import { TypographyH1, TypographyH2 } from '@/components/ui/typography'
 import { useTheme } from 'next-themes'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -184,7 +185,7 @@ export default function SettingsPage() {
   return (
     <div className="page-container space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+        <TypographyH1 className="text-2xl font-bold tracking-tight">Settings</TypographyH1>
         <p className="text-muted-foreground text-sm">
           Manage your account and preferences.
         </p>
@@ -194,7 +195,7 @@ export default function SettingsPage() {
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6">
           <div className="mb-6">
-            <h2 className="text-lg font-semibold">Appearance</h2>
+            <TypographyH2 className="text-lg font-semibold border-0 pb-0">Appearance</TypographyH2>
             <p className="text-muted-foreground text-sm">
               Choose how JobJogger looks for you.
             </p>
@@ -235,7 +236,7 @@ export default function SettingsPage() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-6">
             <div className="mb-6">
-              <h2 className="text-lg font-semibold">Profile</h2>
+              <TypographyH2 className="text-lg font-semibold border-0 pb-0">Profile</TypographyH2>
               <p className="text-muted-foreground text-sm">
                 Update your personal information.
               </p>
@@ -285,7 +286,7 @@ export default function SettingsPage() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-6">
             <div className="mb-6">
-              <h2 className="text-lg font-semibold">Change password</h2>
+              <TypographyH2 className="text-lg font-semibold border-0 pb-0">Change password</TypographyH2>
               <p className="text-muted-foreground text-sm">
                 Update your password to keep your account secure.
               </p>
@@ -361,9 +362,9 @@ export default function SettingsPage() {
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6">
           <div className="mb-6">
-            <h2 className="text-destructive text-lg font-semibold">
+            <TypographyH2 className="text-destructive text-lg font-semibold border-0 pb-0">
               Danger zone
-            </h2>
+            </TypographyH2>
             <p className="text-muted-foreground text-sm">
               This action is permanent and cannot be undone.
             </p>

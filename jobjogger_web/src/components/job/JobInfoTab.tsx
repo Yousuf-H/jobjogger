@@ -12,6 +12,7 @@ import { Markdown } from '@/components/ui/markdown'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ClipboardPaste, Edit3, Eye, FileText, Save } from 'lucide-react'
+import { TypographyH3 } from '@/components/ui/typography'
 
 const turndown = new TurndownService({
   headingStyle: 'atx',
@@ -148,9 +149,9 @@ export function JobInfoTab({ job }: { job: Job }) {
               <div className="mb-4 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
                 <FileText className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold">
+              <TypographyH3 className="text-base font-semibold">
                 No job description yet
-              </h3>
+              </TypographyH3>
               <p className="text-muted-foreground mt-2 max-w-md text-sm">
                 Switch to Write and paste the job listing — formatting is
                 preserved automatically.

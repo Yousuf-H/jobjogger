@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
+import { TypographyH1 } from '@/components/ui/typography'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -66,7 +67,7 @@ export default function SignupForm({
       {...props}
     >
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
+        <TypographyH1 className="text-2xl font-bold tracking-tight">Create an account</TypographyH1>
         <p className="text-muted-foreground text-sm">
           Get started with JobJogger for free
         </p>

@@ -11,6 +11,7 @@ import { Markdown } from '@/components/ui/markdown'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { Edit3, Eye, PenLine, Save } from 'lucide-react'
+import { TypographyH3 } from '@/components/ui/typography'
 
 interface NotesTabProps {
   job: Job
@@ -110,7 +111,7 @@ export function NotesTab({ job }: NotesTabProps) {
               <div className="mb-4 rounded-full bg-amber-100 p-3 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300">
                 <PenLine className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold">No notes yet</h3>
+              <TypographyH3 className="text-base font-semibold">No notes yet</TypographyH3>
               <p className="text-muted-foreground mt-2 max-w-md text-sm">
                 Switch to Write to add interview prep, recruiter context, or
                 anything worth remembering. Markdown is supported.

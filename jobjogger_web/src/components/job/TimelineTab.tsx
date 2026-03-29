@@ -7,6 +7,7 @@ import { deleteTimelineEntry } from '@/services/api/timelineEntries'
 import type { TimelineEntry } from '@/types/timelineEntry'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { History, Trash2 } from 'lucide-react'
+import { TypographyH3 } from '@/components/ui/typography'
 import { toast } from 'sonner'
 
 interface TimelineTabProps {
@@ -136,7 +137,7 @@ export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
           <div className="mb-4 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
             <History className="h-5 w-5" />
           </div>
-          <h3 className="text-base font-semibold">No timeline activity yet</h3>
+          <TypographyH3 className="text-base font-semibold">No timeline activity yet</TypographyH3>
           <p className="text-muted-foreground mt-2 max-w-md text-sm">
             Timeline events will appear here as you track status changes,
             interviews, recruiter contact, and other job activity.

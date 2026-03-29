@@ -15,6 +15,7 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import { calculateStatusBreakdown } from '@/lib/statsHelpers'
 import type { Job } from '@/types/job'
 import { ArrowRight, BriefcaseBusiness } from 'lucide-react'
+import { TypographyH1, TypographyH3 } from '@/components/ui/typography'
 import { useNavigate } from 'react-router-dom'
 
 export default function DashboardPage() {
@@ -41,9 +42,9 @@ export default function DashboardPage() {
     <div className="page-container space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <TypographyH1 className="text-2xl font-bold tracking-tight">
             Welcome back, {firstName}
-          </h1>
+          </TypographyH1>
           <p className="text-muted-foreground text-sm">
             Here's how your job search is going.
           </p>
@@ -91,7 +92,7 @@ export default function DashboardPage() {
                 <BriefcaseBusiness className="text-muted-foreground h-5 w-5" />
               </div>
 
-              <h3 className="text-lg font-semibold">No jobs yet</h3>
+              <TypographyH3 className="text-lg font-semibold">No jobs yet</TypographyH3>
               <p className="text-muted-foreground mt-2 max-w-md text-sm leading-6">
                 Add your first job application to start tracking progress,
                 interviews, and follow-ups in one place.
