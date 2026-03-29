@@ -60,7 +60,21 @@ export function JobInfoTab({ job }: { job: Job }) {
 
     if (html) {
       e.preventDefault()
-      const markdown = turndown.turndown(html)
+      let markdown = turndown.turndown(html)
+
+      // Clean up common formatting issues from LinkedIn/Seek
+      markdown = markdown
+        .replace(/\*\*([^*]+?)\s*\n\s*\n\s*\*\*(?=\s*\n|\s*$)/g, '**$1**\n\n')
+        .replace(/\*\*\s*\n/g, '**\n')
+        .replace(/\*\*\n([A-Z])/g, '**\n\n$1')
+        .replace(/^- {3}/gm, '- ')
+        .replace(/^(\s+)- {3}/gm, '$1- ')
+        .replace(/^(- .+)\n\s*\n(?=- )/gm, '$1\n')
+        .replace(/^(- .+)\n\s*\n(\s+- )/gm, '$1\n$2')
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/^(\s*\n)+/, '')
+        .trim()
+
       const textarea = e.currentTarget
       const start = textarea.selectionStart
       const end = textarea.selectionEnd
