@@ -18,8 +18,14 @@ interface NotesTabProps {
 
 export function NotesTab({ job }: NotesTabProps) {
   const [notes, setNotes] = useState(job.notes || '')
+  const [prevNotes, setPrevNotes] = useState(job.notes)
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('preview')
   const queryClient = useQueryClient()
+
+  if (prevNotes !== job.notes) {
+    setPrevNotes(job.notes)
+    setNotes(job.notes || '')
+  }
 
   const hasChanges = notes !== (job.notes || '')
   const hasNotes = Boolean(notes.trim())
@@ -27,7 +33,7 @@ export function NotesTab({ job }: NotesTabProps) {
   const saveMutation = useMutation({
     mutationFn: (newNotes: string) => updateJob(job.id, { notes: newNotes }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs', job.id.toString()] })
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Notes saved!')
     },
     onError: () => {

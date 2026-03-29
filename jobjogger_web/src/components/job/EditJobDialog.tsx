@@ -83,7 +83,6 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
             source_other: job.source_other || '',
             priority: job.priority || undefined,
             tags: job.tags.join(', '),
-            job_description: job.job_description || '',
           }}
           onSubmit={handleSubmit}
           isSubmitting={mutation.isPending}

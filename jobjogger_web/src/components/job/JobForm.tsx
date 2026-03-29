@@ -24,10 +24,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { Markdown } from '@/components/ui/markdown'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
-
 interface JobFormProps {
   onSubmit: (data: CreateJobFormValues) => void
   defaultValues?: Partial<CreateJobFormValues>
@@ -55,7 +51,6 @@ export function JobForm({
       source_other: defaultValues?.source_other ?? '',
       priority: defaultValues?.priority,
       tags: defaultValues?.tags ?? '',
-      job_description: defaultValues?.job_description ?? '',
     },
   })
 
@@ -267,55 +262,6 @@ export function JobForm({
                 <Input placeholder="e.g. react, remote, senior" {...field} />
               </FormControl>
               <FormDescription>Separate tags with commas</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Job Description with Markdown Preview */}
-        <FormField
-          control={form.control}
-          name="job_description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Job Description (Optional)</FormLabel>
-
-              <Tabs defaultValue="write" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="write">Write</TabsTrigger>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="write">
-                  <FormControl>
-                    <Textarea
-                      placeholder="Paste the job description here, then use markdown to format it..."
-                      rows={10}
-                      className="resize-y font-mono text-sm"
-                      {...field}
-                    />
-                  </FormControl>
-                  <p className="text-muted-foreground mt-2 text-xs">
-                    Supports Markdown: **bold**, ## headings, - lists,
-                    [links](url)
-                  </p>
-                </TabsContent>
-
-                <TabsContent value="preview">
-                  {field.value ? (
-                    <div className="min-h-[240px] rounded-md border p-4">
-                      <Markdown>{field.value}</Markdown>
-                    </div>
-                  ) : (
-                    <div className="flex min-h-[240px] items-center justify-center rounded-md border border-dashed p-8">
-                      <p className="text-muted-foreground text-sm">
-                        No description yet. Switch to Write tab to add one.
-                      </p>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-
               <FormMessage />
             </FormItem>
           )}

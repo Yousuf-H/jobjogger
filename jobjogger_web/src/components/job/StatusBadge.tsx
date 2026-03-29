@@ -40,7 +40,6 @@ export function StatusBadge({ job }: StatusBadgeProps) {
       updateJob(job.id, { status: newStatus }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      queryClient.invalidateQueries({ queryKey: ['jobs', job.id.toString()] })
       toast.success('Status updated!')
     },
     onError: () => {

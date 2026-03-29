@@ -55,7 +55,7 @@ function TimelineEntryItem({
   const deleteMutation = useMutation({
     mutationFn: () => deleteTimelineEntry(entry.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs', jobId.toString()] })
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Timeline entry deleted!')
     },
     onError: () => {

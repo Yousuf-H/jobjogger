@@ -25,7 +25,7 @@ export function useTimelineEntryActions({
     mutationFn: (data: TimelineEntryFormValues) =>
       createTimelineEntry(jobId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs', jobId.toString()] })
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Timeline entry added!')
       onCreateSuccess?.()
     },
@@ -44,7 +44,7 @@ export function useTimelineEntryActions({
       data: TimelineEntryFormValues
     }) => updateTimelineEntry(entryId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs', jobId.toString()] })
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Timeline entry updated!')
       onUpdateSuccess?.()
     },
