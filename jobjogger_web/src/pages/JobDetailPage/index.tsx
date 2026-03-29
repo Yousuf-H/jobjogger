@@ -186,7 +186,7 @@ export default function JobDetailPage() {
             </p>
 
             {/* Quick stats row */}
-            <div className="mt-6 flex flex-wrap gap-6 border-t pt-5">
+            <div className="mt-6 grid grid-cols-2 gap-4 border-t pt-5 sm:flex sm:flex-wrap sm:gap-6">
               {job.location && (
                 <QuickStat
                   icon={MapPin}
