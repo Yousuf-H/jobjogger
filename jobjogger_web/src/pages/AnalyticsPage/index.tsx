@@ -6,6 +6,7 @@ import { SummaryCards } from '@/components/analytics/SummaryCards'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import { TypographyH1 } from '@/components/ui/typography'
 import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function AnalyticsPage() {
@@ -20,7 +21,7 @@ export default function AnalyticsPage() {
   return (
     <div className="page-container space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
+        <TypographyH1 className="text-2xl font-semibold tracking-tight">Analytics</TypographyH1>
         <p className="text-muted-foreground text-sm">
           Insights into your job search progress
         </p>

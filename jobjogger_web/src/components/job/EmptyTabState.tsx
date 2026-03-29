@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { TypographyH3 } from '@/components/ui/typography'
 import type { LucideIcon } from 'lucide-react'
 
 interface EmptyTabStateProps {
@@ -22,7 +23,7 @@ export default function EmptyTabState({
         <Icon className="text-muted-foreground h-5 w-5" />
       </div>
 
-      <h3 className="text-lg font-semibold">{title}</h3>
+      <TypographyH3 className="text-lg font-semibold">{title}</TypographyH3>
 
       <p className="text-muted-foreground mt-2 max-w-md text-sm leading-6">
         {description}

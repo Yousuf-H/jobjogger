@@ -5,7 +5,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import type { ActivityDataPoint } from '@/types/analytics'
+import { Info } from 'lucide-react'
 import { useState } from 'react'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
@@ -45,9 +51,23 @@ export function ActivityChart({ weekly, monthly }: ActivityChartProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Application activity</CardTitle>
-          <p className="text-muted-foreground text-sm">
-            Jobs created over time
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-muted-foreground text-sm">
+              Jobs created over time
+            </p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" className="cursor-help">
+                  <Info className="text-muted-foreground h-3.5 w-3.5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="bottom" className="max-w-[240px] text-xs">
+                {mode === 'weekly'
+                  ? "Each point shows the total jobs created that week, labelled by the week's start date (Monday)."
+                  : 'Each point shows the total jobs created that month.'}
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
         <div className="flex rounded-md border">
           <Button
@@ -77,13 +97,10 @@ export function ActivityChart({ weekly, monthly }: ActivityChartProps) {
           </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-[220px] w-full">
-            <AreaChart data={chartData} margin={
-              { top: 20,
-                right: 10,
-                left: -25,
-                bottom: 0
-              }
-            }>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 20, right: 10, left: -25, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="fillCount" x1="0" y1="0" x2="0" y2="1">
                   <stop

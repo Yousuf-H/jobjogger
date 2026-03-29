@@ -1,4 +1,5 @@
 import SigninForm from '@/components/user/SigninForm'
+import { TypographyH2 } from '@/components/ui/typography'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { Award, BarChart3, Briefcase, TrendingUp } from 'lucide-react'
 
@@ -23,11 +24,11 @@ export default function SigninPage() {
           {/* Tagline */}
           <div className="space-y-6">
             <div className="space-y-3">
-              <h2 className="text-primary-foreground text-3xl font-bold leading-tight">
+              <TypographyH2 className="text-primary-foreground text-3xl font-bold leading-tight border-0 pb-0">
                 Welcome back.
                 <br />
                 Let's keep the momentum.
-              </h2>
+              </TypographyH2>
               <p className="text-primary-foreground/60 max-w-sm text-sm leading-relaxed">
                 Sign in to track your applications, monitor interviews, and stay
                 on top of your job search.

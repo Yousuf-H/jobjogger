@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
+import { TypographyH1 } from '@/components/ui/typography'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -50,7 +51,7 @@ export default function SigninForm({
       {...props}
     >
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
+        <TypographyH1 className="text-2xl font-bold tracking-tight">Sign in</TypographyH1>
         <p className="text-muted-foreground text-sm">
           Enter your credentials to access your account
         </p>

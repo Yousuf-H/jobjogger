@@ -12,6 +12,7 @@ import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
+import { TypographyH1 } from '@/components/ui/typography'
 import { formatDistanceToNow } from 'date-fns'
 import {
   ArrowLeft,
@@ -178,15 +179,15 @@ export default function JobDetailPage() {
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            <TypographyH1 className="text-2xl font-bold tracking-tight sm:text-3xl">
               {job.job_title || 'Untitled role'}
-            </h1>
+            </TypographyH1>
             <p className="text-muted-foreground mt-1 text-base">
               {job.company_name || 'No company recorded'}
             </p>
 
             {/* Quick stats row */}
-            <div className="mt-6 flex flex-wrap gap-6 border-t pt-5">
+            <div className="mt-6 grid grid-cols-2 gap-4 border-t pt-5 sm:flex sm:flex-wrap sm:gap-6">
               {job.location && (
                 <QuickStat
                   icon={MapPin}

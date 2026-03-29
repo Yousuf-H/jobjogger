@@ -1,4 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card'
+import { TypographyH2 } from '@/components/ui/typography'
 import { AlertCircle } from 'lucide-react'
 
 interface PageErrorProps {
@@ -18,7 +19,7 @@ export function PageError({
             <AlertCircle className="text-destructive h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold">{title}</h2>
+            <TypographyH2 className="text-lg font-semibold border-0 pb-0">{title}</TypographyH2>
             <p className="text-muted-foreground mt-1 text-sm">{message}</p>
           </div>
         </CardContent>
