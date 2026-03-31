@@ -45,8 +45,8 @@ Rails.application.configure do
   }
 
   Rails.application.routes.default_url_options = {
-    host: ENV['APP_HOST'],
-    protocol: 'https'
+    host: ENV["APP_HOST"],
+    protocol: "https"
   }
 
   # Print deprecation notices to the Rails logger.
