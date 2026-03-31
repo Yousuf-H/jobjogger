@@ -1,20 +1,26 @@
 # frozen_string_literal: true
 
-# Clean slate
-TimelineEntry.destroy_all
-Job.destroy_all
-User.destroy_all
+# Clean slate - development only
+if Rails.env.development?
+  TimelineEntry.destroy_all
+  Job.destroy_all
+  User.destroy_all
+  puts "Cleaned existing data"
+end
 
-puts "Cleaned existing data"
+demo_user = User.find_or_create_by!(email: "demo@jobjogger.com") do |u|
+  u.password = "password123"
+  u.password_confirmation = "password123"
+  u.name = "John Demo"
+end
 
-demo_user = User.create!(
-  email: "demo@jobjogger.com",
-  password: "password123",
-  password_confirmation: "password123",
-  name: "Yousuf Demo"
-)
+puts "Demo user: #{demo_user.email}"
 
-puts "Created demo user: #{demo_user.email}"
+# Skip seeding jobs if demo user already has them
+if demo_user.jobs.any?
+  puts "Jobs already seeded, skipping."
+  exit
+end
 
 # ── Helper ──────────────────────────────────────────────────────────────────────
 

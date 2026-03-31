@@ -2,9 +2,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { TypographyH1 } from '@/components/ui/typography'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
-import { TypographyH1 } from '@/components/ui/typography'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -67,7 +67,9 @@ export default function SignupForm({
       {...props}
     >
       <div className="space-y-2">
-        <TypographyH1 className="text-2xl font-bold tracking-tight">Create an account</TypographyH1>
+        <TypographyH1 className="text-2xl font-bold tracking-tight">
+          Create an account
+        </TypographyH1>
         <p className="text-muted-foreground text-sm">
           Get started with JobJogger for free
         </p>
@@ -85,7 +87,7 @@ export default function SignupForm({
           <Input
             id="name"
             type="text"
-            placeholder="Joseph Tesfa"
+            placeholder="Joseph Willson"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
