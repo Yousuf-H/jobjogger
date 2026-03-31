@@ -85,7 +85,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def update_avatar
-    if params[:avatar].blank?
+    unless params[:avatar].is_a?(ActionDispatch::Http::UploadedFile)
       render json: { status: { message: 'No file provided.' } }, status: :unprocessable_content
       return
     end
@@ -113,7 +113,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       current_user.avatar.purge
       render json: {
         status: { code: 200, message: 'Avatar removed.' },
-        user: user_payload(current_user, "delete_avatar")
+        user: user_payload(current_user,  avatar_url: nil)
       }, status: :ok
     else
       render json: { status: { message: 'No avatar to remove.' } }, status: :unprocessable_content
@@ -134,12 +134,12 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     params.require(:user).permit(:password, :password_confirmation)
   end
 
-  def user_payload(user, action="")
+  def user_payload(user,  avatar_url: avatar_url(user))
     {
       id: user.id,
       email: user.email,
       name: user.name,
-      avatar_url: action == "delete_avatar" ? nil : avatar_url(user),
+      avatar_url: avatar_url,
       created_at: user.created_at
     }
   end
