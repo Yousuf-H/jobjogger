@@ -30,7 +30,7 @@ export function AvatarUpload({
     setUploading(true)
     try {
       const response = await uploadAvatar(file)
-      onUpdate(response.data)
+      onUpdate(response.data.user)
       toast.success('Avatar updated')
     } catch (err: unknown) {
       const axiosError = err as {

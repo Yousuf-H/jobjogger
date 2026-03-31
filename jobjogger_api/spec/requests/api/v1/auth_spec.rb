@@ -35,9 +35,10 @@ RSpec.describe "Authentication", type: :request do
         post "/api/v1/users", params: valid_params.to_json,
              headers: { "Content-Type" => "application/json" }
 
+        puts valid_params.to_json
         body = json_response
-        expect(body.dig("data", "email")).to eq(valid_params[:user][:email])
-        expect(body.dig("data", "name")).to eq(valid_params[:user][:name])
+        expect(body.dig("user", "email")).to eq(valid_params[:user][:email])
+        expect(body.dig("user", "name")).to eq(valid_params[:user][:name])
         expect(body.dig("status", "message")).to match(/signed up/i)
       end
 

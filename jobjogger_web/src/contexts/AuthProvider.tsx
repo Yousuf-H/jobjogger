@@ -59,11 +59,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       )
       const data = response.data
 
-      if (authToken && data.data) {
+      if (authToken && data.user) {
         setToken(authToken)
-        setUser(data.data)
+        setUser(data.user)
         localStorage.setItem('auth_token', authToken)
-        localStorage.setItem('user', JSON.stringify(data.data))
+        localStorage.setItem('user', JSON.stringify(data.user))
       } else {
         throw new Error('Signup failed. Please try again.')
       }

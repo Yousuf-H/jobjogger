@@ -60,7 +60,7 @@ export default function ProfilePage() {
 
     try {
       const response = await updateProfile({ name, email })
-      updateUser(response.data)
+      updateUser(response.data.user)
       toast.success('Profile updated')
     } catch (err: unknown) {
       const axiosError = err as {
