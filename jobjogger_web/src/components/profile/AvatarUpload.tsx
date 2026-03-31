@@ -30,7 +30,7 @@ export function AvatarUpload({
     setUploading(true)
     try {
       const response = await uploadAvatar(file)
-      onUpdate(response.data.user)
+      onUpdate(response.user)
       toast.success('Avatar updated')
     } catch (err: unknown) {
       const axiosError = err as {
@@ -49,7 +49,7 @@ export function AvatarUpload({
     setUploading(true)
     try {
       const response = await deleteAvatar()
-      onUpdate(response.data)
+      onUpdate(response.user)
       toast.success('Avatar removed')
     } catch {
       toast.error('Failed to remove avatar')
