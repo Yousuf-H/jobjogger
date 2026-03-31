@@ -100,6 +100,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       return
     end
 
+    current_user.avatar.purge if current_user.avatar.attached?
     current_user.avatar.attach(params[:avatar])
 
     render json: {
