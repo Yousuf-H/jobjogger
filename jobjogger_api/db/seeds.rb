@@ -10,7 +10,7 @@ end
 
 demo_user = User.find_or_create_by!(email: "demo@jobjogger.com")
 demo_user.update!(
-  name: "Yousuf Demo",
+  name: "Joseph Demo",
   password: "password123",
   password_confirmation: "password123"
 )
