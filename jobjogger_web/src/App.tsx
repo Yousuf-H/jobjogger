@@ -1,13 +1,14 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { ProtectedRoute } from './components/auth/ProtectedRoute'
-import Layout from './components/layout/Layout'
-import AnalyticsPage from './pages/AnalyticsPage'
-import DashboardPage from './pages/DashboardPage'
-import JobDetailPage from './pages/JobDetailPage'
-import JobsPage from './pages/JobsPage'
-import SettingsPage from './pages/SettingsPage'
-import SigninPage from './pages/SigninPage'
-import SignupPage from './pages/SignupPage'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import Layout from '@/components/layout/Layout'
+import AnalyticsPage from '@/pages/AnalyticsPage'
+import DashboardPage from '@/pages/DashboardPage'
+import JobDetailPage from '@/pages/JobDetailPage'
+import JobsPage from '@/pages/JobsPage'
+import SettingsPage from '@/pages/SettingsPage'
+import ProfilePage from '@/pages/ProfilePage'
+import SigninPage from '@/pages/SigninPage'
+import SignupPage from '@/pages/SignupPage'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:id" element={<JobDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

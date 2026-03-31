@@ -2,7 +2,8 @@
 
 class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
-  before_action :authenticate_user!, only: [ :update, :update_password, :destroy ]
+  before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar,
+  :delete_avatar ]
 
   def create
     build_resource(sign_up_params)
@@ -16,12 +17,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
       render json: {
         status: { code: 200, message: 'Signed up successfully.' },
-        data: {
-          id: resource.id,
-          email: resource.email,
-          name: resource.name,
-          created_at: resource.created_at
-        }
+        user: user_payload(resource)
       }, status: :ok
     else
       clean_up_passwords resource
@@ -38,11 +34,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     if current_user.update(profile_params)
       render json: {
         status: { code: 200, message: 'Profile updated successfully.' },
-        data: {
-          id: current_user.id,
-          email: current_user.email,
-          name: current_user.name
-        }
+        user: user_payload(current_user)
       }, status: :ok
     else
       render json: {
@@ -92,6 +84,42 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     end
   end
 
+  def update_avatar
+    unless params[:avatar].is_a?(ActionDispatch::Http::UploadedFile)
+      render json: { status: { message: 'No file provided.' } }, status: :unprocessable_content
+      return
+    end
+
+    unless params[:avatar].content_type.in?(%w[image/png image/jpeg image/webp])
+      render json: { status: { message: 'File must be PNG, JPEG, or WebP.' } }, status: :unprocessable_content
+      return
+    end
+
+    if params[:avatar].size > 5.megabytes
+      render json: { status: { message: 'File must be less than 5MB.' } }, status: :unprocessable_content
+      return
+    end
+
+    current_user.avatar.attach(params[:avatar])
+
+    render json: {
+      status: { code: 200, message: 'Avatar updated successfully.' },
+      user: user_payload(current_user)
+    }, status: :ok
+  end
+
+  def delete_avatar
+    if current_user.avatar.attached?
+      current_user.avatar.purge
+      render json: {
+        status: { code: 200, message: 'Avatar removed.' },
+        user: user_payload(current_user,  avatar_url: nil)
+      }, status: :ok
+    else
+      render json: { status: { message: 'No avatar to remove.' } }, status: :unprocessable_content
+    end
+  end
+
   private
 
   def sign_up_params
@@ -106,7 +134,19 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     params.require(:user).permit(:password, :password_confirmation)
   end
 
-  def account_update_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :name)
+  def user_payload(user,  avatar_url: avatar_url(user))
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatar_url: avatar_url,
+      created_at: user.created_at
+    }
+  end
+
+  def avatar_url(user)
+    return nil unless user.avatar.attached?
+
+    Rails.application.routes.url_helpers.rails_blob_url(user.avatar)
   end
 end

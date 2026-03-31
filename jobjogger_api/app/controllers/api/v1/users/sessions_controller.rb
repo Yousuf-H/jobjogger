@@ -46,12 +46,24 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
       status: {
         code: 200,
         message: 'Logged in successfully.',
-        user: {
-          id: current_user.id,
-          email: current_user.email,
-          name: current_user.name
-        }
+        user: user_payload(current_user)
       }
     }, status: :ok
+  end
+
+  def user_payload(user)
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatar_url: avatar_url(user),
+      created_at: user.created_at
+    }
+  end
+
+  def avatar_url(user)
+    return nil unless user.avatar.attached?
+
+    Rails.application.routes.url_helpers.rails_blob_url(user.avatar)
   end
 end

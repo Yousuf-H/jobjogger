@@ -1,8 +1,7 @@
+import { AuthContext } from '@/contexts/AuthContext'
 import { apiClient } from '@/services/api/client'
-import type { ReactNode } from 'react'
-import { useState } from 'react'
-import type { User } from './AuthContext'
-import { AuthContext } from './AuthContext'
+import type { User } from '@/types/user'
+import { type ReactNode, useState } from 'react'
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -60,11 +59,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       )
       const data = response.data
 
-      if (authToken && data.data) {
+      if (authToken && data.user) {
         setToken(authToken)
-        setUser(data.data)
+        setUser(data.user)
         localStorage.setItem('auth_token', authToken)
-        localStorage.setItem('user', JSON.stringify(data.data))
+        localStorage.setItem('user', JSON.stringify(data.user))
       } else {
         throw new Error('Signup failed. Please try again.')
       }

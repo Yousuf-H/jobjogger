@@ -20,3 +20,18 @@ export async function deleteAccount(password: string) {
   })
   return response.data
 }
+
+export async function uploadAvatar(file: File) {
+  const formData = new FormData()
+  formData.append('avatar', file)
+
+  const response = await apiClient.patch('/users/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return response.data
+}
+
+export async function deleteAvatar() {
+  const response = await apiClient.delete('/users/avatar')
+  return response.data
+}
