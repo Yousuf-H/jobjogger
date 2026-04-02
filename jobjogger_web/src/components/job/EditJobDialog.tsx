@@ -34,9 +34,13 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
       toast.success('Job updated successfully!')
       setOpen(false)
     },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
+    onError: (
+      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
+    ) => {
       const message =
-        error.response?.data?.errors?.[0] || 'Failed to update job'
+        error.response?.data?.status?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Failed to update job'
       toast.error(message)
     },
   })

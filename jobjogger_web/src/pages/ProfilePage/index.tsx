@@ -31,6 +31,7 @@ export default function ProfilePage() {
   usePageTitle('Profile')
   const { user, updateUser, signout } = useAuth()
   const navigate = useNavigate()
+  const isDemo = user?.demo ?? false
 
   // Profile state
   const [name, setName] = useState(user?.name || '')
@@ -152,7 +153,15 @@ export default function ProfilePage() {
               </Alert>
             )}
 
-            <AvatarUpload user={user} onUpdate={updateUser} />
+            {isDemo && (
+              <Alert>
+                <AlertDescription>
+                  Demo accounts cannot update their avatar, name, or email.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <AvatarUpload user={user} onUpdate={updateUser} disabled={isDemo} />
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="space-y-2">
@@ -162,6 +171,7 @@ export default function ProfilePage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                  disabled={isDemo}
                 />
               </div>
 
@@ -173,6 +183,7 @@ export default function ProfilePage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isDemo}
                 />
               </div>
             </div>
@@ -180,7 +191,7 @@ export default function ProfilePage() {
             <Button
               type="submit"
               variant="success"
-              disabled={profileLoading || !hasProfileChanges}
+              disabled={profileLoading || !hasProfileChanges || isDemo}
               size="sm"
             >
               <Save className="mr-2 h-4 w-4" />
@@ -207,6 +218,14 @@ export default function ProfilePage() {
               </Alert>
             )}
 
+            {isDemo && (
+              <Alert>
+                <AlertDescription>
+                  Demo accounts cannot change their password.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="current-password">Current password</Label>
@@ -217,6 +236,7 @@ export default function ProfilePage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   required
+                  disabled={isDemo}
                 />
               </div>
 
@@ -230,6 +250,7 @@ export default function ProfilePage() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
                   minLength={6}
+                  disabled={isDemo}
                 />
                 <p className="text-muted-foreground text-xs">
                   Must be at least 6 characters
@@ -247,6 +268,7 @@ export default function ProfilePage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
+                  disabled={isDemo}
                 />
               </div>
             </div>
@@ -255,6 +277,7 @@ export default function ProfilePage() {
               type="submit"
               variant="success"
               disabled={
+                isDemo ||
                 passwordLoading ||
                 !currentPassword ||
                 !newPassword ||
@@ -286,46 +309,54 @@ export default function ProfilePage() {
             </Alert>
           )}
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">Delete account</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete your account?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete your account and all your job
-                  application data. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
+          {isDemo ? (
+            <Alert>
+              <AlertDescription>
+                Demo accounts cannot be deleted.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Delete account</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete your account and all your job
+                    application data. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
 
-              <div className="space-y-2 py-2">
-                <Label htmlFor="delete-password">
-                  Enter your password to confirm
-                </Label>
-                <Input
-                  id="delete-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                />
-              </div>
+                <div className="space-y-2 py-2">
+                  <Label htmlFor="delete-password">
+                    Enter your password to confirm
+                  </Label>
+                  <Input
+                    id="delete-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                  />
+                </div>
 
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={() => setDeletePassword('')}>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  disabled={deleteLoading || !deletePassword}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {deleteLoading ? 'Deleting...' : 'Delete account'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setDeletePassword('')}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    disabled={deleteLoading || !deletePassword}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {deleteLoading ? 'Deleting...' : 'Delete account'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </CardContent>
       </Card>
     </div>

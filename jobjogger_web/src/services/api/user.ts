@@ -35,3 +35,8 @@ export async function deleteAvatar() {
   const response = await apiClient.delete('/users/avatar')
   return response.data
 }
+
+export async function demoSigninApi() {
+  const response = await apiClient.post('/demo/session')
+  return response
+}

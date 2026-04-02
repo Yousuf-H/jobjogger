@@ -26,9 +26,13 @@ export default function CreateJobDialog() {
       toast.success('Job created successfully!')
       setOpen(false)
     },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
+    onError: (
+      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
+    ) => {
       const message =
-        error.response?.data?.errors?.[0] || 'Failed to create job'
+        error.response?.data?.status?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Failed to create job'
       toast.error(message)
     },
   })

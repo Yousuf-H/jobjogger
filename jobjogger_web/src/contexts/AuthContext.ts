@@ -8,6 +8,7 @@ export interface AuthContextType {
   signup: (email: string, password: string, name: string) => Promise<void>
   signout: () => Promise<void>
   updateUser: (user: User) => void
+  demoSignin: () => Promise<void>
   isLoading: boolean
 }
 

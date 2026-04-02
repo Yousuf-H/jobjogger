@@ -2,9 +2,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { TypographyH1 } from '@/components/ui/typography'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
-import { TypographyH1 } from '@/components/ui/typography'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -15,7 +15,7 @@ export default function SigninForm({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const { signin, isLoading } = useAuth()
+  const { signin, demoSignin, isLoading } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,6 +44,16 @@ export default function SigninForm({
     }
   }
 
+  const handleDemoSignin = async () => {
+    setError('')
+    try {
+      await demoSignin()
+      navigate('/')
+    } catch {
+      setError('Demo account is unavailable. Please try again later.')
+    }
+  }
+
   return (
     <form
       className={cn('flex flex-col gap-6', className)}
@@ -51,7 +61,9 @@ export default function SigninForm({
       {...props}
     >
       <div className="space-y-2">
-        <TypographyH1 className="text-2xl font-bold tracking-tight">Sign in</TypographyH1>
+        <TypographyH1 className="text-2xl font-bold tracking-tight">
+          Sign in
+        </TypographyH1>
         <p className="text-muted-foreground text-sm">
           Enter your credentials to access your account
         </p>
@@ -92,6 +104,25 @@ export default function SigninForm({
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? 'Signing in...' : 'Sign in'}
+        </Button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="border-border w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background text-muted-foreground px-2">or</span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={isLoading}
+          onClick={handleDemoSignin}
+        >
+          Try Demo
         </Button>
       </div>
 

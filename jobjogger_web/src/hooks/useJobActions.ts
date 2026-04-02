@@ -18,9 +18,13 @@ export function useJobActions(options?: UseJobActionsOptions) {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Job Archived Successfully!')
     },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
+    onError: (
+      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
+    ) => {
       const message =
-        error.response?.data?.errors?.[0] || 'Failed to archive this job'
+        error.response?.data?.status?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Failed to archive this job'
       toast.error(message)
     },
   })
@@ -31,8 +35,13 @@ export function useJobActions(options?: UseJobActionsOptions) {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Job unarchived successfully!')
     },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
-      const message = error.response?.data?.errors?.[0] || 'Failed to unarchive'
+    onError: (
+      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
+    ) => {
+      const message =
+        error.response?.data?.status?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Failed to unarchive'
       toast.error(message)
     },
   })
@@ -44,9 +53,13 @@ export function useJobActions(options?: UseJobActionsOptions) {
       toast.success('Job Deleted Successfully!')
       options?.onDeleteSuccess?.()
     },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
+    onError: (
+      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
+    ) => {
       const message =
-        error.response?.data?.errors?.[0] || 'Failed to delete this job'
+        error.response?.data?.status?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Failed to delete this job'
       toast.error(message)
     },
   })

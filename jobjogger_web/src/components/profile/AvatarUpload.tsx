@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { deleteAvatar, uploadAvatar } from '@/services/api/user'
-import type { User } from '@/types/user'
+import type { AvatarUploadProps } from '@/types/avatarUpload'
 import { Camera, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -8,10 +8,8 @@ import { toast } from 'sonner'
 export function AvatarUpload({
   user,
   onUpdate,
-}: {
-  user: User | null
-  onUpdate: (user: User) => void
-}) {
+  disabled = false,
+}: AvatarUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -76,7 +74,7 @@ export function AvatarUpload({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
+          disabled={uploading || disabled}
           className="bg-primary text-primary-foreground absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-full shadow-sm transition-opacity hover:opacity-90"
         >
           <Camera className="h-3.5 w-3.5" />
@@ -90,7 +88,7 @@ export function AvatarUpload({
             variant="outline"
             size="sm"
             onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
+            disabled={uploading || disabled}
           >
             {uploading ? 'Uploading...' : 'Upload photo'}
           </Button>
@@ -100,7 +98,7 @@ export function AvatarUpload({
               variant="ghost"
               size="sm"
               onClick={handleRemove}
-              disabled={uploading}
+              disabled={uploading || disabled}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

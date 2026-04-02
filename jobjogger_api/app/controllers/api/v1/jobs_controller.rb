@@ -2,6 +2,7 @@
 
 class Api::V1::JobsController < Api::V1::AuthenticatedController
   before_action :set_job, only: [:show, :update, :destroy, :archive, :unarchive]
+  before_action :check_demo_job_limit, only: [:create]
 
   def index
     jobs = apply_filters(current_user.jobs)
@@ -105,5 +106,14 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
 
   def job_params
     params.require(:job).permit(:company_name, :job_title, :status, :job_url, :source, :source_other, :date_applied, :follow_up_date, :priority, :notes, :location, :employment_type, :salary_range, :job_description, tags: [])
+  end
+
+  def check_demo_job_limit
+    return unless current_user.demo?
+
+    if current_user.jobs.count >= 20
+      render json: { status: { message: "Demo account is limited to 20 jobs." } },
+            status: :forbidden
+    end
   end
 end

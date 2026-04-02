@@ -1,4 +1,5 @@
 import { AppSidebar } from '@/components/layout/AppSidebar'
+import DemoBanner from '@/components/layout/DemoBanner'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
@@ -21,6 +22,7 @@ function LayoutContent() {
 
   return (
     <SidebarInset>
+      <DemoBanner />
       <header className="flex h-14 items-center justify-between gap-2 border-b px-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />

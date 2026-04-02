@@ -1,6 +1,7 @@
 import { AuthContext } from '@/contexts/AuthContext'
 import { apiClient } from '@/services/api/client'
-import type { User } from '@/types/user'
+import { demoSigninApi } from '@/services/api/user'
+import { type User } from '@/types/user'
 import { type ReactNode, useState } from 'react'
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -97,9 +98,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser))
   }
 
+  const demoSignin = async () => {
+    setIsLoading(true)
+    try {
+      const response = await demoSigninApi()
+      const authToken = response.headers['authorization']?.replace(
+        'Bearer ',
+        ''
+      )
+      const data = response.data
+
+      if (authToken && data.status.user) {
+        setToken(authToken)
+        setUser(data.status.user)
+        localStorage.setItem('auth_token', authToken)
+        localStorage.setItem('user', JSON.stringify(data.status.user))
+      }
+    } catch (err: unknown) {
+      throw new Error((err as Error).message || 'Demo signin failed')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, token, signin, signup, signout, updateUser, isLoading }}
+      value={{
+        user,
+        token,
+        signin,
+        signup,
+        signout,
+        updateUser,
+        demoSignin,
+        isLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>
