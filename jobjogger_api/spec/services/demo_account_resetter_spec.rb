@@ -70,6 +70,28 @@ RSpec.describe DemoAccountResetter do
         expect(Job.exists?(other_job.id)).to be(true)
       end
 
+      it "does not attach timeline entries to another user's job with the same company name" do
+        # A real user happens to have a job at "Seek" — a company that also appears in demo seed data
+        other_user = create(:user)
+        other_seek_job = create(:job, user: other_user, company_name: "Seek")
+
+        reset
+
+        expect(other_seek_job.timeline_entries.reload).to be_empty
+      end
+
+      it "attaches seeded timeline entries only to the demo user's jobs" do
+        reset
+
+        seeded_entry_job_ids = TimelineEntry
+          .joins(:job)
+          .where(jobs: { user: demo_user })
+          .pluck("jobs.user_id")
+          .uniq
+
+        expect(seeded_entry_job_ids).to eq([ demo_user.id ])
+      end
+
       it "wraps the reset in a transaction (all-or-nothing)" do
         allow_any_instance_of(DemoAccountResetter)
           .to receive(:seed_jobs)

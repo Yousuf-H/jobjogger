@@ -23,21 +23,24 @@ class DemoAccountResetter
       TimelineEntry.joins(:job).where(jobs: { user: demo_user }).destroy_all
       demo_user.jobs.destroy_all
 
-      seed_jobs(demo_user)
-      seed_timeline_entries
+      jobs_by_company = seed_jobs(demo_user)
+      seed_timeline_entries(jobs_by_company)
     end
 
     puts "Demo account reset complete."
   end
 
   def seed_jobs(demo_user)
+    jobs_by_company = {}
+
     jobs.each do |job_def|
-      create_job_with_history(
+      job = create_job_with_history(
         user: demo_user,
         attrs: job_def[:attrs],
         status_progression: job_def[:progression] || [],
         days_between: job_def[:days_between] || 3
       )
+      jobs_by_company[job.company_name] = job
     end
 
     archived_job = create_job_with_history(
@@ -51,11 +54,14 @@ class DemoAccountResetter
       status_progression: [ "applied" ]
     )
     archived_job.archive!
+    jobs_by_company[archived_job.company_name] = archived_job
+
+    jobs_by_company
   end
 
-  def seed_timeline_entries
+  def seed_timeline_entries(jobs_by_company)
     manual_entries.each do |group|
-      job = Job.find_by(company_name: group[:company])
+      job = jobs_by_company[group[:company]]
       next unless job
 
       group[:entries].each { |entry_attrs| TimelineEntry.create!(job: job, **entry_attrs) }
