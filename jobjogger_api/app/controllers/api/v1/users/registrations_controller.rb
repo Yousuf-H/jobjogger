@@ -2,8 +2,8 @@
 
 class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
-  before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar,
-  :delete_avatar ]
+  before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
+  before_action :prevent_demo_changes, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
 
   def create
     build_resource(sign_up_params)
@@ -146,9 +146,10 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     }
   end
 
-  def avatar_url(user)
-    return nil unless user.avatar.attached?
-
-    Rails.application.routes.url_helpers.rails_blob_url(user.avatar)
+  def prevent_demo_changes
+    if current_user.demo?
+      render json: { status: { message: "Demo account cannot be modified." } },
+            status: :forbidden
+    end
   end
 end

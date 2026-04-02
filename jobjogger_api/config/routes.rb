@@ -6,6 +6,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      # Demo login
+      post "demo/session", to: "demo/sessions#create"
+
       # Auth routes
       devise_scope :user do
         post 'users/sign_in', to: 'users/sessions#create'

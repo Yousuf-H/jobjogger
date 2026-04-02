@@ -29,8 +29,13 @@ export function useTimelineEntryActions({
       toast.success('Timeline entry added!')
       onCreateSuccess?.()
     },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
-      const message = error.response?.data?.errors?.[0] || 'Failed to add entry'
+    onError: (
+      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
+    ) => {
+      const message =
+        error.response?.data?.status?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Failed to add entry'
       toast.error(message)
     },
   })
@@ -48,9 +53,13 @@ export function useTimelineEntryActions({
       toast.success('Timeline entry updated!')
       onUpdateSuccess?.()
     },
-    onError: (error: AxiosError<{ errors: string[] }>) => {
+    onError: (
+      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
+    ) => {
       const message =
-        error.response?.data?.errors?.[0] || 'Failed to update entry'
+        error.response?.data?.status?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Failed to update entry'
       toast.error(message)
     },
   })

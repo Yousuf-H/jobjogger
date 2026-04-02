@@ -12,5 +12,9 @@ FactoryBot.define do
         create_list(:job, 3, user: user)
       end
     end
+
+    trait :demo do
+      demo { true }
+    end
   end
 end
