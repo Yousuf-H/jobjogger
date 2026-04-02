@@ -12,7 +12,7 @@ class Api::V1::Demo::SessionsController < ApplicationController
 
     token = Warden::JWTAuth::UserEncoder.new.call(demo_user, :user, nil).first
 
-    response.set_header('Authorization', "Bearer #{token}")
+    response.set_header("Authorization", "Bearer #{token}")
 
     render json: {
       status: {

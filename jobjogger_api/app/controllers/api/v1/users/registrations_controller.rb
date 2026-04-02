@@ -2,8 +2,8 @@
 
 class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
-  before_action :authenticate_user!, only: [:update, :update_password, :destroy, :update_avatar, :delete_avatar]
-  before_action :prevent_demo_changes, only: [:update, :update_password, :destroy, :update_avatar, :delete_avatar]
+  before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
+  before_action :prevent_demo_changes, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
 
   def create
     build_resource(sign_up_params)
