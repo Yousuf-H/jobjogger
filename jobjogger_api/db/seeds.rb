@@ -4,7 +4,7 @@ if Rails.env.production?
   raise "db:seed is blocked in production"
 end
 
-unless Rails.env.development?
+unless Rails.env.development? || Rails.env.test?
   puts "Skipping seeds outside development"
   return
 end
