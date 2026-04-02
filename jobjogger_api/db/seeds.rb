@@ -1,28 +1,29 @@
 # frozen_string_literal: true
 
-# Clean slate - development only
-if Rails.env.development?
-  TimelineEntry.destroy_all
-  Job.destroy_all
-  User.destroy_all
-  puts "Cleaned existing data"
+if Rails.env.production?
+  raise "db:seed is blocked in production"
 end
 
-demo_user = User.find_or_create_by!(email: "demo@jobjogger.com") do |u|
-  u.password = "password123"
-  u.password_confirmation = "password123"
-  u.name = "John Demo"
+unless Rails.env.development? || Rails.env.test?
+  puts "Skipping seeds outside development"
+  return
 end
 
-puts "Demo user: #{demo_user.email}"
+demo_email = "demo@jobjogger.local"
+demo_password = "demo-password-change-me"
 
-# Skip seeding jobs if demo user already has them
-if demo_user.jobs.any?
-  puts "Jobs already seeded, skipping."
-  exit
-end
+demo_user = User.find_or_initialize_by(email: demo_email)
 
-# ── Helper ──────────────────────────────────────────────────────────────────────
+demo_user.name = "JobJogger Demo"
+demo_user.password = demo_password
+demo_user.password_confirmation = demo_password
+
+demo_user.save!
+
+# Reset only demo data, not the whole database
+demo_user.jobs.destroy_all
+
+puts "Reset demo data for #{demo_user.email}"
 
 def create_job_with_history(user:, attrs:, status_progression: [], days_between: 3)
   job = Job.create!(
@@ -33,6 +34,7 @@ def create_job_with_history(user:, attrs:, status_progression: [], days_between:
   )
 
   current_time = job.created_at
+
   status_progression.each do |target_status|
     current_time += rand(1..days_between).days
     job.update!(status: target_status, updated_at: current_time)
@@ -41,9 +43,7 @@ def create_job_with_history(user:, attrs:, status_progression: [], days_between:
   job
 end
 
-# ── Job definitions ─────────────────────────────────────────────────────────────
-
-JOBS = [
+jobs = [
   # Wishlist
   { attrs: { company_name: "Canva", job_title: "Frontend Developer", location: "Sydney, NSW",
              employment_type: "full_time", source: "linkedin", priority: "high",
@@ -54,7 +54,7 @@ JOBS = [
              employment_type: "full_time", source: "company_site", priority: "high",
              salary_range: "$130k - $160k", job_url: "https://www.atlassian.com/company/careers",
              tags: ["react", "java", "cloud"], follow_up_date: 2.days.from_now,
-             notes: "Team Atlas - working on Jira Cloud.", created_offset: 3 } },
+             notes: "Team Atlas, working on Jira Cloud.", created_offset: 3 } },
   { attrs: { company_name: "Xero", job_title: "Software Engineer", location: "Melbourne, VIC",
              employment_type: "full_time", source: "seek", priority: "medium",
              salary_range: "$110k - $130k", job_url: "https://www.xero.com/careers",
@@ -118,7 +118,7 @@ JOBS = [
              employment_type: "full_time", source: "seek", priority: "high",
              salary_range: "$125k - $145k", job_url: "https://www.carsales.com.au/careers",
              tags: ["ruby", "rails", "automotive"],
-             notes: "Received offer! $135k + super.", next_action: "Review offer and negotiate",
+             notes: "Received offer. $135k + super.", next_action: "Review offer and negotiate",
              created_offset: 45 },
     progression: ["applied", "phone_screen", "interviewing", "offer"], days_between: 5 },
 
@@ -127,7 +127,7 @@ JOBS = [
              employment_type: "full_time", source: "referral", priority: "high",
              salary_range: "$95k - $110k", job_url: "https://www.redbubble.com/careers",
              tags: ["ruby", "rails", "react", "e-commerce"],
-             notes: "Accepted! Start date in 3 weeks.", created_offset: 55 },
+             notes: "Accepted. Start date in 3 weeks.", created_offset: 55 },
     progression: ["applied", "phone_screen", "interviewing", "offer", "accepted"], days_between: 5 },
 
   # Rejected
@@ -150,7 +150,7 @@ JOBS = [
     progression: ["applied", "rejected"], days_between: 10 },
 
   # Ghosted
-  { attrs: { company_name: "Myob", job_title: "Software Developer", location: "Melbourne, VIC",
+  { attrs: { company_name: "MYOB", job_title: "Software Developer", location: "Melbourne, VIC",
              employment_type: "full_time", source: "seek", priority: "medium",
              salary_range: "$100k - $120k", job_url: "https://www.myob.com/careers",
              tags: ["accounting", "saas", "dotnet"],
@@ -172,18 +172,18 @@ JOBS = [
     progression: ["applied", "phone_screen", "withdrawn"], days_between: 7 }
 ].freeze
 
-# ── Create all jobs ─────────────────────────────────────────────────────────────
+created_jobs = {}
 
-JOBS.each do |job_def|
-  create_job_with_history(
+jobs.each do |job_def|
+  job = create_job_with_history(
     user: demo_user,
     attrs: job_def[:attrs],
     status_progression: job_def[:progression] || [],
     days_between: job_def[:days_between] || 3
   )
-end
 
-# ── Archived job (special case — needs archive! after creation) ─────────────────
+  created_jobs[[job.company_name, job.job_title]] = job
+end
 
 archived_job = create_job_with_history(
   user: demo_user,
@@ -197,51 +197,87 @@ archived_job = create_job_with_history(
 )
 archived_job.archive!
 
-# ── Manual timeline entries for richer data ─────────────────────────────────────
+created_jobs[[archived_job.company_name, archived_job.job_title]] = archived_job
 
-MANUAL_ENTRIES = [
-  { company: "Seek", entries: [
-    { entry_type: "note", description: "Researched the team on LinkedIn. Found 3 mutual connections.",
-      occurred_at: 30.days.ago },
-    { entry_type: "contact", description: "Spoke with Sarah about the role and team structure.",
-      occurred_at: 25.days.ago, metadata: { contact_name: "Sarah Chen", contact_role: "Recruiter" } },
-    { entry_type: "interview", description: "Technical pair programming. Built a small Rails feature.",
-      occurred_at: 15.days.ago, metadata: { interviewer: "Tom Nguyen", format: "video", duration: "90 mins" } }
-  ] },
-  { company: "Carsales", entries: [
-    { entry_type: "interview", description: "Final round panel interview with CTO and team lead.",
-      occurred_at: 10.days.ago, metadata: { interviewer: "Panel", format: "in-person", duration: "60 mins" } },
-    { entry_type: "note", description: "Received verbal offer! Written offer to follow.",
-      occurred_at: 5.days.ago }
-  ] },
-  { company: "Buildkite", entries: [
-    { entry_type: "follow_up", description: "Sent follow-up email to check on application status.",
-      occurred_at: 5.days.ago }
-  ] }
+manual_entries = [
+  {
+    company_name: "Seek",
+    job_title: "Full Stack Developer",
+    entries: [
+      {
+        entry_type: "note",
+        description: "Researched the team on LinkedIn. Found 3 mutual connections.",
+        occurred_at: 30.days.ago
+      },
+      {
+        entry_type: "contact",
+        description: "Spoke with Sarah about the role and team structure.",
+        occurred_at: 25.days.ago,
+        metadata: { contact_name: "Sarah Chen", contact_role: "Recruiter" }
+      },
+      {
+        entry_type: "interview",
+        description: "Technical pair programming. Built a small Rails feature.",
+        occurred_at: 15.days.ago,
+        metadata: { interviewer: "Tom Nguyen", format: "video", duration: "90 mins" }
+      }
+    ]
+  },
+  {
+    company_name: "Carsales",
+    job_title: "Ruby Developer",
+    entries: [
+      {
+        entry_type: "interview",
+        description: "Final round panel interview with CTO and team lead.",
+        occurred_at: 10.days.ago,
+        metadata: { interviewer: "Panel", format: "in-person", duration: "60 mins" }
+      },
+      {
+        entry_type: "note",
+        description: "Received verbal offer. Written offer to follow.",
+        occurred_at: 5.days.ago
+      }
+    ]
+  },
+  {
+    company_name: "Buildkite",
+    job_title: "Full Stack Developer",
+    entries: [
+      {
+        entry_type: "follow_up",
+        description: "Sent follow-up email to check on application status.",
+        occurred_at: 5.days.ago
+      }
+    ]
+  }
 ].freeze
 
-MANUAL_ENTRIES.each do |group|
-  job = Job.find_by(company_name: group[:company])
+manual_entries.each do |group|
+  job = created_jobs[[group[:company_name], group[:job_title]]]
   next unless job
 
-  group[:entries].each { |entry_attrs| TimelineEntry.create!(job: job, **entry_attrs) }
+  group[:entries].each do |entry_attrs|
+    TimelineEntry.create!(job: job, **entry_attrs)
+  end
 end
 
-# ── Summary ─────────────────────────────────────────────────────────────────────
+demo_jobs = demo_user.jobs
+demo_timeline_entries = TimelineEntry.joins(:job).where(jobs: { user_id: demo_user.id })
 
-puts ""
+puts
 puts "=== Seed Complete ==="
-puts "Created #{Job.count} jobs for demo user"
-puts "Created #{TimelineEntry.count} timeline entries"
-puts ""
+puts "Created #{demo_jobs.count} jobs for demo user"
+puts "Created #{demo_timeline_entries.count} timeline entries"
+puts
 puts "Status breakdown:"
-Job.group(:status).count.sort_by { |_, v| -v }.each do |status, count|
+demo_jobs.group(:status).count.sort_by { |_, count| -count }.each do |status, count|
   puts "  #{status.ljust(15)} #{count}"
 end
-puts ""
+puts
 puts "Source breakdown:"
-Job.group(:source).count.each do |source, count|
+demo_jobs.group(:source).count.each do |source, count|
   puts "  #{(source || 'none').ljust(15)} #{count}"
 end
-puts ""
-puts "Signin with: demo@jobjogger.com / password123"
+puts
+puts "Sign in with: #{demo_email} / #{demo_password}"
