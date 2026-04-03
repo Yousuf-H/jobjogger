@@ -27,22 +27,12 @@ RSpec.describe "Analytics API", type: :request do
     end
 
     context "when an expired token is provided" do
-      it "returns 401" do
-        get "/api/v1/analytics",
-            headers: { "Authorization" => "Bearer #{expired_jwt_for(user)}", "Content-Type" => "application/json" }
-        expect(response).to have_http_status(:unauthorized)
-        expect(json_response["error"]).to match(/expired/i)
-      end
-    end
+      before { set_auth_cookie(expired_jwt_for(user)) }
 
-    context "when a revoked token is provided" do
       it "returns 401" do
-        token = generate_jwt_for(user)
-        revoke_token(token)
-        get "/api/v1/analytics",
-            headers: { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
+        get "/api/v1/analytics", headers: { "Content-Type" => "application/json" }
         expect(response).to have_http_status(:unauthorized)
-        expect(json_response["error"]).to match(/revoked/i)
+        expect(json_response.dig("status", "message")).to match(/expired/i)
       end
     end
 

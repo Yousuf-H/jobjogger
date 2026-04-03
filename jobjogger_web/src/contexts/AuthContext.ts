@@ -3,7 +3,6 @@ import { createContext } from 'react'
 
 export interface AuthContextType {
   user: User | null
-  token: string | null
   signin: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<void>
   signout: () => Promise<void>

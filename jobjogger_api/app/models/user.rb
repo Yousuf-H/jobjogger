@@ -3,8 +3,7 @@ class User < ApplicationRecord
   has_one_attached :avatar
 
   devise :database_authenticatable, :registerable,
-       :recoverable, :rememberable, :validatable,
-       :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
+         :recoverable, :rememberable, :validatable
 
   validates :name, presence: true, length: { minimum: 2 }
   validates :name, format: {

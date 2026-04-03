@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 class Api::V1::Demo::SessionsController < ApplicationController
+  include JwtCookieable
+
   def create
     demo_user = User.find_by(demo: true)
 
     if demo_user.nil?
       render json: { status: { message: "Demo account not available." } },
-            status: :not_found
+             status: :not_found
       return
     end
 
-    token = Warden::JWTAuth::UserEncoder.new.call(demo_user, :user, nil).first
-
-    response.set_header("Authorization", "Bearer #{token}")
+    set_jwt_cookie(generate_jwt(demo_user))
 
     render json: {
       status: {

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_02_081718) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_03_213917) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -71,14 +71,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_081718) do
     t.index ["status"], name: "index_jobs_on_status"
     t.index ["tags"], name: "index_jobs_on_tags", using: :gin
     t.index ["user_id"], name: "index_jobs_on_user_id"
-  end
-
-  create_table "jwt_denylists", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "exp"
-    t.string "jti", null: false
-    t.datetime "updated_at", null: false
-    t.index ["jti"], name: "index_jwt_denylists_on_jti", unique: true
   end
 
   create_table "timeline_entries", force: :cascade do |t|

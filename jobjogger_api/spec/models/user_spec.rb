@@ -81,13 +81,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # ── Devise JWT ───────────────────────────────────────────────────────────────
-
-  describe "JWT configuration" do
-    it "uses JwtDenylist as the revocation strategy" do
-      expect(User.jwt_revocation_strategy).to eq(JwtDenylist)
-    end
-  end
 
   # ── Persistence ──────────────────────────────────────────────────────────────
 

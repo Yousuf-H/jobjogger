@@ -6,11 +6,6 @@ RSpec.describe "Jobs API", type: :request do
   let(:user)    { create(:user) }
   let(:headers) { auth_headers_for(user) }
 
-  # Helper blocks used by the shared "requires authentication" examples
-  let(:make_request_without_token) do
-    -> { get "/api/v1/jobs", headers: { "Content-Type" => "application/json" } }
-  end
-
   # ── GET /api/v1/jobs (index) ──────────────────────────────────────────────────
 
   describe "GET /api/v1/jobs" do
@@ -30,22 +25,12 @@ RSpec.describe "Jobs API", type: :request do
     end
 
     context "when an expired token is provided" do
-      it "returns 401" do
-        get "/api/v1/jobs",
-            headers: { "Authorization" => "Bearer #{expired_jwt_for(user)}", "Content-Type" => "application/json" }
-        expect(response).to have_http_status(:unauthorized)
-        expect(json_response["error"]).to match(/expired/i)
-      end
-    end
+      before { set_auth_cookie(expired_jwt_for(user)) }
 
-    context "when a revoked token is provided" do
       it "returns 401" do
-        token = generate_jwt_for(user)
-        revoke_token(token)
-        get "/api/v1/jobs",
-            headers: { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
+        get "/api/v1/jobs", headers: { "Content-Type" => "application/json" }
         expect(response).to have_http_status(:unauthorized)
-        expect(json_response["error"]).to match(/revoked/i)
+        expect(json_response.dig("status", "message")).to match(/expired/i)
       end
     end
 

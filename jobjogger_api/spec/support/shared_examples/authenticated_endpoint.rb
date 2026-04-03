@@ -1,55 +1,36 @@
 # frozen_string_literal: true
 
-# Shared examples for endpoints that require a valid JWT.
+# Shared examples for endpoints that require a valid JWT cookie.
 #
 # Usage:
 #   include_examples "requires authentication" do
-#     let(:make_request_*) { get "/api/v1/jobs", headers: {} }
+#     let(:make_request_without_cookie) { -> { get "/api/v1/jobs" } }
+#     let(:make_request_with_expired_cookie) { -> { ... } }
 #   end
 #
-# The caller must define `make_request_*` via a `let` or a `before` block.
+# The caller must define the make_request_* lets.
 RSpec.shared_examples "requires authentication" do
-  context "when no Authorization header is provided" do
-    before { make_request_without_token.call }
+  context "when no jwt cookie is provided" do
+    before { make_request_without_cookie.call }
 
     it "returns 401 Unauthorized" do
       expect(response).to have_http_status(:unauthorized)
     end
 
     it "returns an error message" do
-      expect(json_response["error"]).to be_present
+      expect(json_response.dig("status", "message")).to be_present
     end
   end
 
-  context "when an invalid token is provided" do
-    before { make_request_with_invalid_token.call }
-
-    it "returns 401 Unauthorized" do
-      expect(response).to have_http_status(:unauthorized)
-    end
-  end
-
-  context "when an expired token is provided" do
-    before { make_request_with_expired_token.call }
+  context "when an expired jwt cookie is provided" do
+    before { make_request_with_expired_cookie.call }
 
     it "returns 401 Unauthorized" do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "returns a token-expired error" do
-      expect(json_response["error"]).to match(/expired/i)
-    end
-  end
-
-  context "when a revoked token is provided" do
-    before { make_request_with_revoked_token.call }
-
-    it "returns 401 Unauthorized" do
-      expect(response).to have_http_status(:unauthorized)
-    end
-
-    it "returns a token-revoked error" do
-      expect(json_response["error"]).to match(/revoked/i)
+    it "returns a session-expired error" do
+      expect(json_response.dig("status", "message")).to match(/expired/i)
     end
   end
 end
