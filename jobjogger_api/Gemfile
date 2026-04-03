@@ -36,7 +36,7 @@ gem "image_processing", "~> 1.2"
 gem "rack-cors"
 
 # Rate limiting and basic abuse protection
-gem 'rack-attack'
+gem "rack-attack"
 
 # Authentication with Devise
 gem "devise"
