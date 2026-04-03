@@ -22,7 +22,7 @@ module JwtCookieable
       value: token,
       httponly: true,
       secure: Rails.env.production?,
-      same_site: :none,
+      same_site: Rails.env.production? ? :none : :lax,
       domain: cookie_domain,
       expires: 1.day.from_now
     }

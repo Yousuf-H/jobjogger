@@ -10,10 +10,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return storedUser ? JSON.parse(storedUser) : null
   })
 
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('auth_token')
-  })
-
   const [isLoading, setIsLoading] = useState(false)
 
   const signin = async (email: string, password: string) => {
@@ -23,16 +19,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user: { email, password },
       })
 
-      const authToken = response.headers['authorization']?.replace(
-        'Bearer ',
-        ''
-      )
       const data = response.data
 
-      if (authToken && data.status.user) {
-        setToken(authToken)
+      if (data.status.user) {
         setUser(data.status.user)
-        localStorage.setItem('auth_token', authToken)
         localStorage.setItem('user', JSON.stringify(data.status.user))
       } else {
         throw new Error('Invalid email or password.')
@@ -54,16 +44,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       })
 
-      const authToken = response.headers['authorization']?.replace(
-        'Bearer ',
-        ''
-      )
       const data = response.data
 
-      if (authToken && data.user) {
-        setToken(authToken)
+      if (data.user) {
         setUser(data.user)
-        localStorage.setItem('auth_token', authToken)
         localStorage.setItem('user', JSON.stringify(data.user))
       } else {
         throw new Error('Signup failed. Please try again.')
@@ -76,19 +60,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signout = async () => {
     setIsLoading(true)
     try {
-      if (token) {
-        try {
-          await apiClient.delete('/users/sign_out')
-        } catch (error) {
-          console.error('Signout request failed:', error)
-        }
-      }
-
-      setUser(null)
-      setToken(null)
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user')
+      await apiClient.delete('/users/sign_out')
+    } catch (error) {
+      console.error('Signout request failed:', error)
     } finally {
+      setUser(null)
+      localStorage.removeItem('user')
       setIsLoading(false)
     }
   }
@@ -102,16 +79,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true)
     try {
       const response = await demoSigninApi()
-      const authToken = response.headers['authorization']?.replace(
-        'Bearer ',
-        ''
-      )
       const data = response.data
 
-      if (authToken && data.status.user) {
-        setToken(authToken)
+      if (data.status.user) {
         setUser(data.status.user)
-        localStorage.setItem('auth_token', authToken)
         localStorage.setItem('user', JSON.stringify(data.status.user))
       }
     } catch (err: unknown) {
@@ -125,7 +96,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        token,
         signin,
         signup,
         signout,
