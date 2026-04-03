@@ -5,6 +5,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   include JwtAuthenticatable
 
   respond_to :json
+  skip_before_action :authenticate_scope!, raise: false
   before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
   before_action :prevent_demo_changes, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
 

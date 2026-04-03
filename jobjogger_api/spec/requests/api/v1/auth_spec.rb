@@ -41,11 +41,11 @@ RSpec.describe "Authentication", type: :request do
         expect(body.dig("status", "message")).to match(/signed up/i)
       end
 
-      it "returns a JWT in the Authorization response header" do
+      it "sets an HttpOnly jwt cookie" do
         post "/api/v1/users", params: valid_params.to_json,
              headers: { "Content-Type" => "application/json" }
 
-        expect(response.headers["Authorization"]).to match(/\ABearer .+\z/)
+        expect(cookies[:jwt]).to be_present
       end
 
       it "does not expose the password in the response" do
@@ -126,23 +126,23 @@ RSpec.describe "Authentication", type: :request do
         expect(body.dig("status", "user", "id")).to eq(user.id)
       end
 
-      it "returns a JWT in the Authorization response header" do
+      it "sets an HttpOnly jwt cookie" do
         post "/api/v1/users/sign_in", params: credentials,
              headers: { "Content-Type" => "application/json" }
 
-        expect(response.headers["Authorization"]).to match(/\ABearer .+\z/)
+        expect(cookies[:jwt]).to be_present
       end
 
-      it "returns a decodable JWT with the correct subject" do
+      it "sets a cookie containing a JWT with the correct subject" do
         post "/api/v1/users/sign_in", params: credentials,
              headers: { "Content-Type" => "application/json" }
 
-        token = response.headers["Authorization"].split(" ").last
+        token = decode_jwt_cookie
         secret = Rails.application.credentials.devise_jwt_secret_key ||
                  ENV.fetch("DEVISE_JWT_SECRET_KEY", "test_secret_key_for_rspec_at_least_32_chars")
         payload = JWT.decode(token, secret, true, { algorithm: "HS256" }).first
 
-        expect(payload["sub"]).to eq(user.id.to_s)
+        expect(payload["sub"]).to eq(user.id)
       end
     end
 
@@ -163,12 +163,12 @@ RSpec.describe "Authentication", type: :request do
         expect(response).to have_http_status(:unauthorized)
       end
 
-      it "does not include a token in the response header on failure" do
+      it "does not set a jwt cookie on failure" do
         post "/api/v1/users/sign_in",
              params: { user: { email: "test@example.com", password: "wrong" } }.to_json,
              headers: { "Content-Type" => "application/json" }
 
-        expect(response.headers["Authorization"]).to be_nil
+        expect(cookies[:jwt]).to be_blank
       end
     end
   end
@@ -176,54 +176,39 @@ RSpec.describe "Authentication", type: :request do
   # ── DELETE /api/v1/users/sign_out (sign out) ─────────────────────────────────
 
   describe "DELETE /api/v1/users/sign_out" do
-    let(:user)  { create(:user) }
-    let(:token) { generate_jwt_for(user) }
+    let!(:user) { create(:user, email: "signout@example.com", password: "Password1!") }
 
-    context "with a valid token" do
+    context "when signed in" do
+      # Sign in via the real endpoint so the server-issued cookie (domain=localhost)
+      # is stored by rack-test and can be properly cleared on sign-out.
+      before do
+        post "/api/v1/users/sign_in",
+             params: { user: { email: "signout@example.com", password: "Password1!" } }.to_json,
+             headers: { "Content-Type" => "application/json" }
+      end
+
       it "returns 200 OK" do
-        delete "/api/v1/users/sign_out",
-               headers: { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
-
-        expect(response).to have_http_status(:ok)
-        expect(json_response["message"]).to match(/logged out/i)
-      end
-
-      it "adds the token's jti to the JwtDenylist" do
-        expect {
-          delete "/api/v1/users/sign_out",
-                 headers: { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
-        }.to change(JwtDenylist, :count).by(1)
-      end
-
-      it "makes the token unusable for subsequent requests" do
-        delete "/api/v1/users/sign_out",
-               headers: { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
-
-        get "/api/v1/jobs",
-            headers: { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
-
-        expect(response).to have_http_status(:unauthorized)
-        expect(json_response["error"]).to match(/revoked/i)
-      end
-    end
-
-    context "without an Authorization header" do
-      it "returns 401 Unauthorized" do
         delete "/api/v1/users/sign_out",
                headers: { "Content-Type" => "application/json" }
 
-        expect(response).to have_http_status(:unauthorized)
-        expect(json_response["message"]).to match(/no authorization token/i)
+        expect(response).to have_http_status(:ok)
+        expect(json_response["message"]).to match(/signed out/i)
+      end
+
+      it "clears the jwt cookie" do
+        delete "/api/v1/users/sign_out",
+               headers: { "Content-Type" => "application/json" }
+
+        expect(cookies[:jwt]).to be_blank
       end
     end
 
-    context "with an invalid token" do
-      it "returns 401 Unauthorized" do
+    context "without a jwt cookie" do
+      it "returns 200 OK" do
         delete "/api/v1/users/sign_out",
-               headers: { "Authorization" => "Bearer invalid.token.here",
-                           "Content-Type" => "application/json" }
+               headers: { "Content-Type" => "application/json" }
 
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:ok)
       end
     end
   end

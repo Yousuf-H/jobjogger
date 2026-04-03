@@ -33,6 +33,11 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include AuthHelpers, type: :request
+
+  # Match the cookie domain used by JwtCookieable in non-production environments.
+  config.before(:each, type: :request) do
+    host! "localhost"
+  end
 end
 
 Shoulda::Matchers.configure do |config|

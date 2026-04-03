@@ -41,7 +41,7 @@ export default function SignupForm({
 
     try {
       await signup(email, password, name)
-      navigate('/jobs')
+      navigate('/')
     } catch (err: unknown) {
       const axiosError = err as {
         response?: { data?: { status?: { message?: string } } }
