@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
+  include JwtCookieable
+  include JwtAuthenticatable
+
   respond_to :json
   before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
   before_action :prevent_demo_changes, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
@@ -11,9 +14,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     yield resource if block_given?
 
     if resource.persisted?
-      token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil).first
-
-      response.set_header('Authorization', "Bearer #{token}")
+      set_jwt_cookie(generate_jwt(resource))
 
       render json: {
         status: { code: 200, message: 'Signed up successfully.' },
@@ -74,6 +75,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
     if current_user.valid_password?(password)
       current_user.destroy
+      delete_jwt_cookie
       render json: {
         status: { code: 200, message: 'Account deleted successfully.' }
       }, status: :ok
@@ -115,7 +117,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       current_user.avatar.purge
       render json: {
         status: { code: 200, message: 'Avatar removed.' },
-        user: user_payload(current_user,  avatar_url: nil)
+        user: user_payload(current_user, avatar_url: nil)
       }, status: :ok
     else
       render json: { status: { message: 'No avatar to remove.' } }, status: :unprocessable_content
@@ -136,7 +138,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     params.require(:user).permit(:password, :password_confirmation)
   end
 
-  def user_payload(user,  avatar_url: avatar_url(user))
+  def user_payload(user, avatar_url: avatar_url(user))
     {
       id: user.id,
       email: user.email,
@@ -149,7 +151,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   def prevent_demo_changes
     if current_user.demo?
       render json: { status: { message: "Demo account cannot be modified." } },
-            status: :forbidden
+             status: :forbidden
     end
   end
 end
