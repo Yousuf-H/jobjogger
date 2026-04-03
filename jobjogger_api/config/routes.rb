@@ -39,4 +39,7 @@ Rails.application.routes.draw do
       resources :timeline_entries, only: [:update, :destroy]
     end
   end
+
+  # Catch-all for unknown routes — silences bot probe noise
+  match '*unmatched', to: 'application#not_found', via: :all
 end
