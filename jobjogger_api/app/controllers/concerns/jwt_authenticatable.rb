@@ -14,12 +14,7 @@ module JwtAuthenticatable
     end
 
     begin
-      payload = JWT.decode(
-        token,
-        Rails.application.credentials.devise_jwt_secret_key || ENV["DEVISE_JWT_SECRET_KEY"],
-        true,
-        { algorithm: "HS256" }
-      ).first
+      payload = JWT.decode(token, jwt_secret, true, { algorithm: "HS256" }).first
 
       @current_user = User.find(payload["sub"])
     rescue JWT::ExpiredSignature
@@ -31,5 +26,9 @@ module JwtAuthenticatable
 
   def current_user
     @current_user
+  end
+
+  def jwt_secret
+    Rails.application.credentials.devise_jwt_secret_key || ENV["DEVISE_JWT_SECRET_KEY"]
   end
 end

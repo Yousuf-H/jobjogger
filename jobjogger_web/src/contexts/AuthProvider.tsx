@@ -59,15 +59,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signout = async () => {
     setIsLoading(true)
-    try {
-      await apiClient.delete('/users/sign_out')
-    } catch (error) {
-      console.error('Signout request failed:', error)
-    } finally {
-      setUser(null)
-      localStorage.removeItem('user')
-      setIsLoading(false)
+    if (user) {
+      try {
+        await apiClient.delete('/users/sign_out')
+      } catch (error) {
+        console.error('Signout request failed:', error)
+      }
     }
+    setUser(null)
+    localStorage.removeItem('user')
+    setIsLoading(false)
   }
 
   const updateUser = (updatedUser: User) => {

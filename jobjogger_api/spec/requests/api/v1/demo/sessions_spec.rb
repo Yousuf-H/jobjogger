@@ -22,12 +22,7 @@ RSpec.describe "Demo Sessions", type: :request do
       it "sets a cookie containing a JWT with the demo user as subject" do
         post "/api/v1/demo/session", headers: json_headers
 
-        token  = decode_jwt_cookie
-        secret = Rails.application.credentials.devise_jwt_secret_key ||
-                 ENV.fetch("DEVISE_JWT_SECRET_KEY", "test_secret_key_for_rspec_at_least_32_chars")
-        payload = JWT.decode(token, secret, true, { algorithm: "HS256" }).first
-
-        expect(payload["sub"]).to eq(demo_user.id)
+        expect(decode_jwt_payload["sub"]).to eq(demo_user.id)
       end
 
       it "returns the demo user payload in the response body" do

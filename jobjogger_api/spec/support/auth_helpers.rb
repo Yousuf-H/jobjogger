@@ -2,37 +2,28 @@
 
 module AuthHelpers
   # Sets a signed JWT cookie for the given user and returns JSON content-type headers.
-  # Used as a drop-in for the old header-based approach:
-  #   let(:headers) { auth_headers_for(user) }
-  # The cookie is set as a side-effect when the let is first evaluated.
+  # The cookie is set as a side-effect; the returned hash is used as request headers.
   def auth_headers_for(user)
-    token = generate_jwt_for(user)
-    set_auth_cookie(token)
+    set_auth_cookie(generate_jwt_for(user))
     { "Content-Type" => "application/json" }
   end
 
-  # Returns a raw JWT string for the given user.
   def generate_jwt_for(user)
     payload = {
       sub: user.id,
       exp: 24.hours.from_now.to_i,
-      iat: Time.now.to_i
+      iat: Time.current.to_i
     }
-    secret = Rails.application.credentials.devise_jwt_secret_key ||
-             ENV.fetch("DEVISE_JWT_SECRET_KEY", "test_secret_key_for_rspec_at_least_32_chars")
-    JWT.encode(payload, secret, "HS256")
+    JWT.encode(payload, jwt_secret, "HS256")
   end
 
-  # Returns an already-expired JWT for testing token expiry.
   def expired_jwt_for(user)
     payload = {
       sub: user.id,
       iat: 2.hours.ago.to_i,
       exp: 1.hour.ago.to_i
     }
-    secret = Rails.application.credentials.devise_jwt_secret_key ||
-             ENV.fetch("DEVISE_JWT_SECRET_KEY", "test_secret_key_for_rspec_at_least_32_chars")
-    JWT.encode(payload, secret, "HS256")
+    JWT.encode(payload, jwt_secret, "HS256")
   end
 
   # Sets the jwt signed cookie directly with the given raw token string.
@@ -44,20 +35,21 @@ module AuthHelpers
     }[:jwt]
   end
 
-  # Reads and verifies the signed :jwt cookie that was set by the last response.
+  # Reads and verifies the signed :jwt cookie set by the last response.
   # Returns the raw JWT string, or nil if no valid cookie is present.
   def decode_jwt_cookie
     raw = cookies[:jwt]
     return nil if raw.blank?
 
-    env = Rails.application.env_config.merge(
-      "rack.input"     => StringIO.new,
-      "REQUEST_METHOD" => "GET",
-      "PATH_INFO"      => "/",
-      "HTTP_HOST"      => "localhost",
-      "HTTP_COOKIE"    => "jwt=#{raw}"
-    )
-    ActionDispatch::Request.new(env).cookie_jar.signed[:jwt]
+    ad_cookie_jar(http_cookie: "jwt=#{raw}").signed[:jwt]
+  end
+
+  # Decodes the signed :jwt cookie and returns the payload hash.
+  def decode_jwt_payload
+    token = decode_jwt_cookie
+    return nil if token.nil?
+
+    JWT.decode(token, jwt_secret, true, { algorithm: "HS256" }).first
   end
 
   def json_response
@@ -66,13 +58,19 @@ module AuthHelpers
 
   private
 
-  def ad_cookie_jar
+  def jwt_secret
+    Rails.application.credentials.devise_jwt_secret_key ||
+      ENV.fetch("DEVISE_JWT_SECRET_KEY", "test_secret_key_for_rspec_at_least_32_chars")
+  end
+
+  def ad_cookie_jar(http_cookie: nil)
     env = Rails.application.env_config.merge(
       "rack.input"     => StringIO.new,
       "REQUEST_METHOD" => "GET",
       "PATH_INFO"      => "/",
       "HTTP_HOST"      => "localhost"
     )
+    env["HTTP_COOKIE"] = http_cookie if http_cookie
     ActionDispatch::Request.new(env).cookie_jar
   end
 end
