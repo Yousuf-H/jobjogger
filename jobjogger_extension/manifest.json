@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "JobJogger",
+  "version": "1.0.0",
+  "description": "Extract job listings and save them to JobJogger",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://www.seek.com.au/*"],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
