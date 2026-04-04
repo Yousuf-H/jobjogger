@@ -3,6 +3,7 @@ export type ExtractedJob = {
   jobTitle: string | null;
   companyName: string | null;
   location: string | null;
+  salary: string | null;
   jobDescription: string | null;
   jobUrl: string;
   extractedAt: string;

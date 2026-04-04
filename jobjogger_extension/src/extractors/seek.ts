@@ -7,6 +7,15 @@ const turndown = new TurndownService({
   codeBlockStyle: "fenced",
 });
 
+function normalizeUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return url;
+  }
+}
+
 export function extractSeek(): ExtractionResult {
   const url = window.location.href;
 
@@ -18,6 +27,7 @@ export function extractSeek(): ExtractionResult {
     const jobTitle = extractText('[data-automation="job-detail-title"]');
     const companyName = extractText('[data-automation="advertiser-name"]');
     const location = extractText('[data-automation="job-detail-location"]');
+    const salary = extractText('[data-automation="job-detail-salary"]');
     const jobDescription = extractMarkdown('[data-automation="jobAdDetails"]');
 
     return {
@@ -27,8 +37,9 @@ export function extractSeek(): ExtractionResult {
         jobTitle,
         companyName,
         location,
+        salary,
         jobDescription,
-        jobUrl: url,
+        jobUrl: normalizeUrl(url),
         extractedAt: new Date().toISOString(),
       },
     };

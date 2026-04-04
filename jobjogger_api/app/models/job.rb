@@ -46,6 +46,7 @@ class Job < ApplicationRecord
 
   before_validation :normalise_job_url
   validate :valid_url_format
+  validates :job_url, uniqueness: { scope: :user_id }, allow_nil: true
   validates :source_other, presence: true, if: :other_source?
 
   scope :active, -> { where(archived_at: nil).where.not(status: TERMINAL_STATUSES) }
