@@ -1,4 +1,11 @@
+import TurndownService from "turndown";
 import type { ExtractionResult } from "../types";
+
+const turndown = new TurndownService({
+  headingStyle: "atx",
+  bulletListMarker: "-",
+  codeBlockStyle: "fenced",
+});
 
 export function extractSeek(): ExtractionResult {
   const url = window.location.href;
@@ -11,7 +18,7 @@ export function extractSeek(): ExtractionResult {
     const jobTitle = extractText('[data-automation="job-detail-title"]');
     const companyName = extractText('[data-automation="advertiser-name"]');
     const location = extractText('[data-automation="job-detail-location"]');
-    const jobDescription = extractText('[data-automation="jobAdDetails"]');
+    const jobDescription = extractMarkdown('[data-automation="jobAdDetails"]');
 
     return {
       success: true,
@@ -37,4 +44,25 @@ function isSeekJobPage(url: string): boolean {
 function extractText(selector: string): string | null {
   const el = document.querySelector(selector);
   return el ? (el.textContent?.trim() ?? null) : null;
+}
+
+function extractMarkdown(selector: string): string | null {
+  const el = document.querySelector(selector);
+  if (!el) return null;
+
+  let markdown = turndown.turndown(el.innerHTML);
+
+  markdown = markdown
+    .replace(/\*\*([^*]+?)\s*\n\s*\n\s*\*\*(?=\s*\n|\s*$)/g, "**$1**\n\n")
+    .replace(/\*\*\s*\n/g, "**\n")
+    .replace(/\*\*\n([A-Z])/g, "**\n\n$1")
+    .replace(/^- {3}/gm, "- ")
+    .replace(/^(\s+)- {3}/gm, "$1- ")
+    .replace(/^(- .+)\n\s*\n(?=- )/gm, "$1\n")
+    .replace(/^(- .+)\n\s*\n(\s+- )/gm, "$1\n$2")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/^(\s*\n)+/, "")
+    .trim();
+
+  return markdown;
 }

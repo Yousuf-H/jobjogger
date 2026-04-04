@@ -8,7 +8,11 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.0.260",
+    "@types/turndown": "^5.0.6",
     "esbuild": "^0.28.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "turndown": "^7.2.4"
   }
 }
