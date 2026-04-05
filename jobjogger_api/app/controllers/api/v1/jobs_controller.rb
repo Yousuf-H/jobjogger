@@ -71,6 +71,10 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
       jobs = jobs.where(status: statuses)
     end
 
+    if params[:job_url].present?
+      jobs = jobs.where(job_url: params[:job_url])
+    end
+
     if params[:priority].present?
       priorities = Array(params[:priority])
       jobs = jobs.where(priority: priorities)

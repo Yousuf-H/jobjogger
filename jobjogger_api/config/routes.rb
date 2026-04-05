@@ -9,6 +9,9 @@ Rails.application.routes.draw do
       # Demo login
       post "demo/session", to: "demo/sessions#create"
 
+      # Extension
+      get 'users/me', to: 'users/me#show'
+
       # Auth routes
       devise_scope :user do
         post 'users/sign_in', to: 'users/sessions#create'

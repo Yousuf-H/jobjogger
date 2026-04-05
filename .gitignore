@@ -27,6 +27,13 @@ jobjogger_api/config/master.key
 jobjogger_api/.bundle/
 jobjogger_api/coverage/
 
+
+# -------------------------
+# Rails API (jobjogger_api)
+# -------------------------
+jobjogger_extension/node_modules/
+jobjogger_extension/dist/
+
 # -------------------------
 # React (jobjogger_web)
 # -------------------------

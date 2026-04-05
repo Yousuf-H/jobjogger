@@ -1,10 +1,11 @@
 import { columns as createColumns } from '@/components/job/columns'
-import { TypographyH1 } from '@/components/ui/typography'
 import DataTable from '@/components/job/DataTable'
+import { ExtensionBanner } from '@/components/job/ExtensionBanner'
 import { JobsToolbar } from '@/components/job/JobsToolbar'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { Card } from '@/components/ui/card'
+import { TypographyH1 } from '@/components/ui/typography'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
 import { usePageTitle } from '@/hooks/usePageTitle'
@@ -26,11 +27,15 @@ export default function JobsPage() {
   return (
     <div className="page-container space-y-4">
       <div>
-        <TypographyH1 className="text-2xl font-bold tracking-tight">Jobs</TypographyH1>
+        <TypographyH1 className="text-2xl font-bold tracking-tight">
+          Jobs
+        </TypographyH1>
         <p className="text-muted-foreground text-sm">
           Manage and track all your job applications.
         </p>
       </div>
+
+      <ExtensionBanner />
 
       <JobsToolbar
         onFiltersChange={handleFiltersChange}

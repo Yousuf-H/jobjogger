@@ -8,11 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { TypographyH1 } from '@/components/ui/typography'
 import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
-import { TypographyH1 } from '@/components/ui/typography'
 import { formatDistanceToNow } from 'date-fns'
 import {
   ArrowLeft,
@@ -125,7 +125,13 @@ export default function JobDetailPage() {
       <div className="mx-auto max-w-5xl px-6 py-6">
         {/* Top bar */}
         <div className="mb-6 flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              window.history.length > 1 ? navigate(-1) : navigate('/jobs')
+            }
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>

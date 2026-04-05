@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_03_213917) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_04_231219) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_03_213917) do
     t.index ["status", "follow_up_date"], name: "index_jobs_on_status_and_follow_up_date"
     t.index ["status"], name: "index_jobs_on_status"
     t.index ["tags"], name: "index_jobs_on_tags", using: :gin
+    t.index ["user_id", "job_url"], name: "index_jobs_on_user_id_and_job_url", unique: true, where: "(job_url IS NOT NULL)"
     t.index ["user_id"], name: "index_jobs_on_user_id"
   end
 
