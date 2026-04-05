@@ -1,5 +1,6 @@
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TypographyH1 } from '@/components/ui/typography'
@@ -16,6 +17,7 @@ export default function SignupForm({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [error, setError] = useState('')
   const { signup, isLoading } = useAuth()
   const navigate = useNavigate()
@@ -39,8 +41,13 @@ export default function SignupForm({
       return
     }
 
+    if (!agreedToTerms) {
+      setError('Please agree to the Terms & Conditions and Privacy Policy')
+      return
+    }
+
     try {
-      await signup(email, password, name)
+      await signup(email, password, name, agreedToTerms)
       navigate('/')
     } catch (err: unknown) {
       const axiosError = err as {
@@ -136,6 +143,33 @@ export default function SignupForm({
             required
             autoComplete="new-password"
           />
+        </div>
+
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="terms"
+            checked={agreedToTerms}
+            onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+            className="mt-0.5"
+          />
+          <Label htmlFor="terms" className="text-muted-foreground text-sm font-normal leading-snug cursor-pointer">
+            I agree to the{' '}
+            <Link
+              to="/terms"
+              className="text-primary hover:underline"
+              target="_blank"
+            >
+              Terms &amp; Conditions
+            </Link>{' '}
+            and{' '}
+            <Link
+              to="/privacy-policy"
+              className="text-primary hover:underline"
+              target="_blank"
+            >
+              Privacy Policy
+            </Link>
+          </Label>
         </div>
 
         <Button type="submit" className="w-full" disabled={isLoading}>

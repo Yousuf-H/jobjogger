@@ -128,7 +128,11 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   private
 
   def sign_up_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :name)
+    permitted = params.require(:user).permit(:email, :password, :password_confirmation, :name, :agreed_to_terms)
+    if permitted.delete(:agreed_to_terms).in?([true, "true", "1"])
+      permitted[:terms_agreed_at] = Time.current
+    end
+    permitted
   end
 
   def profile_params
@@ -145,6 +149,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       email: user.email,
       name: user.name,
       avatar_url: avatar_url,
+      terms_agreed_at: user.terms_agreed_at,
       created_at: user.created_at
     }
   end

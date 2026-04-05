@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
       # Extension
       get 'users/me', to: 'users/me#show'
+      patch 'users/me/accept_terms', to: 'users/me#accept_terms'
 
       # Auth routes
       devise_scope :user do

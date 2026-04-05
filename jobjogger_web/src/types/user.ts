@@ -4,5 +4,6 @@ export interface User {
   name: string
   avatar_url?: string | null
   demo: boolean
+  terms_agreed_at: string | null
   created_at: string
 }

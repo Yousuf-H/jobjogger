@@ -1,6 +1,6 @@
 import { AuthContext } from '@/contexts/AuthContext'
 import { apiClient } from '@/services/api/client'
-import { demoSigninApi } from '@/services/api/user'
+import { acceptTermsApi, demoSigninApi } from '@/services/api/user'
 import { type User } from '@/types/user'
 import { type ReactNode, useState } from 'react'
 
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const signup = async (email: string, password: string, name: string) => {
+  const signup = async (email: string, password: string, name: string, agreedToTerms: boolean) => {
     setIsLoading(true)
     try {
       const response = await apiClient.post('/users', {
@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           password,
           password_confirmation: password,
           name,
+          agreed_to_terms: agreedToTerms,
         },
       })
 
@@ -76,6 +77,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser))
   }
 
+  const acceptTerms = async () => {
+    const data = await acceptTermsApi()
+    if (data.user) {
+      setUser(data.user)
+      localStorage.setItem('user', JSON.stringify(data.user))
+    }
+  }
+
   const demoSignin = async () => {
     setIsLoading(true)
     try {
@@ -102,6 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signout,
         updateUser,
         demoSignin,
+        acceptTerms,
         isLoading,
       }}
     >

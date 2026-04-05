@@ -1,5 +1,6 @@
-import SigninForm from '@/components/user/SigninForm'
+import Footer from '@/components/layout/Footer'
 import { TypographyH2 } from '@/components/ui/typography'
+import SigninForm from '@/components/user/SigninForm'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { Award, BarChart3, Briefcase, TrendingUp } from 'lucide-react'
 
@@ -24,7 +25,7 @@ export default function SigninPage() {
           {/* Tagline */}
           <div className="space-y-6">
             <div className="space-y-3">
-              <TypographyH2 className="text-primary-foreground text-3xl font-bold leading-tight border-0 pb-0">
+              <TypographyH2 className="text-primary-foreground border-0 pb-0 text-3xl font-bold leading-tight">
                 Welcome back.
                 <br />
                 Let's keep the momentum.
@@ -84,7 +85,7 @@ export default function SigninPage() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center px-6 py-12 lg:col-span-3">
+      <div className="relative flex flex-col items-center justify-center px-6 py-12 lg:col-span-3">
         <div className="mb-8 flex items-center gap-2 lg:hidden">
           <div className="bg-primary flex size-8 items-center justify-center rounded-lg">
             <Briefcase className="text-primary-foreground h-4 w-4" />
@@ -94,6 +95,10 @@ export default function SigninPage() {
 
         <div className="w-full max-w-sm">
           <SigninForm />
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-6">
+          <Footer />
         </div>
       </div>
     </div>
