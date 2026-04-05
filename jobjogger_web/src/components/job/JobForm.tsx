@@ -63,6 +63,7 @@ export function JobForm({
     },
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const sourceValue = form.watch('source')
 
   useEffect(() => {

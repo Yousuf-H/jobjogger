@@ -34,7 +34,7 @@ export function useExtensionInstalled(): boolean | null {
         }
       )
     } catch {
-      setInstalled(false)
+      setTimeout(() => setInstalled(false), 0)
     }
   }, [])
 
