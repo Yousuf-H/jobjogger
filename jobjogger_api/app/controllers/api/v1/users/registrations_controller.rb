@@ -129,7 +129,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
   def sign_up_params
     permitted = params.require(:user).permit(:email, :password, :password_confirmation, :name, :agreed_to_terms)
-    if permitted.delete(:agreed_to_terms).in?([true, "true", "1"])
+    if permitted.delete(:agreed_to_terms).in?([ true, "true", "1" ])
       permitted[:terms_agreed_at] = Time.current
     end
     permitted
