@@ -14,8 +14,6 @@ export function ExtensionBanner() {
       localStorage.getItem(`extension_banner_dismissed_${user?.id}`) === 'true'
   )
 
-  console.log(user?.id)
-
   const isChrome =
     /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent)
 
