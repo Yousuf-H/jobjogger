@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "JobJogger Chrome Extension",
   "scripts": {
-    "build": "esbuild src/popup.ts src/content.ts --bundle --outdir=dist --target=chrome120",
+    "build": "esbuild src/popup.ts src/content.ts src/background.ts --bundle --outdir=dist --target=chrome120",
     "watch": "esbuild src/popup.ts src/content.ts --bundle --outdir=dist --target=chrome120 --watch"
   },
   "devDependencies": {
