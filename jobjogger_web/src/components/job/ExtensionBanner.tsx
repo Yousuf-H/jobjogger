@@ -4,7 +4,9 @@ import { useExtensionInstalled } from '@/hooks/useExtensionInstalled'
 import { PuzzleIcon, X } from 'lucide-react'
 import { useState } from 'react'
 
-const EXTENSION_URL = 'https://chrome.google.com/webstore/detail/jobjogger'
+const EXTENSION_STORE_URL = import.meta.env.VITE_EXTENSION_STORE_URL as
+  | string
+  | undefined
 
 export function ExtensionBanner() {
   const { user } = useAuth()
@@ -17,7 +19,7 @@ export function ExtensionBanner() {
   const isChrome =
     /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent)
 
-  if (installed || dismissed || !isChrome || installed === null) return null
+  if (installed || dismissed || !isChrome || installed === null || !EXTENSION_STORE_URL) return null
 
   const handleDismiss = () => {
     localStorage.setItem(`extension_banner_dismissed_${user?.id}`, 'true')
@@ -36,7 +38,7 @@ export function ExtensionBanner() {
         <p className="text-muted-foreground hidden text-sm sm:block">—</p>
 
         <a
-          href={EXTENSION_URL}
+          href={EXTENSION_STORE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="text-primary text-sm font-medium hover:underline"

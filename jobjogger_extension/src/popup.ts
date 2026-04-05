@@ -1,6 +1,15 @@
 import { config } from "./config";
 import type { ExtractedJob, ExtractionResult } from "./types";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const root = document.getElementById("root")!;
 const headerRight = document.getElementById("header-right")!;
 
@@ -72,7 +81,7 @@ async function init() {
 
   headerRight.innerHTML = `
     <span class="source-badge" id="source-badge"></span>
-    <span class="user-name">${currentUser.name || currentUser.email}</span>
+    <span class="user-name">${escapeHtml(currentUser.name || currentUser.email)}</span>
   `;
 
   await chrome.scripting.executeScript({
@@ -101,17 +110,15 @@ async function renderJob(job: ExtractedJob) {
         .trim() + "..."
     : null;
 
-  const existingJobId = await checkDuplicate(job.jobUrl);
-
   const metaItems = [
     job.location
-      ? `<div class="meta-item">${locationIcon()}<span>${job.location}</span></div>`
+      ? `<div class="meta-item">${locationIcon()}<span>${escapeHtml(job.location)}</span></div>`
       : "",
     job.workType
-      ? `<div class="meta-item">${workTypeIcon()}<span>${job.workType}</span></div>`
+      ? `<div class="meta-item">${workTypeIcon()}<span>${escapeHtml(job.workType)}</span></div>`
       : "",
     job.salary
-      ? `<div class="meta-item">${salaryIcon()}<span>${job.salary}</span></div>`
+      ? `<div class="meta-item">${salaryIcon()}<span>${escapeHtml(job.salary)}</span></div>`
       : "",
   ]
     .filter(Boolean)
@@ -120,34 +127,36 @@ async function renderJob(job: ExtractedJob) {
   root.innerHTML = `
     <div class="content">
       <div class="job-header">
-        <div class="job-title">${job.jobTitle ?? "Unknown title"}</div>
-        <div class="company-name">${job.companyName ?? "Unknown company"}</div>
+        <div class="job-title">${escapeHtml(job.jobTitle ?? "Unknown title")}</div>
+        <div class="company-name">${escapeHtml(job.companyName ?? "Unknown company")}</div>
       </div>
 
       <div class="meta-list">${metaItems}</div>
 
       <div class="description-box">
         <div class="description-label">Description preview</div>
-        <div class="description-text">${descriptionPreview ?? "No description extracted"}</div>
+        <div class="description-text">${escapeHtml(descriptionPreview ?? "No description extracted")}</div>
       </div>
 
-      ${
-        existingJobId
-          ? `<button class="btn btn-saved" id="action-btn">Already saved — View in JobJogger</button>`
-          : `<button class="btn btn-primary" id="action-btn">Save to JobJogger</button>`
-      }
+      <button class="btn btn-primary" id="action-btn" disabled>Checking...</button>
       <div class="status" id="status"></div>
     </div>
   `;
 
+  const existingJobId = await checkDuplicate(job.jobUrl);
+  const btn = document.getElementById("action-btn") as HTMLButtonElement;
+
   if (existingJobId) {
-    document.getElementById("action-btn")!.addEventListener("click", () => {
+    btn.className = "btn btn-saved";
+    btn.textContent = "Already saved — View in JobJogger";
+    btn.disabled = false;
+    btn.addEventListener("click", () => {
       chrome.tabs.create({ url: `${config.appUrl}/jobs/${existingJobId}` });
     });
   } else {
-    document
-      .getElementById("action-btn")!
-      .addEventListener("click", () => saveJob(job));
+    btn.textContent = "Save to JobJogger";
+    btn.disabled = false;
+    btn.addEventListener("click", () => saveJob(job));
   }
 }
 
@@ -238,7 +247,7 @@ function showError(message: string) {
         </svg>
       </div>
       <div class="error-title">Not a supported page</div>
-      <div class="error-message">${message}<br>Navigate to a Seek job listing and try again.</div>
+      <div class="error-message">${escapeHtml(message)}<br>Navigate to a Seek job listing and try again.</div>
     </div>
   `;
 }

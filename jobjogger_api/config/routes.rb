@@ -9,7 +9,7 @@ Rails.application.routes.draw do
       # Demo login
       post "demo/session", to: "demo/sessions#create"
 
-      # Extention
+      # Extension
       get 'users/me', to: 'users/me#show'
 
       # Auth routes
