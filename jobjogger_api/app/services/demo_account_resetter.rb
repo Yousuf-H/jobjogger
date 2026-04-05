@@ -9,7 +9,6 @@ class DemoAccountResetter
     demo_user = User.find_by(demo: true)
 
     if demo_user.nil?
-      puts "No demo user found. Aborting."
       return
     end
 
@@ -26,8 +25,6 @@ class DemoAccountResetter
       jobs_by_company = seed_jobs(demo_user)
       seed_timeline_entries(jobs_by_company)
     end
-
-    puts "Demo account reset complete."
   end
 
   def seed_jobs(demo_user)

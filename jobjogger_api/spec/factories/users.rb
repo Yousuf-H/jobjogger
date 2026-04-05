@@ -6,6 +6,7 @@ FactoryBot.define do
     email { Faker::Internet.unique.email }
     password { "Password1!" }
     password_confirmation { "Password1!" }
+    terms_agreed_at { Time.current }
 
     trait :with_jobs do
       after(:create) do |user|
