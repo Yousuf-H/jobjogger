@@ -2,7 +2,7 @@ import { config } from "./config";
 import type { ExtractedJob, ExtractionResult } from "./types";
 
 const root = document.getElementById("root")!;
-const sourceBadge = document.getElementById("source-badge")!;
+const headerRight = document.getElementById("header-right")!;
 
 interface CurrentUser {
   id: number;
@@ -37,11 +37,29 @@ async function checkDuplicate(jobUrl: string): Promise<number | null> {
   }
 }
 
+function locationIcon() {
+  return `<svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+    <path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5zm0 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" fill="#64748b"/>
+  </svg>`;
+}
+
+function workTypeIcon() {
+  return `<svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+    <path d="M13.5 4H11V2.5A1.5 1.5 0 009.5 1h-3A1.5 1.5 0 005 2.5V4H2.5A1.5 1.5 0 001 5.5v7A1.5 1.5 0 002.5 14h11a1.5 1.5 0 001.5-1.5v-7A1.5 1.5 0 0013.5 4zM6.5 2.5h3V4h-3V2.5z" fill="#64748b"/>
+  </svg>`;
+}
+
+function salaryIcon() {
+  return `<svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+    <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.25h-1.5v-1h1.5v1zm0-2.5h-1.5c0-2 2.25-1.75 2.25-3.25a1.5 1.5 0 00-3 0h-1.5a3 3 0 016 0c0 2-2.25 1.75-2.25 3.25z" fill="#64748b"/>
+  </svg>`;
+}
+
 async function init() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   if (!tab.id) {
-    showError("Could not access current tab.");
+    showError("Could not access the current tab.");
     return;
   }
 
@@ -52,7 +70,10 @@ async function init() {
     return;
   }
 
-  showUserBadge(currentUser.name || currentUser.email);
+  headerRight.innerHTML = `
+    <span class="source-badge" id="source-badge"></span>
+    <span class="user-name">${currentUser.name || currentUser.email}</span>
+  `;
 
   await chrome.scripting.executeScript({
     target: { tabId: tab.id },
@@ -64,80 +85,74 @@ async function init() {
   });
 
   if (result.success) {
-    sourceBadge.textContent = result.job.source;
+    const badge = document.getElementById("source-badge");
+    if (badge) badge.textContent = result.job.source;
     await renderJob(result.job);
   } else {
     showError(result.error);
   }
 }
 
-function showUserBadge(name: string) {
-  const header = document.querySelector(".header")!;
-  const badge = document.createElement("span");
-  badge.style.cssText = "margin-left: auto; font-size: 11px; color: #64748b;";
-  badge.textContent = name;
-  header.appendChild(badge);
-}
-
-function showSignIn() {
-  root.innerHTML = `
-    <div class="card">
-      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">
-        Sign in to JobJogger to save jobs directly from Seek.
-      </p>
-      <button class="btn-save" id="signin-btn">Sign in to JobJogger</button>
-    </div>
-  `;
-  document.getElementById("signin-btn")!.addEventListener("click", () => {
-    chrome.tabs.create({ url: `${config.appUrl}/signin` });
-  });
-}
-
 async function renderJob(job: ExtractedJob) {
   const descriptionPreview = job.jobDescription
-    ? job.jobDescription.slice(0, 120).trim() + "..."
+    ? job.jobDescription
+        .replace(/[#*_`]/g, "")
+        .slice(0, 140)
+        .trim() + "..."
     : null;
 
   const existingJobId = await checkDuplicate(job.jobUrl);
 
+  const metaItems = [
+    job.location
+      ? `<div class="meta-item">${locationIcon()}<span>${job.location}</span></div>`
+      : "",
+    job.workType
+      ? `<div class="meta-item">${workTypeIcon()}<span>${job.workType}</span></div>`
+      : "",
+    job.salary
+      ? `<div class="meta-item">${salaryIcon()}<span>${job.salary}</span></div>`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("");
+
   root.innerHTML = `
-    <div class="card">
-      <div class="job-title">${job.jobTitle ?? "Unknown title"}</div>
-      <div class="company">${job.companyName ?? "Unknown company"}</div>
-      <div class="meta">
-        ${job.location ? `<div class="meta-item"><span class="meta-icon">📍</span>${job.location}</div>` : ""}
-        ${job.salary ? `<div class="meta-item"><span class="meta-icon">💰</span>${job.salary}</div>` : ""}
-        <div class="meta-item"><span class="meta-icon">🔗</span>${new URL(job.jobUrl).hostname}</div>
+    <div class="content">
+      <div class="job-header">
+        <div class="job-title">${job.jobTitle ?? "Unknown title"}</div>
+        <div class="company-name">${job.companyName ?? "Unknown company"}</div>
       </div>
-      ${
-        descriptionPreview
-          ? `<div class="description-preview has-content">${descriptionPreview}</div>`
-          : `<div class="description-preview">No description extracted</div>`
-      }
-    </div>
-    <div class="actions">
+
+      <div class="meta-list">${metaItems}</div>
+
+      <div class="description-box">
+        <div class="description-label">Description preview</div>
+        <div class="description-text">${descriptionPreview ?? "No description extracted"}</div>
+      </div>
+
       ${
         existingJobId
-          ? `<button class="btn-save btn-already-saved" id="view-btn">Already saved — View in JobJogger</button>`
-          : `<button class="btn-save" id="save-btn">Save to JobJogger</button>`
+          ? `<button class="btn btn-saved" id="action-btn">Already saved — View in JobJogger</button>`
+          : `<button class="btn btn-primary" id="action-btn">Save to JobJogger</button>`
       }
+      <div class="status" id="status"></div>
     </div>
-    <div class="status" id="status"></div>
   `;
 
   if (existingJobId) {
-    document.getElementById("view-btn")!.addEventListener("click", () => {
+    document.getElementById("action-btn")!.addEventListener("click", () => {
       chrome.tabs.create({ url: `${config.appUrl}/jobs/${existingJobId}` });
     });
   } else {
     document
-      .getElementById("save-btn")!
+      .getElementById("action-btn")!
       .addEventListener("click", () => saveJob(job));
   }
 }
 
 async function saveJob(job: ExtractedJob) {
-  const btn = document.getElementById("save-btn") as HTMLButtonElement;
+  const btn = document.getElementById("action-btn") as HTMLButtonElement;
   const status = document.getElementById("status")!;
 
   btn.disabled = true;
@@ -157,6 +172,7 @@ async function saveJob(job: ExtractedJob) {
           location: job.location,
           job_description: job.jobDescription,
           job_url: job.jobUrl,
+          employment_type: normalizeEmploymentType(job.workType),
           salary_range: job.salary,
           source: job.source,
           status: "wishlist",
@@ -164,14 +180,12 @@ async function saveJob(job: ExtractedJob) {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to save job");
-    }
+    if (!response.ok) throw new Error("Failed to save job");
 
     const data = await response.json();
     const jobId = data.id;
 
-    btn.textContent = "✓ Saved!";
+    btn.textContent = "Saved";
     status.textContent = "Opening in JobJogger...";
     status.className = "status success";
 
@@ -186,8 +200,47 @@ async function saveJob(job: ExtractedJob) {
   }
 }
 
+function showSignIn() {
+  root.innerHTML = `
+    <div class="signin-state">
+      <p class="signin-message">Sign in to JobJogger to save jobs directly from Seek.</p>
+      <button class="btn btn-signin" id="signin-btn">Sign in to JobJogger</button>
+    </div>
+  `;
+  document.getElementById("signin-btn")!.addEventListener("click", () => {
+    chrome.tabs.create({ url: `${config.appUrl}/signin` });
+  });
+}
+
+function normalizeEmploymentType(workType: string | null): string | null {
+  if (!workType) return null;
+
+  const map: Record<string, string> = {
+    "full time": "full_time",
+    fulltime: "full_time",
+    "part time": "part_time",
+    parttime: "part_time",
+    casual: "casual",
+    "casual/vacation": "casual",
+    contract: "contract",
+    "contract/temp": "contract",
+  };
+
+  return map[workType.toLowerCase()] ?? null;
+}
+
 function showError(message: string) {
-  root.innerHTML = `<div class="error">😕 ${message}<br><br>Navigate to a job listing page and try again.</div>`;
+  root.innerHTML = `
+    <div class="error-state">
+      <div class="error-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5V10h1.5v1.5zm0-3h-1.5V4.5h1.5V8.5z" fill="#475569"/>
+        </svg>
+      </div>
+      <div class="error-title">Not a supported page</div>
+      <div class="error-message">${message}<br>Navigate to a Seek job listing and try again.</div>
+    </div>
+  `;
 }
 
 init();

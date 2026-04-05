@@ -27,6 +27,7 @@ export function extractSeek(): ExtractionResult {
     const jobTitle = extractText('[data-automation="job-detail-title"]');
     const companyName = extractText('[data-automation="advertiser-name"]');
     const location = extractText('[data-automation="job-detail-location"]');
+    const workType = extractText('[data-automation="job-detail-work-type"]');
     const salary = extractText('[data-automation="job-detail-salary"]');
     const jobDescription = extractMarkdown('[data-automation="jobAdDetails"]');
 
@@ -37,6 +38,7 @@ export function extractSeek(): ExtractionResult {
         jobTitle,
         companyName,
         location,
+        workType,
         salary,
         jobDescription,
         jobUrl: normalizeUrl(url),
