@@ -1,5 +1,6 @@
 import { AppSidebar } from '@/components/layout/AppSidebar'
 import DemoBanner from '@/components/layout/DemoBanner'
+import TermsAcceptanceModal from '@/components/layout/TermsAcceptanceModal'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
@@ -51,6 +52,7 @@ export default function Layout() {
     >
       <AppSidebar collapsible="offcanvas" variant="floating" />
       <LayoutContent />
+      <TermsAcceptanceModal />
     </SidebarProvider>
   )
 }

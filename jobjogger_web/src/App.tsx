@@ -9,6 +9,8 @@ import SettingsPage from '@/pages/SettingsPage'
 import ProfilePage from '@/pages/ProfilePage'
 import SigninPage from '@/pages/SigninPage'
 import SignupPage from '@/pages/SignupPage'
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage'
+import TermsPage from '@/pages/TermsPage'
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         {/* Public routes */}
         <Route path="/signin" element={<SigninPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
 
         {/* Protected routes */}
         <Route

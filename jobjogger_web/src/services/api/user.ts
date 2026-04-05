@@ -36,6 +36,11 @@ export async function deleteAvatar() {
   return response.data
 }
 
+export async function acceptTermsApi() {
+  const response = await apiClient.patch('/users/me/accept_terms')
+  return response.data
+}
+
 export async function demoSigninApi() {
   const response = await apiClient.post('/demo/session')
   return response

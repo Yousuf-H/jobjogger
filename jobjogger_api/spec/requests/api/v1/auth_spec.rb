@@ -12,7 +12,8 @@ RSpec.describe "Authentication", type: :request do
           name: Faker::Name.name,
           email: Faker::Internet.unique.email,
           password: "Password1!",
-          password_confirmation: "Password1!"
+          password_confirmation: "Password1!",
+          agreed_to_terms: true
         }
       }
     end

@@ -6,6 +6,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   validates :name, presence: true, length: { minimum: 2 }
+  validates :terms_agreed_at, presence: true, on: :create
   validates :name, format: {
     with: /\A[^[:space:]]+.*[^[:space:]]+\z/,
     message: "must contain at least 2 non-whitespace characters"
