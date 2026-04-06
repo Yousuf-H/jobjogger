@@ -74,9 +74,22 @@ class DemoAccountResetter
     )
 
     current_time = job.created_at
+    previous_status = "wishlist"
+
     status_progression.each do |target_status|
       current_time += rand(1..days_between).days
-      job.update!(status: target_status, updated_at: current_time)
+
+      job.update_columns(status: target_status, updated_at: current_time)
+
+      TimelineEntry.create!(
+        job: job,
+        entry_type: "status_change",
+        description: "Status changed from #{previous_status.humanize} to #{target_status.humanize}",
+        occurred_at: current_time,
+        metadata: { from: previous_status, to: target_status }
+      )
+
+      previous_status = target_status
     end
 
     job
