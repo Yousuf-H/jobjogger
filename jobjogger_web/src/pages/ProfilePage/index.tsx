@@ -36,8 +36,11 @@ export default function ProfilePage() {
   // Profile state
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
+  const [emailPassword, setEmailPassword] = useState('')
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileError, setProfileError] = useState('')
+
+  const emailChanging = email !== (user?.email || '')
 
   // Password state
   const [currentPassword, setCurrentPassword] = useState('')
@@ -60,8 +63,12 @@ export default function ProfilePage() {
     setProfileError('')
 
     try {
-      const response = await updateProfile({ name, email })
-      updateUser(response.data.user)
+      const payload: { name: string; email: string; current_password?: string } =
+        { name, email }
+      if (emailChanging) payload.current_password = emailPassword
+      const response = await updateProfile(payload)
+      updateUser(response.user)
+      setEmailPassword('')
       toast.success('Profile updated')
     } catch (err: unknown) {
       const axiosError = err as {
@@ -188,10 +195,31 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {emailChanging && (
+              <div className="space-y-2">
+                <Label htmlFor="email-password">
+                  Enter your password to confirm email change
+                </Label>
+                <Input
+                  id="email-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={emailPassword}
+                  onChange={(e) => setEmailPassword(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+
             <Button
               type="submit"
               variant="success"
-              disabled={profileLoading || !hasProfileChanges || isDemo}
+              disabled={
+                profileLoading ||
+                !hasProfileChanges ||
+                isDemo ||
+                (emailChanging && !emailPassword)
+              }
               size="sm"
             >
               <Save className="mr-2 h-4 w-4" />

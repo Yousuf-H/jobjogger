@@ -33,6 +33,20 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def update
+    if email_changing?
+      current_password = params.dig(:user, :current_password)
+      if current_password.blank?
+        return render json: {
+          status: { message: 'Password is required to change your email.' }
+        }, status: :unprocessable_content
+      end
+      unless current_user.valid_password?(current_password)
+        return render json: {
+          status: { message: 'Incorrect password.' }
+        }, status: :unprocessable_content
+      end
+    end
+
     if current_user.update(profile_params)
       render json: {
         status: { code: 200, message: 'Profile updated successfully.' },
@@ -137,6 +151,11 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
   def profile_params
     params.require(:user).permit(:email, :name)
+  end
+
+  def email_changing?
+    new_email = params.dig(:user, :email)
+    new_email.present? && new_email != current_user.email
   end
 
   def password_params
