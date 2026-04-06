@@ -1,6 +1,10 @@
 import { apiClient } from './client'
 
-export async function updateProfile(data: { name: string; email: string }) {
+export async function updateProfile(data: {
+  name: string
+  email: string
+  current_password?: string
+}) {
   const response = await apiClient.patch('/users', { user: data })
   return response.data
 }
