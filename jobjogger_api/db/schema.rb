@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_05_220231) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_10_113928) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,6 +55,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_05_220231) do
     t.string "location"
     t.string "next_action"
     t.text "notes"
+    t.bigint "organisation_id"
     t.string "priority"
     t.string "salary_range"
     t.string "source"
@@ -67,11 +68,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_05_220231) do
     t.index ["company_name"], name: "index_jobs_on_company_name"
     t.index ["follow_up_date"], name: "index_jobs_on_follow_up_date"
     t.index ["job_title"], name: "index_jobs_on_job_title"
+    t.index ["organisation_id"], name: "index_jobs_on_organisation_id"
     t.index ["status", "follow_up_date"], name: "index_jobs_on_status_and_follow_up_date"
     t.index ["status"], name: "index_jobs_on_status"
     t.index ["tags"], name: "index_jobs_on_tags", using: :gin
     t.index ["user_id", "job_url"], name: "index_jobs_on_user_id_and_job_url", unique: true, where: "(job_url IS NOT NULL)"
     t.index ["user_id"], name: "index_jobs_on_user_id"
+  end
+
+  create_table "organisations", force: :cascade do |t|
+    t.string "aliases", default: [], array: true
+    t.datetime "created_at", null: false
+    t.string "industry"
+    t.string "name", null: false
+    t.boolean "needs_review", default: true, null: false
+    t.text "notes"
+    t.integer "rating"
+    t.string "size"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "website"
+    t.index ["user_id", "name"], name: "index_organisations_on_user_id_and_name"
+    t.index ["user_id"], name: "index_organisations_on_user_id"
   end
 
   create_table "timeline_entries", force: :cascade do |t|
@@ -103,6 +121,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_05_220231) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "jobs", "organisations"
   add_foreign_key "jobs", "users"
+  add_foreign_key "organisations", "users"
   add_foreign_key "timeline_entries", "jobs"
 end

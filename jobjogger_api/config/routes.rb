@@ -28,6 +28,15 @@ Rails.application.routes.draw do
       # Analytics
       resources :analytics, only: [:index]
 
+
+      # Organisations
+      resources :organisations, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          patch :merge
+          get :similar
+        end
+      end
+
       # Job routes
       resources :jobs, only: [:create, :index, :show, :update, :destroy] do
         member do

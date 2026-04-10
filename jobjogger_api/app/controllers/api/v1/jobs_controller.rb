@@ -17,6 +17,12 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   def create
     job = current_user.jobs.build(job_params)
 
+    organisation = Organisations::FindOrCreate.new(
+      user: current_user,
+      company_name: params.dig(:job, :company_name)
+    ).call
+    job.organisation = organisation
+
     if job.save
       render json: job, status: :created
     else
