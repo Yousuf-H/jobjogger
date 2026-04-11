@@ -43,6 +43,8 @@ class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
     end
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Target organisation not found' }, status: :not_found
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
   end
 
   def similar

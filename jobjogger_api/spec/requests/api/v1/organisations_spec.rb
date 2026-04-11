@@ -390,6 +390,33 @@ RSpec.describe "Organisations API", type: :request do
         expect(response).to have_http_status(:unprocessable_content)
       end
     end
+
+    context "when the merged alias list would exceed the limit" do
+      before do
+        target.update_columns(aliases: Array.new(Organisation::MAX_ALIASES, "Alias"))
+      end
+
+      it "returns 422 Unprocessable Entity" do
+        patch "/api/v1/organisations/#{duplicate.id}/merge",
+              params: { target_id: target.id }.to_json,
+              headers: headers
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "returns a descriptive error message" do
+        patch "/api/v1/organisations/#{duplicate.id}/merge",
+              params: { target_id: target.id }.to_json,
+              headers: headers
+        expect(json_response["errors"]).to be_present
+      end
+
+      it "does not destroy the duplicate" do
+        patch "/api/v1/organisations/#{duplicate.id}/merge",
+              params: { target_id: target.id }.to_json,
+              headers: headers
+        expect(Organisation.exists?(duplicate.id)).to be(true)
+      end
+    end
   end
 
   # ── GET /api/v1/organisations/:id/similar ────────────────────────────────────

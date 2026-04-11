@@ -125,7 +125,7 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   end
 
   def job_params
-    params.require(:job).permit(:company_name, :job_title, :status, :job_url, :source, :source_other, :date_applied, :follow_up_date, :priority, :notes, :location, :employment_type, :salary_range, :job_description, tags: [])
+    params.require(:job).permit(:company_name, :job_title, :status, :job_url, :source, :source_other, :date_applied, :follow_up_date, :priority, :notes, :location, :employment_type, :salary_range, :job_description, :organisation_id, tags: [])
   end
 
   def check_demo_job_limit

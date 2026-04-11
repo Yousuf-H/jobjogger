@@ -107,11 +107,9 @@ function QuickStat({
 }
 
 function LinkOrgDialog({
-  jobId,
   onLink,
   isPending,
 }: {
-  jobId: number
   onLink: (orgId: number) => void
   isPending: boolean
 }) {
@@ -218,7 +216,6 @@ function OrganisationSection({ jobId, organisationId }: { jobId: number; organis
               </Button>
             ) : (
               <LinkOrgDialog
-                jobId={jobId}
                 onLink={(orgId) => linkMutation.mutate(orgId)}
                 isPending={linkMutation.isPending}
               />
