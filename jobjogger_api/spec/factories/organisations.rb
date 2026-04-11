@@ -15,7 +15,7 @@ FactoryBot.define do
     end
 
     trait :with_aliases do
-      aliases { [Faker::Company.name, Faker::Company.name] }
+      aliases { [ Faker::Company.name, Faker::Company.name ] }
     end
   end
 end

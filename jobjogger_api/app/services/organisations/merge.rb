@@ -15,7 +15,7 @@ module Organisations
         @duplicate.jobs.update_all(organisation_id: @target.id)
 
         # Absorb the duplicate's name and aliases into target's aliases
-        new_aliases = (@target.aliases + [@duplicate.name] + @duplicate.aliases).uniq.reject do |a|
+        new_aliases = (@target.aliases + [ @duplicate.name ] + @duplicate.aliases).uniq.reject do |a|
           a.downcase == @target.name.downcase
         end
 

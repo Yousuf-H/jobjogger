@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
 class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
-  before_action :set_organisation, only: [:show, :update, :destroy, :merge, :similar, :dismiss_review]
-  before_action :check_demo_org_limit, only: [:create]
+  before_action :set_organisation, only: [ :show, :update, :destroy, :merge, :similar, :dismiss_review ]
+  before_action :check_demo_org_limit, only: [ :create ]
 
   def index
     organisations = current_user.organisations
       .left_joins(:jobs)
       .select(
-        'organisations.*',
-        'COUNT(jobs.id) AS total_jobs_count',
+        "organisations.*",
+        "COUNT(jobs.id) AS total_jobs_count",
         "SUM(CASE WHEN jobs.archived_at IS NULL AND jobs.status NOT IN ('accepted','rejected','ghosted','withdrawn') THEN 1 ELSE 0 END) AS active_jobs_count"
       )
-      .group('organisations.id')
+      .group("organisations.id")
       .order(:name)
     render json: organisations
   end
 
   def show
-    render json: @organisation.as_json(include: { jobs: { only: [:id, :job_title, :status, :archived_at] } })
+    render json: @organisation.as_json(include: { jobs: { only: [ :id, :job_title, :status, :archived_at ] } })
   end
 
   def create
@@ -39,10 +39,10 @@ class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
     if result
       render json: target, status: :ok
     else
-      render json: { error: 'Could not merge organisation' }, status: :unprocessable_content
+      render json: { error: "Could not merge organisation" }, status: :unprocessable_content
     end
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Target organisation not found' }, status: :not_found
+    render json: { error: "Target organisation not found" }, status: :not_found
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
   end
@@ -80,7 +80,7 @@ class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
   def set_organisation
     @organisation = current_user.organisations.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Organisation not found' }, status: :not_found
+    render json: { error: "Organisation not found" }, status: :not_found
   end
 
   def organisation_params

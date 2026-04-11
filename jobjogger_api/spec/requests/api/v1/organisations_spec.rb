@@ -30,7 +30,7 @@ RSpec.describe "Organisations API", type: :request do
 
         get "/api/v1/organisations", headers: headers
         returned_ids = json_response.map { |o| o["id"] }
-        expect(returned_ids).to match_array([org1.id, org2.id])
+        expect(returned_ids).to match_array([ org1.id, org2.id ])
       end
 
       it "returns organisations sorted alphabetically by name" do
