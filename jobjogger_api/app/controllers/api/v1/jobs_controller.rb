@@ -33,7 +33,17 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   end
 
   def update
-    if @job.update(job_params)
+    updates = job_params.to_h
+
+    if updates[:company_name].present? && updates[:company_name] != @job.company_name
+      org = Organisations::FindOrCreate.new(
+        user: current_user,
+        company_name: updates[:company_name]
+      ).call
+      updates[:organisation_id] = org&.id
+    end
+
+    if @job.update(updates)
       render json: @job, status: :ok
     else
       render json: { errors: @job.errors.full_messages }, status: :unprocessable_content

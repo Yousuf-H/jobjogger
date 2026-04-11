@@ -5,6 +5,8 @@ import AnalyticsPage from '@/pages/AnalyticsPage'
 import DashboardPage from '@/pages/DashboardPage'
 import JobDetailPage from '@/pages/JobDetailPage'
 import JobsPage from '@/pages/JobsPage'
+import OrganisationDetailPage from '@/pages/OrganisationDetailPage'
+import OrganisationsPage from '@/pages/OrganisationsPage'
 import SettingsPage from '@/pages/SettingsPage'
 import ProfilePage from '@/pages/ProfilePage'
 import SigninPage from '@/pages/SigninPage'
@@ -34,6 +36,8 @@ function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:id" element={<JobDetailPage />} />
+          <Route path="/organisations" element={<OrganisationsPage />} />
+          <Route path="/organisations/:id" element={<OrganisationDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>

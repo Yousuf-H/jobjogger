@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       resources :organisations, only: [:index, :show, :create, :update, :destroy] do
         member do
           patch :merge
+          patch :dismiss_review
           get :similar
         end
       end

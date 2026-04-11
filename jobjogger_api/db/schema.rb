@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_10_113928) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_11_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,12 +83,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_113928) do
     t.string "name", null: false
     t.boolean "needs_review", default: true, null: false
     t.text "notes"
-    t.integer "rating"
+    t.decimal "rating", precision: 3, scale: 1
     t.string "size"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.string "website"
-    t.index ["user_id", "name"], name: "index_organisations_on_user_id_and_name"
+    t.index ["user_id", "name"], name: "index_organisations_on_user_id_and_name", unique: true
     t.index ["user_id"], name: "index_organisations_on_user_id"
   end
 

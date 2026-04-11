@@ -11,6 +11,10 @@ module Organisations
       return nil if @company_name.blank?
 
       find_by_name || find_by_alias || create_new
+    rescue ActiveRecord::RecordNotUnique
+      # A concurrent request created the same org between our find and create.
+      # Retry the lookup to return the existing record.
+      find_by_name || find_by_alias
     end
 
     private

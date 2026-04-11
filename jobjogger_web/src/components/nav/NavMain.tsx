@@ -1,4 +1,4 @@
-import type { Icon } from '@tabler/icons-react'
+import type { ComponentType } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import {
@@ -9,11 +9,14 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
+type NavIcon = ComponentType<{ className?: string }>
+
 type NavMainProps = {
   items: {
     title: string
     url: string
-    icon?: Icon
+    icon?: NavIcon
+    badge?: number
   }[]
 }
 
@@ -40,6 +43,11 @@ export function NavMain({ items }: NavMainProps) {
                   <Link to={item.url}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
+                    {item.badge != null && item.badge > 0 && (
+                      <span className="bg-amber-500 text-white ml-auto rounded-full px-1.5 py-0.5 text-xs font-medium leading-none">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

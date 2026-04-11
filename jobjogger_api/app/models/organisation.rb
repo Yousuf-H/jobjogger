@@ -8,10 +8,17 @@ class Organisation < ApplicationRecord
 
   validates :name, presence: true
   validates :size, inclusion: { in: SIZES }, allow_nil: true
-  validates :rating, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5 }, allow_nil: true
+  validates :rating, numericality: { greater_than_or_equal_to: 0.1, less_than_or_equal_to: 5 }, allow_nil: true
   validates :name, uniqueness: { scope: :user_id, case_sensitive: false }
+  validate :aliases_within_limit
 
-  def self.similar_to(name, user:, exclude_id: nil)
+  MAX_ALIASES = 50
+
+  def rating
+    self[:rating]&.to_f
+  end
+
+  def self.similar_to(name, user:, exclude_id:)
     query = user.organisations.where.not(id: exclude_id)
     name_pattern = "%#{sanitize_sql_like(name.strip)}%"
     query.where(
@@ -19,5 +26,11 @@ class Organisation < ApplicationRecord
       pattern: name_pattern,
       name: name.strip
     )
+  end
+
+  private
+
+  def aliases_within_limit
+    errors.add(:aliases, "cannot exceed #{MAX_ALIASES} entries") if aliases.size > MAX_ALIASES
   end
 end

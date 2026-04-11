@@ -1,19 +1,29 @@
 # frozen_string_literal: true
 
 class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
-  before_action :set_organisation, only: [:show, :update, :destroy, :merge, :similar]
+  before_action :set_organisation, only: [:show, :update, :destroy, :merge, :similar, :dismiss_review]
+  before_action :check_demo_org_limit, only: [:create]
 
   def index
-    organisations = current_user.organisations.order(:name)
+    organisations = current_user.organisations
+      .left_joins(:jobs)
+      .select(
+        'organisations.*',
+        'COUNT(jobs.id) AS total_jobs_count',
+        "SUM(CASE WHEN jobs.archived_at IS NULL AND jobs.status NOT IN ('accepted','rejected','ghosted','withdrawn') THEN 1 ELSE 0 END) AS active_jobs_count"
+      )
+      .group('organisations.id')
+      .order(:name)
     render json: organisations
   end
 
   def show
-    render json: @organisation
+    render json: @organisation.as_json(include: { jobs: { only: [:id, :job_title, :status, :archived_at] } })
   end
 
   def create
     organisation = current_user.organisations.build(organisation_params)
+    organisation.needs_review = false
 
     if organisation.save
       render json: organisation, status: :created
@@ -49,8 +59,13 @@ class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
     if @organisation.update(organisation_params)
       render json: @organisation, status: :ok
     else
-      render json: { errors: organisation.errors.full_messages }, status: :unprocessable_content
+      render json: { errors: @organisation.errors.full_messages }, status: :unprocessable_content
     end
+  end
+
+  def dismiss_review
+    @organisation.update!(needs_review: false)
+    render json: @organisation, status: :ok
   end
 
   def destroy
@@ -67,6 +82,15 @@ class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
   end
 
   def organisation_params
-    params.require(:organisation).permit(:name, :website, :industry, :size, :rating, :notes, :needs_review)
+    params.require(:organisation).permit(:name, :website, :industry, :size, :rating, :notes)
+  end
+
+  def check_demo_org_limit
+    return unless current_user.demo?
+
+    if current_user.organisations.count >= 20
+      render json: { status: { message: "Demo account is limited to 20 organisations." } },
+             status: :forbidden
+    end
   end
 end
