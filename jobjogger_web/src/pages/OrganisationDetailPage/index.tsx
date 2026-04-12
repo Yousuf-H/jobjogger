@@ -281,10 +281,10 @@ function ReviewBanner({ org }: { org: Organisation }) {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Merge organisations?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      <strong>{suggestion.name}</strong> will be merged into{' '}
-                      <strong>{org.name}</strong>. All linked jobs will be moved
-                      to <strong>{org.name}</strong>, and{' '}
-                      <strong>{suggestion.name}</strong> will be deleted. This
+                      <strong>{org.name}</strong> will be merged into{' '}
+                      <strong>{suggestion.name}</strong>. All linked jobs will be moved
+                      to <strong>{suggestion.name}</strong>, and{' '}
+                      <strong>{org.name}</strong> will be deleted. This
                       cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -293,8 +293,8 @@ function ReviewBanner({ org }: { org: Organisation }) {
                     <AlertDialogAction
                       onClick={() =>
                         mergeMutation.mutate({
-                          duplicateId: suggestion.id,
-                          targetId: org.id,
+                          duplicateId: org.id,
+                          targetId: suggestion.id,
                         })
                       }
                       disabled={mergeMutation.isPending}

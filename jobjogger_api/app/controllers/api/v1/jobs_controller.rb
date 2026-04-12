@@ -17,13 +17,19 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   def create
     job = current_user.jobs.build(job_params)
 
-    organisation = Organisations::FindOrCreate.new(
-      user: current_user,
-      company_name: params.dig(:job, :company_name)
-    ).call
-    job.organisation = organisation
+    ActiveRecord::Base.transaction do
+      organisation = Organisations::FindOrCreate.new(
+        user: current_user,
+        company_name: params.dig(:job, :company_name)
+      ).call
+      job.organisation = organisation
 
-    if job.save
+      unless job.save
+        raise ActiveRecord::Rollback
+      end
+    end
+
+    if job.persisted?
       render json: job, status: :created
     else
       render json: { errors: job.errors.full_messages }, status: :unprocessable_content
@@ -41,6 +47,10 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
         company_name: updates[:company_name]
       ).call
       updates[:organisation_id] = org&.id
+    elsif updates.key?(:organisation_id) && updates[:organisation_id].present?
+      unless current_user.organisations.exists?(updates[:organisation_id])
+        return render json: { errors: ['Organisation not found'] }, status: :not_found
+      end
     end
 
     if @job.update(updates)

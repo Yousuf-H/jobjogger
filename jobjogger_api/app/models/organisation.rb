@@ -22,7 +22,7 @@ class Organisation < ApplicationRecord
     query = user.organisations.where.not(id: exclude_id)
     name_pattern = "%#{sanitize_sql_like(name.strip)}%"
     query.where(
-      "LOWER(name) LIKE LOWER(:pattern) OR LOWER(:name) LIKE LOWER(name) OR EXISTS (SELECT 1 FROM UNNEST(aliases) AS a WHERE LOWER(a) LIKE LOWER(:pattern) OR LOWER(:name) LIKE LOWER(a))",
+      "LOWER(name) LIKE LOWER(:pattern) OR LOWER(:name) LIKE LOWER('%' || name || '%') OR EXISTS (SELECT 1 FROM UNNEST(aliases) AS a WHERE LOWER(a) LIKE LOWER(:pattern) OR LOWER(:name) LIKE LOWER('%' || a || '%'))",
       pattern: name_pattern,
       name: name.strip
     )
