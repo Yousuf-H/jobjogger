@@ -1,12 +1,9 @@
+import { PageError } from '@/components/layout/PageError'
+import { PageLoading } from '@/components/layout/PageLoading'
 import {
   OrganisationForm,
   type OrganisationFormValues,
 } from '@/components/organisation/OrganisationForm'
-import { PageError } from '@/components/layout/PageError'
-import { PageLoading } from '@/components/layout/PageLoading'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +13,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -34,7 +35,10 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TypographyH1 } from '@/components/ui/typography'
-import { useOrganisation, useSimilarOrganisations } from '@/hooks/useOrganisation'
+import {
+  useOrganisation,
+  useSimilarOrganisations,
+} from '@/hooks/useOrganisation'
 import { useOrganisationActions } from '@/hooks/useOrganisationActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { getStatusConfig } from '@/lib/statusConfig'
@@ -44,7 +48,6 @@ import {
   ArrowLeft,
   ArrowRightLeft,
   Briefcase,
-  Building2,
   ExternalLink,
   Globe,
   MoreVertical,
@@ -73,7 +76,7 @@ function StarRating({ rating }: { rating?: number | null }) {
     return (
       <div className="flex items-center gap-0.5">
         {[1, 2, 3, 4, 5].map((s) => (
-          <Star key={s} className="h-3.5 w-3.5 text-muted-foreground/25" />
+          <Star key={s} className="text-muted-foreground/25 h-3.5 w-3.5" />
         ))}
       </div>
     )
@@ -87,7 +90,7 @@ function StarRating({ rating }: { rating?: number | null }) {
           return (
             <span key={s} className="relative h-3.5 w-3.5">
               {/* Empty star underneath */}
-              <Star className="h-3.5 w-3.5 text-muted-foreground/25" />
+              <Star className="text-muted-foreground/25 h-3.5 w-3.5" />
               {/* Filled star clipped to fill% */}
               {fill > 0 && (
                 <span
@@ -162,7 +165,9 @@ function EditOrganisationDialog({ org }: { org: Organisation }) {
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Organisation</DialogTitle>
-          <DialogDescription>Update the details for {org.name}.</DialogDescription>
+          <DialogDescription>
+            Update the details for {org.name}.
+          </DialogDescription>
         </DialogHeader>
         <OrganisationForm
           key={open ? 'open' : 'closed'}
@@ -201,8 +206,8 @@ function ReviewBanner({ org }: { org: Organisation }) {
       <Card className="border-blue-200 bg-blue-50 shadow-sm dark:border-blue-800/50 dark:bg-blue-900/10">
         <CardContent className="flex items-center justify-between gap-4 p-4">
           <p className="text-sm text-blue-800 dark:text-blue-300">
-            This organisation was automatically created. Mark it as reviewed when
-            you're done.
+            This organisation was automatically created. Mark it as reviewed
+            when you're done.
           </p>
           <Button
             size="sm"
@@ -241,8 +246,8 @@ function ReviewBanner({ org }: { org: Organisation }) {
         </div>
 
         <p className="text-muted-foreground mb-3 text-sm">
-          This organisation may be a duplicate of another. Review the suggestions
-          below and merge if appropriate.
+          This organisation may be a duplicate of another. Review the
+          suggestions below and merge if appropriate.
         </p>
 
         <div className="space-y-2">
@@ -252,7 +257,9 @@ function ReviewBanner({ org }: { org: Organisation }) {
               className="flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-white px-3 py-2 dark:border-amber-800/40 dark:bg-amber-950/20"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{suggestion.name}</p>
+                <p className="truncate text-sm font-medium">
+                  {suggestion.name}
+                </p>
                 {suggestion.industry && (
                   <p className="text-muted-foreground truncate text-xs">
                     {suggestion.industry}
@@ -429,7 +436,7 @@ function JobsTab({ jobs }: { jobs: OrgJob[] }) {
           <Link
             key={job.id}
             to={`/jobs/${job.id}`}
-            className={`group flex items-center justify-between gap-4 px-6 py-3.5 transition-colors hover:bg-muted/50 ${i !== 0 ? 'border-t' : ''}`}
+            className={`hover:bg-muted/50 group flex items-center justify-between gap-4 px-6 py-3.5 transition-colors ${i !== 0 ? 'border-t' : ''}`}
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div
@@ -437,11 +444,13 @@ function JobsTab({ jobs }: { jobs: OrgJob[] }) {
                 style={{ backgroundColor: statusConfig.color }}
               />
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium transition-colors group-hover:text-primary">
+                <p className="group-hover:text-primary truncate text-sm font-medium transition-colors">
                   {job.job_title}
                 </p>
                 {job.archived_at && (
-                  <p className="text-muted-foreground text-xs mt-0.5">Archived</p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    Archived
+                  </p>
                 )}
               </div>
             </div>
@@ -497,7 +506,6 @@ export default function OrganisationDetailPage() {
   return (
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-5xl px-6 py-6">
-
         {/* Review banner — above everything */}
         {org.needs_review && (
           <div className="mb-6">
@@ -522,7 +530,11 @@ export default function OrganisationDetailPage() {
 
           <div className="flex items-center gap-2">
             <EditOrganisationDialog org={org} />
-            <OrgActionsMenu org={org} onDelete={() => deleteMutation.mutate(org.id)} isPending={deleteMutation.isPending} />
+            <OrgActionsMenu
+              org={org}
+              onDelete={() => deleteMutation.mutate(org.id)}
+              isPending={deleteMutation.isPending}
+            />
           </div>
         </div>
 
@@ -637,7 +649,6 @@ export default function OrganisationDetailPage() {
             </div>
           </Tabs>
         </Card>
-
       </div>
     </div>
   )
