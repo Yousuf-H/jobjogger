@@ -393,7 +393,7 @@ RSpec.describe "Organisations API", type: :request do
 
     context "when the merged alias list would exceed the limit" do
       before do
-        target.update_columns(aliases: Array.new(Organisation::MAX_ALIASES, "Alias"))
+        target.update_columns(aliases: Array.new(Organisation::MAX_ALIASES) { |i| "Alias #{i}" })
       end
 
       it "returns 422 Unprocessable Entity" do
