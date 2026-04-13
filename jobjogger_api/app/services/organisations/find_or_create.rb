@@ -28,6 +28,10 @@ module Organisations
     end
 
     def create_new
+      if @user.demo? && @user.organisations.count >= 20
+        raise ArgumentError, "Demo account is limited to 20 organisations."
+      end
+
       @user.organisations.create!(
         name: @company_name,
         needs_review: true
