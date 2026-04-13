@@ -39,7 +39,7 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   end
 
   def update
-    updates = job_params.to_h
+    updates = job_params.to_h.with_indifferent_access
 
     if updates[:company_name].present? && updates[:company_name] != @job.company_name
       org = Organisations::FindOrCreate.new(
@@ -58,6 +58,8 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
     else
       render json: { errors: @job.errors.full_messages }, status: :unprocessable_content
     end
+  rescue ArgumentError => e
+    render json: { errors: [e.message] }, status: :unprocessable_content
   end
 
   def destroy
