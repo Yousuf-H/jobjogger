@@ -40,20 +40,26 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
 
   def update
     updates = job_params.to_h.with_indifferent_access
+    job_updated = false
 
-    if updates[:company_name].present? && updates[:company_name] != @job.company_name
-      org = Organisations::FindOrCreate.new(
-        user: current_user,
-        company_name: updates[:company_name]
-      ).call
-      updates[:organisation_id] = org&.id
-    elsif updates.key?(:organisation_id) && updates[:organisation_id].present?
-      unless current_user.organisations.exists?(updates[:organisation_id])
-        return render json: { errors: ['Organisation not found'] }, status: :not_found
+    ActiveRecord::Base.transaction do
+      if updates[:company_name].present? && updates[:company_name] != @job.company_name
+        org = Organisations::FindOrCreate.new(
+          user: current_user,
+          company_name: updates[:company_name]
+        ).call
+        updates[:organisation_id] = org&.id
+      elsif updates.key?(:organisation_id) && updates[:organisation_id].present?
+        unless current_user.organisations.exists?(updates[:organisation_id])
+          return render json: { errors: ['Organisation not found'] }, status: :not_found
+        end
       end
+
+      job_updated = @job.update(updates)
+      raise ActiveRecord::Rollback unless job_updated
     end
 
-    if @job.update(updates)
+    if job_updated
       render json: @job, status: :ok
     else
       render json: { errors: @job.errors.full_messages }, status: :unprocessable_content
