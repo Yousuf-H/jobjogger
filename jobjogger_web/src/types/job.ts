@@ -51,6 +51,7 @@ export interface Job {
   tags: string[]
   date_applied?: string
   archived_at?: string
+  organisation_id?: number | null
   created_at: string
   updated_at: string
 }

@@ -319,6 +319,25 @@ RSpec.describe "Jobs API", type: :request do
       end
     end
 
+    context "when a demo user has reached the organisation limit" do
+      let(:demo_user)    { create(:user, :demo) }
+      let(:demo_headers) { auth_headers_for(demo_user) }
+
+      before do
+        create_list(:organisation, 20, user: demo_user)
+      end
+
+      it "returns 422 and does not create a job or organisation" do
+        expect {
+          post "/api/v1/jobs",
+               params: valid_params.deep_merge(job: { company_name: "Over The Limit Corp" }).to_json,
+               headers: demo_headers
+        }.to change(Job, :count).by(0).and change(Organisation, :count).by(0)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(json_response["errors"]).to include(match(/demo account/i))
+      end
+    end
+
     context "without authentication" do
       it "returns 401" do
         post "/api/v1/jobs", params: valid_params.to_json,
@@ -361,6 +380,38 @@ RSpec.describe "Jobs API", type: :request do
                 params: { job: { status: "applied" } }.to_json,
                 headers: headers
         }.to change { job.timeline_entries.status_change.count }.by(1)
+      end
+    end
+
+    context "when company_name changes" do
+      it "auto-links the job to a matching or new organisation" do
+        patch "/api/v1/jobs/#{job.id}",
+              params: { job: { company_name: "Brand New Corp" } }.to_json,
+              headers: headers
+        expect(response).to have_http_status(:ok)
+        org = user.organisations.find_by("LOWER(name) = LOWER(?)", "Brand New Corp")
+        expect(org).not_to be_nil
+        expect(job.reload.organisation_id).to eq(org.id)
+      end
+
+      it "does not persist a new organisation if the job update fails" do
+        patch "/api/v1/jobs/#{job.id}",
+              params: { job: { company_name: "Rollback Corp", status: "not_a_status" } }.to_json,
+              headers: headers
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(user.organisations.find_by("LOWER(name) = LOWER(?)", "Rollback Corp")).to be_nil
+      end
+    end
+
+    context "when organisation_id belongs to another user" do
+      let(:other_org) { create(:organisation, user: create(:user)) }
+
+      it "returns 404 and does not update the job" do
+        patch "/api/v1/jobs/#{job.id}",
+              params: { job: { organisation_id: other_org.id } }.to_json,
+              headers: headers
+        expect(response).to have_http_status(:not_found)
+        expect(job.reload.organisation_id).not_to eq(other_org.id)
       end
     end
 

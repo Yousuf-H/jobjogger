@@ -19,21 +19,20 @@ import {
   IconLogout,
   IconSettings,
 } from '@tabler/icons-react'
+import { Building2 } from 'lucide-react'
 import { FaPhoenixFramework } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
 
-const data = {
-  navMain: [
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, signout } = useAuth()
+  const navMain = [
     { title: 'Dashboard', url: '/', icon: IconDashboard },
     { title: 'Jobs', url: '/jobs', icon: IconListDetails },
     { title: 'Analytics', url: '/analytics', icon: IconChartBar },
-  ],
+    { title: 'Organisations', url: '/organisations', icon: Building2 },
+  ]
 
-  navSecondary: [{ title: 'Settings', url: '/settings', icon: IconSettings }],
-}
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, signout } = useAuth()
+  const navSecondary = [{ title: 'Settings', url: '/settings', icon: IconSettings }]
 
   const handleSignout = async () => {
     await signout()
@@ -57,8 +56,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>

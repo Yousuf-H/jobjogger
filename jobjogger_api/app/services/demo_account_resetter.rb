@@ -21,13 +21,26 @@ class DemoAccountResetter
     ActiveRecord::Base.transaction do
       TimelineEntry.joins(:job).where(jobs: { user: demo_user }).destroy_all
       demo_user.jobs.destroy_all
+      demo_user.organisations.destroy_all
 
-      jobs_by_company = seed_jobs(demo_user)
+      orgs_by_name = seed_organisations(demo_user)
+      jobs_by_company = seed_jobs(demo_user, orgs_by_name)
       seed_timeline_entries(jobs_by_company)
     end
   end
 
-  def seed_jobs(demo_user)
+  def seed_organisations(demo_user)
+    orgs_by_name = {}
+
+    organisations.each do |attrs|
+      org = demo_user.organisations.create!(attrs.merge(needs_review: false))
+      orgs_by_name[org.name] = org
+    end
+
+    orgs_by_name
+  end
+
+  def seed_jobs(demo_user, orgs_by_name = {})
     jobs_by_company = {}
 
     jobs.each do |job_def|
@@ -35,7 +48,8 @@ class DemoAccountResetter
         user: demo_user,
         attrs: job_def[:attrs],
         status_progression: job_def[:progression] || [],
-        days_between: job_def[:days_between] || 3
+        days_between: job_def[:days_between] || 3,
+        organisation: orgs_by_name[job_def[:attrs][:company_name]]
       )
       jobs_by_company[job.company_name] = job
     end
@@ -48,7 +62,8 @@ class DemoAccountResetter
         salary_range: "$95k - $115k", job_url: "https://www.hipages.com.au/careers",
         tags: [ "ruby", "rails", "trades" ], notes: "Listing removed.", created_offset: 50
       },
-      status_progression: [ "applied" ]
+      status_progression: [ "applied" ],
+      organisation: orgs_by_name["Hipages"]
     )
     archived_job.archive!
     jobs_by_company[archived_job.company_name] = archived_job
@@ -65,10 +80,11 @@ class DemoAccountResetter
     end
   end
 
-  def create_job_with_history(user:, attrs:, status_progression: [], days_between: 3)
+  def create_job_with_history(user:, attrs:, status_progression: [], days_between: 3, organisation: nil)
     job = Job.create!(
       user: user,
       status: "wishlist",
+      organisation: organisation,
       **attrs.except(:created_offset),
       created_at: (attrs[:created_offset] || rand(1..60)).days.ago
     )
@@ -223,6 +239,71 @@ class DemoAccountResetter
                  tags: [ "graduate", "telco" ],
                  notes: "Withdrew after Redbubble offer.", created_offset: 50 },
         progression: [ "applied", "phone_screen", "withdrawn" ], days_between: 7 }
+    ]
+  end
+
+  def organisations
+    [
+      { name: "Canva", industry: "Design & Creative Tools", size: "1000+",
+        website: "canva.com", rating: 4.8,
+        notes: "One of Australia's most valuable startups. Strong design culture, remote-friendly. Known for great engineering perks and challenging problems at scale." },
+      { name: "Atlassian", industry: "Developer Tools & Collaboration", size: "1000+",
+        website: "atlassian.com", rating: 4.5,
+        notes: "Remote-first since long before it was trendy. Strong TEAM values. Interview process is thorough — system design + values alignment." },
+      { name: "Xero", industry: "FinTech / Accounting SaaS", size: "1000+",
+        website: "xero.com", rating: 4.2,
+        notes: "Good work-life balance reputation. Large engineering org in Melbourne. Ruby and .NET stack." },
+      { name: "REA Group", industry: "PropTech / Real Estate", size: "1000+",
+        website: "rea-group.com", rating: 4.3,
+        notes: "Strong Ruby on Rails culture. Well known for engineering quality. Used to run a popular Ruby conf. Competitive pay." },
+      { name: "Culture Amp", industry: "HR Tech / People Analytics", size: "201-1000",
+        website: "cultureamp.com", rating: 4.4,
+        notes: "Mission-driven company focused on employee experience. React + Ruby stack. Good Glassdoor reviews for engineering." },
+      { name: "Buildkite", industry: "Developer Tools / CI-CD", size: "51-200",
+        website: "buildkite.com", rating: 4.7,
+        notes: "Fully remote, async-first culture. Strong Ruby and Go stack. Very engineering-led. Referral led to a warm intro — promising." },
+      { name: "Envato", industry: "Digital Marketplace", size: "201-1000",
+        website: "envato.com", rating: 3.8,
+        notes: "Established Melbourne company. Ruby on Rails core. Heard mixed reviews about pace of growth but solid team culture." },
+      { name: "Zendesk", industry: "Customer Service SaaS", size: "1000+",
+        website: "zendesk.com", rating: 4.1,
+        notes: "Large engineering org. Phone screen went well. Take-home coding exercise is next. Ruby + React stack." },
+      { name: "Up Banking", industry: "FinTech / Neobank", size: "51-200",
+        website: "up.com.au", rating: 4.6,
+        notes: "One of Australia's best digital banks. Small, tight engineering team. High quality bar. Mostly Ruby and Go." },
+      { name: "Seek", industry: "Employment Marketplace", size: "1000+",
+        website: "seek.com.au", rating: 4.0,
+        notes: "Large tech org going through significant modernisation. Good pay. Pair programming exercise focused on Rails." },
+      { name: "SafetyCulture", industry: "Workplace Safety SaaS", size: "201-1000",
+        website: "safetyculture.com", rating: 4.3,
+        notes: "Sydney-based but open to remote. Go + React stack. Growing fast. Second round interview scheduled." },
+      { name: "Carsales", industry: "Automotive Marketplace", size: "1000+",
+        website: "carsales.com.au", rating: 4.4,
+        notes: "Received offer at $135k + super. Strong Ruby team. CTO interview was very positive. Considering seriously." },
+      { name: "Redbubble", industry: "E-commerce / Print on Demand", size: "201-1000",
+        website: "redbubble.com", rating: 4.5,
+        notes: "Accepted offer here! Start date in 3 weeks. Great vibe, Ruby + React stack, good team size." },
+      { name: "Afterpay", industry: "FinTech / BNPL", size: "1000+",
+        website: "afterpay.com", rating: 3.2,
+        notes: "Rejected after technical round. Heavy Java stack — not the best fit right now. Would reconsider if I upskill in Java." },
+      { name: "Sportsbet", industry: "Sports Betting / Gambling", size: "201-1000",
+        website: "sportsbet.com.au", rating: 3.0,
+        notes: "Role was filled internally. Industry isn't ideal but the engineering team had good reviews." },
+      { name: "Airtasker", industry: "Freelance Marketplace", size: "51-200",
+        website: "airtasker.com", rating: 3.5,
+        notes: "Applied speculatively. Ruby on Rails stack. No response after follow-up." },
+      { name: "MYOB", industry: "Accounting SaaS", size: "1000+",
+        website: "myob.com", rating: 3.3,
+        notes: "No response after 3 follow-ups. Mostly .NET stack. Would only consider for the right role." },
+      { name: "Finder", industry: "Financial Comparison", size: "201-1000",
+        website: "finder.com.au", rating: 3.6,
+        notes: "Contract role via LinkedIn. React + Next.js stack. Applied 6 weeks ago, no response." },
+      { name: "Telstra", industry: "Telecommunications", size: "1000+",
+        website: "telstra.com.au", rating: 3.1,
+        notes: "Withdrew after accepting Redbubble offer. Graduate program — would have been a fallback option." },
+      { name: "Hipages", industry: "Home Services Marketplace", size: "51-200",
+        website: "hipages.com.au", rating: 3.7,
+        notes: "Listing was removed before I could progress. Ruby on Rails shop. Worth keeping an eye on." }
     ]
   end
 
