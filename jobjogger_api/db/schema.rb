@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_11_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_15_072335) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_000002) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "contact_interactions", force: :cascade do |t|
+    t.bigint "contact_id", null: false
+    t.datetime "created_at", null: false
+    t.string "interaction_type", null: false
+    t.text "notes"
+    t.datetime "occurred_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id"], name: "index_contact_interactions_on_contact_id"
+  end
+
+  create_table "contact_jobs", force: :cascade do |t|
+    t.bigint "contact_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "job_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id", "job_id"], name: "index_contact_jobs_on_contact_id_and_job_id", unique: true
+    t.index ["contact_id"], name: "index_contact_jobs_on_contact_id"
+    t.index ["job_id"], name: "index_contact_jobs_on_job_id"
+  end
+
+  create_table "contacts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "linkedin_url"
+    t.string "name", null: false
+    t.text "notes"
+    t.bigint "organisation_id"
+    t.string "phone"
+    t.string "role"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["organisation_id"], name: "index_contacts_on_organisation_id"
+    t.index ["user_id", "name"], name: "index_contacts_on_user_id_and_name"
+    t.index ["user_id"], name: "index_contacts_on_user_id"
   end
 
   create_table "jobs", force: :cascade do |t|
@@ -121,6 +157,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_000002) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "contact_interactions", "contacts"
+  add_foreign_key "contact_jobs", "contacts"
+  add_foreign_key "contact_jobs", "jobs"
+  add_foreign_key "contacts", "organisations"
+  add_foreign_key "contacts", "users"
   add_foreign_key "jobs", "organisations"
   add_foreign_key "jobs", "users"
   add_foreign_key "organisations", "users"
