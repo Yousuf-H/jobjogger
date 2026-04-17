@@ -2,10 +2,11 @@
 
 module Contacts
   class FindOrCreate
-    def initialize(user:, name:, organisation: nil)
-      @user         = user
-      @name         = name&.strip
-      @organisation = organisation
+    def initialize(user:, name:, organisation: nil, extra_attributes: {})
+      @user             = user
+      @name             = name&.strip
+      @organisation     = organisation
+      @extra_attributes = extra_attributes
     end
 
     def call
@@ -18,14 +19,21 @@ module Contacts
 
     def find_existing
       scope = @user.contacts.where("LOWER(name) = LOWER(?)", @name)
-      scope = scope.where(organisation: @organisation) if @organisation
+      # Match on organisation presence so two contacts with the same name
+      # at different orgs (or one with/without an org) are treated as distinct.
+      scope = if @organisation
+                scope.where(organisation: @organisation)
+      else
+                scope.where(organisation_id: nil)
+      end
       scope.first
     end
 
     def create_new
       @user.contacts.create!(
         name:         @name,
-        organisation: @organisation
+        organisation: @organisation,
+        **@extra_attributes
       )
     end
   end

@@ -1,3 +1,4 @@
+import { ContactAvatar } from '@/components/contact/ContactAvatar'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,9 +22,7 @@ function ContactRow({ contact }: { contact: Contact }) {
       to={`/contacts/${contact.id}`}
       className="hover:bg-muted/50 group flex items-center gap-4 border-t px-6 py-3.5 transition-colors first:border-t-0"
     >
-      <div className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
-        {contact.name.charAt(0).toUpperCase()}
-      </div>
+      <ContactAvatar name={contact.name} />
       <div className="min-w-0 flex-1">
         <p className="group-hover:text-primary truncate text-sm font-medium transition-colors">
           {contact.name}
@@ -58,9 +57,10 @@ function ContactRow({ contact }: { contact: Contact }) {
 
 interface OrgContactsTabProps {
   organisationId: number
+  organisationName: string
 }
 
-export function OrgContactsTab({ organisationId }: OrgContactsTabProps) {
+export function OrgContactsTab({ organisationId, organisationName }: OrgContactsTabProps) {
   const [createOpen, setCreateOpen] = useState(false)
 
   const { data: contacts = [], isLoading } = useContacts({ organisation_id: organisationId })
@@ -98,6 +98,7 @@ export function OrgContactsTab({ organisationId }: OrgContactsTabProps) {
               onSubmit={handleCreate}
               isSubmitting={createMutation.isPending}
               organisationId={organisationId}
+              organisationName={organisationName}
             />
           </DialogContent>
         </Dialog>

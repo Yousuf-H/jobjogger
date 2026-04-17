@@ -14,6 +14,7 @@ import {
   contactSchema,
 } from '@/lib/validations/contact'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Building2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 interface ContactFormProps {
@@ -22,6 +23,7 @@ interface ContactFormProps {
   isSubmitting?: boolean
   mode?: 'create' | 'edit'
   organisationId?: number | null
+  organisationName?: string | null
 }
 
 export function ContactForm({
@@ -30,6 +32,7 @@ export function ContactForm({
   isSubmitting,
   mode = 'create',
   organisationId,
+  organisationName,
 }: ContactFormProps) {
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
@@ -48,6 +51,14 @@ export function ContactForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {organisationName && (
+          <div className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+            <Building2 className="text-muted-foreground h-4 w-4 shrink-0" />
+            <span className="text-muted-foreground">Organisation:</span>
+            <span className="font-medium">{organisationName}</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}

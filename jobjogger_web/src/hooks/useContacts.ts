@@ -9,16 +9,17 @@ function getUserId(): string {
   return JSON.parse(localStorage.getItem('user') || '{}').id
 }
 
-export function useContacts(params?: {
-  search?: string
-  organisation_id?: number
-}) {
+export function useContacts(
+  params?: { search?: string; organisation_id?: number },
+  options?: { enabled?: boolean }
+) {
   const userId = getUserId()
 
   return useQuery({
     queryKey: ['contacts', userId, params],
     queryFn: () => fetchContacts(params),
     placeholderData: keepPreviousData,
+    enabled: options?.enabled ?? true,
   })
 }
 

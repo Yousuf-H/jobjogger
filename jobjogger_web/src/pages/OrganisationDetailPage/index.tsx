@@ -482,7 +482,10 @@ export default function OrganisationDetailPage() {
   })
 
   const linkedJobs = org?.jobs ?? []
-  const { data: orgContacts = [] } = useContacts({ organisation_id: org?.id })
+  const { data: orgContacts = [] } = useContacts(
+    { organisation_id: org?.id },
+    { enabled: !!org?.id }
+  )
 
   usePageTitle(org?.name ?? 'Organisation')
 
@@ -636,7 +639,7 @@ export default function OrganisationDetailPage() {
                 <JobsTab jobs={linkedJobs} />
               </TabsContent>
               <TabsContent value="contacts" className="mt-0">
-                <OrgContactsTab organisationId={org.id} />
+                <OrgContactsTab organisationId={org.id} organisationName={org.name} />
               </TabsContent>
             </div>
           </Tabs>

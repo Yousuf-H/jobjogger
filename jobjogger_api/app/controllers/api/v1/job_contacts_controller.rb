@@ -5,7 +5,7 @@ class Api::V1::JobContactsController < Api::V1::AuthenticatedController
 
   def index
     render json: @job.contacts.includes(:organisation).as_json(
-      include: { organisation: { only: [:id, :name] } }
+      include: { organisation: { only: [ :id, :name ] } }
     )
   end
 

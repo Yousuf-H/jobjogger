@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_15_072335) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_17_005039) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -50,6 +50,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_072335) do
     t.datetime "occurred_at", null: false
     t.datetime "updated_at", null: false
     t.index ["contact_id"], name: "index_contact_interactions_on_contact_id"
+    t.index ["occurred_at"], name: "index_contact_interactions_on_occurred_at"
   end
 
   create_table "contact_jobs", force: :cascade do |t|

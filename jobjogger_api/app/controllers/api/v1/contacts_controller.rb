@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Api::V1::ContactsController < Api::V1::AuthenticatedController
-  before_action :set_contact, only: [:show, :update, :destroy]
+  before_action :set_contact, only: [ :show, :update, :destroy ]
 
   def index
     contacts = current_user.contacts
@@ -17,34 +17,32 @@ class Api::V1::ContactsController < Api::V1::AuthenticatedController
       contacts = contacts.where(organisation_id: params[:organisation_id])
     end
 
-    render json: contacts.as_json(include: { organisation: { only: [:id, :name] }, jobs: { only: [:id, :job_title, :status] } })
+    render json: contacts.as_json(include: { organisation: { only: [ :id, :name ] }, jobs: { only: [ :id, :job_title, :status ] } })
   end
 
   def show
     render json: @contact.as_json(
       include: {
-        organisation:         { only: [:id, :name] },
-        jobs:                 { only: [:id, :job_title, :status, :company_name] },
-        contact_interactions: { only: [:id, :interaction_type, :notes, :occurred_at] }
+        organisation:         { only: [ :id, :name ] },
+        jobs:                 { only: [ :id, :job_title, :status, :company_name ] },
+        contact_interactions: { only: [ :id, :interaction_type, :notes, :occurred_at ] }
       }
     )
   end
 
   def create
-    organisation = resolve_organisation
+    organisation  = resolve_organisation
+    extra         = contact_params.except(:name, :organisation_id).to_h.symbolize_keys
 
     contact = Contacts::FindOrCreate.new(
-      user:         current_user,
-      name:         contact_params[:name],
-      organisation: organisation
+      user:             current_user,
+      name:             contact_params[:name],
+      organisation:     organisation,
+      extra_attributes: extra
     ).call
 
     if contact.nil?
-      return render json: { errors: ["Name can't be blank"] }, status: :unprocessable_content
-    end
-
-    unless contact.update(contact_params.except(:organisation_id))
-      return render json: { errors: contact.errors.full_messages }, status: :unprocessable_content
+      return render json: { errors: [ "Name can't be blank" ] }, status: :unprocessable_content
     end
 
     render json: contact, status: :created

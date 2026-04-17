@@ -1,3 +1,4 @@
+import { ContactAvatar } from '@/components/contact/ContactAvatar'
 import { ContactForm } from '@/components/contact/ContactForm'
 import {
   AlertDialog,
@@ -54,9 +55,7 @@ function ContactRow({
   return (
     <div className="flex items-center justify-between gap-4 py-3">
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
-          {contact.name.charAt(0).toUpperCase()}
-        </div>
+        <ContactAvatar name={contact.name} />
         <div className="min-w-0">
           <Link
             to={`/contacts/${contact.id}`}
@@ -199,6 +198,7 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
   const [addOpen, setAddOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [selectedContactId, setSelectedContactId] = useState<string>('')
+  const [unlinkingId, setUnlinkingId] = useState<number | null>(null)
 
   const { data: jobContacts = [] } = useJobContacts(jobId)
   const { data: allContacts = [] } = useContacts()
@@ -233,7 +233,10 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
   }
 
   const handleUnlink = (contactId: number) => {
-    unlinkMutation.mutate({ jobId, contactId })
+    setUnlinkingId(contactId)
+    unlinkMutation.mutate({ jobId, contactId }, {
+      onSettled: () => setUnlinkingId(null),
+    })
   }
 
   return (
@@ -306,7 +309,7 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
               contact={contact}
               jobId={jobId}
               onUnlink={handleUnlink}
-              isUnlinking={unlinkMutation.isPending}
+              isUnlinking={unlinkingId === contact.id}
             />
           ))}
         </div>

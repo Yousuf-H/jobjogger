@@ -60,7 +60,7 @@ RSpec.describe "Contacts API", type: :request do
         _other       = create(:contact, user: user)
 
         get "/api/v1/contacts", params: { organisation_id: org.id }, headers: headers
-        expect(json_response.map { |c| c["id"] }).to eq([org_contact.id])
+        expect(json_response.map { |c| c["id"] }).to eq([ org_contact.id ])
       end
     end
   end
