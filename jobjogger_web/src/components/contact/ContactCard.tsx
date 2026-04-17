@@ -22,28 +22,30 @@ export function ContactCard({ contact }: ContactCardProps) {
               )}
             </div>
             {contact.organisation && (
-              <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex shrink-0 items-center gap-1 text-xs">
                 <Building2 className="h-3 w-3" />
-                <span className="truncate max-w-24">{contact.organisation.name}</span>
+                <span className="max-w-24 truncate">
+                  {contact.organisation.name}
+                </span>
               </div>
             )}
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-3">
+          <div className="mt-3 flex flex-wrap justify-between gap-3">
             {contact.email && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="text-muted-foreground flex items-center gap-1 text-xs">
                 <Mail className="h-3 w-3" />
-                <span className="truncate max-w-36">{contact.email}</span>
+                <span className="max-w-36 truncate">{contact.email}</span>
               </span>
             )}
             {contact.phone && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="text-muted-foreground flex items-center gap-1 text-xs">
                 <Phone className="h-3 w-3" />
                 {contact.phone}
               </span>
             )}
             {contact.jobs && contact.jobs.length > 0 && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="text-muted-foreground flex items-center gap-1 text-xs">
                 <Briefcase className="h-3 w-3" />
                 {contact.jobs.length} job{contact.jobs.length !== 1 ? 's' : ''}
               </span>
