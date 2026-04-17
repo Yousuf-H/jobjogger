@@ -1,6 +1,7 @@
 import { JobContactsTab } from '@/components/job/JobContactsTab'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useJobContacts } from '@/hooks/useContacts'
 import type { Job } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
@@ -14,6 +15,7 @@ interface JobTabsProps {
 }
 
 export function JobTabs({ job, timelineEntries }: JobTabsProps) {
+  const { data: jobContacts = [] } = useJobContacts(job.id)
   return (
     <Card className="overflow-hidden border-0 shadow-sm">
       <Tabs defaultValue="description" className="w-full">
@@ -44,9 +46,14 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
             </TabsTrigger>
             <TabsTrigger
               value="contacts"
-              className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
               Contacts
+              {jobContacts.length > 0 && (
+                <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
+                  {jobContacts.length}
+                </span>
+              )}
             </TabsTrigger>
           </TabsList>
         </div>

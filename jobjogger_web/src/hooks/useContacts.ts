@@ -3,7 +3,7 @@ import {
   fetchContacts,
   fetchJobContacts,
 } from '@/services/api/contacts'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 function getUserId(): string {
   return JSON.parse(localStorage.getItem('user') || '{}').id
@@ -18,6 +18,7 @@ export function useContacts(params?: {
   return useQuery({
     queryKey: ['contacts', userId, params],
     queryFn: () => fetchContacts(params),
+    placeholderData: keepPreviousData,
   })
 }
 

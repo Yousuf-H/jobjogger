@@ -24,7 +24,7 @@ export default function ContactsPage() {
   const [search, setSearch] = useState('')
   const [createOpen, setCreateOpen] = useState(false)
 
-  const { data: contacts, isLoading, error } = useContacts({ search: search || undefined })
+  const { data: contacts, isLoading, isFetching, error } = useContacts({ search: search || undefined })
   const { createMutation } = useContactActions({
     onCreateSuccess: () => setCreateOpen(false),
   })
@@ -67,7 +67,7 @@ export default function ContactsPage() {
           placeholder="Search by name, role or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm"
+          className={`max-w-sm transition-opacity ${isFetching && !isLoading ? 'opacity-60' : ''}`}
         />
       </div>
 

@@ -36,6 +36,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TypographyH1 } from '@/components/ui/typography'
+import { useContacts } from '@/hooks/useContacts'
 import {
   useOrganisation,
   useSimilarOrganisations,
@@ -481,6 +482,7 @@ export default function OrganisationDetailPage() {
   })
 
   const linkedJobs = org?.jobs ?? []
+  const { data: orgContacts = [] } = useContacts({ organisation_id: org?.id })
 
   usePageTitle(org?.name ?? 'Organisation')
 
@@ -617,6 +619,11 @@ export default function OrganisationDetailPage() {
                   className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 text-sm shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
                   Contacts
+                  {orgContacts.length > 0 && (
+                    <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
+                      {orgContacts.length}
+                    </span>
+                  )}
                 </TabsTrigger>
               </TabsList>
             </div>

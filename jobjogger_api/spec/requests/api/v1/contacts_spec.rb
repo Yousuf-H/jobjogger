@@ -44,6 +44,13 @@ RSpec.describe "Contacts API", type: :request do
         get "/api/v1/contacts", params: { search: "grace@navy" }, headers: headers
         expect(json_response.size).to eq(1)
       end
+
+      it "filters by role" do
+        create(:contact, user: user, name: "Ada Lovelace", role: "Mathematician")
+        get "/api/v1/contacts", params: { search: "Mathematician" }, headers: headers
+        expect(json_response.size).to eq(1)
+        expect(json_response.first["name"]).to eq("Ada Lovelace")
+      end
     end
 
     context "organisation_id filter" do
@@ -135,6 +142,13 @@ RSpec.describe "Contacts API", type: :request do
             headers: headers
       expect(response).to have_http_status(:not_found)
     end
+
+    it "returns 422 when the update is invalid" do
+      patch "/api/v1/contacts/#{contact.id}",
+            params: { contact: { name: "" } }.to_json,
+            headers: headers
+      expect(response).to have_http_status(:unprocessable_content)
+    end
   end
 
   # ── DELETE /api/v1/contacts/:id ───────────────────────────────────────────────
@@ -201,6 +215,19 @@ RSpec.describe "Contacts API", type: :request do
                headers: headers
       }.to change(contact.contact_interactions, :count).by(-1)
       expect(response).to have_http_status(:no_content)
+    end
+
+    it "returns 404 for a non-existent interaction" do
+      delete "/api/v1/contacts/#{contact.id}/contact_interactions/0", headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "returns 404 when the contact belongs to another user" do
+      other_contact = create(:contact, user: create(:user))
+      other_interaction = create(:contact_interaction, contact: other_contact)
+      delete "/api/v1/contacts/#{other_contact.id}/contact_interactions/#{other_interaction.id}",
+             headers: headers
+      expect(response).to have_http_status(:not_found)
     end
   end
 end
