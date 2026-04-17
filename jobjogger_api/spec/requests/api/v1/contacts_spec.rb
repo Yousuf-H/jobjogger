@@ -149,6 +149,15 @@ RSpec.describe "Contacts API", type: :request do
             headers: headers
       expect(response).to have_http_status(:unprocessable_content)
     end
+
+    it "returns 404 when organisation_id belongs to another user" do
+      other_org = create(:organisation, user: create(:user))
+      patch "/api/v1/contacts/#{contact.id}",
+            params: { contact: { organisation_id: other_org.id } }.to_json,
+            headers: headers
+      expect(response).to have_http_status(:not_found)
+      expect(contact.reload.organisation_id).to be_nil
+    end
   end
 
   # ── DELETE /api/v1/contacts/:id ───────────────────────────────────────────────

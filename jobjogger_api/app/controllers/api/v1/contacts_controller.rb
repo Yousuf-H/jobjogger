@@ -51,6 +51,11 @@ class Api::V1::ContactsController < Api::V1::AuthenticatedController
   end
 
   def update
+    if contact_params[:organisation_id].present?
+      organisation = current_user.organisations.find_by(id: contact_params[:organisation_id])
+      return render json: { error: "Organisation not found" }, status: :not_found unless organisation
+    end
+
     if @contact.update(contact_params)
       render json: @contact, status: :ok
     else
