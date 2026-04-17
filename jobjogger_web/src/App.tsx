@@ -2,6 +2,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import Layout from '@/components/layout/Layout'
 import AnalyticsPage from '@/pages/AnalyticsPage'
+import ContactDetailPage from '@/pages/ContactDetailPage'
+import ContactsPage from '@/pages/ContactsPage'
 import DashboardPage from '@/pages/DashboardPage'
 import JobDetailPage from '@/pages/JobDetailPage'
 import JobsPage from '@/pages/JobsPage'
@@ -38,6 +40,8 @@ function App() {
           <Route path="/jobs/:id" element={<JobDetailPage />} />
           <Route path="/organisations" element={<OrganisationsPage />} />
           <Route path="/organisations/:id" element={<OrganisationDetailPage />} />
+          <Route path="/contacts" element={<ContactsPage />} />
+          <Route path="/contacts/:id" element={<ContactDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>

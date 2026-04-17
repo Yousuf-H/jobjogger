@@ -1,3 +1,4 @@
+import { OrgContactsTab } from '@/components/contact/OrgContactsTab'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import {
@@ -467,16 +468,6 @@ function JobsTab({ jobs }: { jobs: OrgJob[] }) {
   )
 }
 
-// ─── Tab: Contacts ───────────────────────────────────────────────────────────
-
-function ContactsTab() {
-  return (
-    <p className="text-muted-foreground text-sm italic">
-      Contacts are coming soon. You'll be able to track people at this
-      organisation and link them to specific roles.
-    </p>
-  )
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -626,12 +617,6 @@ export default function OrganisationDetailPage() {
                   className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 text-sm shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
                   Contacts
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full px-1.5 py-0.5 text-xs font-medium"
-                  >
-                    Soon
-                  </Badge>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -644,7 +629,7 @@ export default function OrganisationDetailPage() {
                 <JobsTab jobs={linkedJobs} />
               </TabsContent>
               <TabsContent value="contacts" className="mt-0">
-                <ContactsTab />
+                <OrgContactsTab organisationId={org.id} />
               </TabsContent>
             </div>
           </Tabs>
