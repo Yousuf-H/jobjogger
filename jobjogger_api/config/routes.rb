@@ -38,6 +38,11 @@ Rails.application.routes.draw do
         end
       end
 
+      # Contacts
+      resources :contacts, only: [:index, :show, :create, :update, :destroy] do
+        resources :contact_interactions, only: [:create, :destroy]
+      end
+
       # Job routes
       resources :jobs, only: [:create, :index, :show, :update, :destroy] do
         member do
@@ -47,6 +52,9 @@ Rails.application.routes.draw do
 
         # Timeline entries (nested under jobs for creation)
         resources :timeline_entries, only: [:create]
+
+        # Contacts linked to a specific job
+        resources :job_contacts, only: [:index, :create, :destroy]
       end
 
       # Timeline entries (top-level for update/destroy)
