@@ -22,10 +22,12 @@ class DemoAccountResetter
       TimelineEntry.joins(:job).where(jobs: { user: demo_user }).destroy_all
       demo_user.jobs.destroy_all
       demo_user.organisations.destroy_all
+      demo_user.contacts.destroy_all
 
       orgs_by_name = seed_organisations(demo_user)
       jobs_by_company = seed_jobs(demo_user, orgs_by_name)
       seed_timeline_entries(jobs_by_company)
+      seed_contacts(demo_user, orgs_by_name, jobs_by_company)
     end
   end
 
@@ -304,6 +306,96 @@ class DemoAccountResetter
       { name: "Hipages", industry: "Home Services Marketplace", size: "51-200",
         website: "hipages.com.au", rating: 3.7,
         notes: "Listing was removed before I could progress. Ruby on Rails shop. Worth keeping an eye on." }
+    ]
+  end
+
+  def seed_contacts(demo_user, orgs_by_name, jobs_by_company)
+    contacts_data.each do |c|
+      org = orgs_by_name[c[:org]]
+      contact = demo_user.contacts.create!(
+        name: c[:name],
+        role: c[:role],
+        email: c[:email],
+        linkedin_url: c[:linkedin_url],
+        notes: c[:notes],
+        organisation: org
+      )
+
+      Array(c[:jobs]).each do |company_name|
+        job = jobs_by_company[company_name]
+        ContactJob.create!(contact: contact, job: job) if job
+      end
+
+      Array(c[:interactions]).each do |i|
+        contact.contact_interactions.create!(
+          interaction_type: i[:type],
+          notes: i[:notes],
+          occurred_at: i[:occurred_at]
+        )
+      end
+    end
+  end
+
+  def contacts_data
+    [
+      { name: "Sarah Chen", role: "Technical Recruiter", email: "s.chen@seek.com.au",
+        linkedin_url: "https://linkedin.com/in/sarahchen-seek", org: "Seek",
+        jobs: [ "Seek" ],
+        notes: "Very responsive recruiter. Gave good feedback after each round.",
+        interactions: [
+          { type: "linkedin", notes: "Connected and introduced herself.", occurred_at: 31.days.ago },
+          { type: "call", notes: "Spoke about the role, team structure, and interview process.", occurred_at: 25.days.ago },
+          { type: "email", notes: "Sent take-home brief and timeline.", occurred_at: 22.days.ago }
+        ] },
+
+      { name: "Tom Nguyen", role: "Senior Software Engineer", email: "t.nguyen@seek.com.au",
+        org: "Seek", jobs: [ "Seek" ],
+        notes: "Ran the pair programming round. Very collaborative style, explained problems clearly.",
+        interactions: [
+          { type: "interview", notes: "90-minute pair programming session on a Rails feature. Good conversation about architecture.", occurred_at: 15.days.ago }
+        ] },
+
+      { name: "Marcus Webb", role: "Engineering Manager", email: "m.webb@up.com.au",
+        org: "Up Banking", jobs: [ "Up Banking" ],
+        notes: "Down-to-earth EM. Focused a lot on how we handle failure and on-call culture.",
+        interactions: [
+          { type: "call", notes: "Phone screen with Marcus. Talked about the Go migration and team structure.", occurred_at: 26.days.ago }
+        ] },
+
+      { name: "Priya Sharma", role: "Talent Acquisition", email: "priya.sharma@carsales.com.au",
+        linkedin_url: "https://linkedin.com/in/priyasharma-carsales", org: "Carsales",
+        jobs: [ "Carsales" ],
+        notes: "Fast communication throughout. Kept me updated at every step.",
+        interactions: [
+          { type: "email", notes: "Initial outreach about the Ruby Developer role.", occurred_at: 44.days.ago },
+          { type: "call", notes: "Screening call — discussed experience and salary expectations.", occurred_at: 40.days.ago },
+          { type: "email", notes: "Confirmed final round interview time and panel members.", occurred_at: 12.days.ago }
+        ] },
+
+      { name: "James Thornton", role: "CTO", org: "Carsales",
+        jobs: [ "Carsales" ],
+        notes: "Interviewed in the final panel. Asked a lot about system design and team leadership experience.",
+        interactions: [
+          { type: "interview", notes: "Final panel interview. James focused on distributed systems and scaling challenges.", occurred_at: 10.days.ago }
+        ] },
+
+      { name: "Lena Fischer", role: "Senior Engineer", email: "lena@buildkite.com",
+        linkedin_url: "https://linkedin.com/in/lenafischer-buildkite", org: "Buildkite",
+        jobs: [ "Buildkite" ],
+        notes: "Friend who made the referral. Been at Buildkite for 2 years, loves the async culture.",
+        interactions: [
+          { type: "coffee_chat", notes: "Caught up over coffee. She walked me through the interview process and what the team is like.", occurred_at: 15.days.ago },
+          { type: "linkedin", notes: "She tagged the hiring manager in a comment on my profile.", occurred_at: 13.days.ago }
+        ] },
+
+      { name: "Aisha Okonkwo", role: "Technical Recruiter", email: "a.okonkwo@zendesk.com",
+        org: "Zendesk", jobs: [ "Zendesk" ],
+        notes: "Reached out via LinkedIn. Professional and clear about the process.",
+        interactions: [
+          { type: "linkedin", notes: "Inbound message about a Software Engineer II role.", occurred_at: 33.days.ago },
+          { type: "email", notes: "Sent role description and asked for availability for a phone screen.", occurred_at: 31.days.ago },
+          { type: "call", notes: "20-minute screening call. Passed to take-home stage.", occurred_at: 28.days.ago }
+        ] }
     ]
   end
 
