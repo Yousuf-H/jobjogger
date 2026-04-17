@@ -59,12 +59,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 
 function InteractionItem({
   interaction,
-  contactId,
   onDelete,
   isDeleting,
 }: {
   interaction: ContactInteraction
-  contactId: number
   onDelete: (interactionId: number) => void
   isDeleting: boolean
 }) {
@@ -76,7 +74,7 @@ function InteractionItem({
             {INTERACTION_TYPE_LABELS[interaction.interaction_type]}
           </span>
           <span className="text-muted-foreground text-xs">
-            {new Date(interaction.occurred_at).toLocaleDateString()}
+            {interaction.occurred_at.split('T')[0].split('-').reverse().join('/')}
           </span>
         </div>
         {interaction.notes && (
@@ -178,7 +176,6 @@ function InteractionsTab({
               <InteractionItem
                 key={interaction.id}
                 interaction={interaction}
-                contactId={contactId}
                 onDelete={handleDelete}
                 isDeleting={deleteInteractionMutation.isPending}
               />
