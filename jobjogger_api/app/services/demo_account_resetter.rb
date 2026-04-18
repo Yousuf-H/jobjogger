@@ -20,14 +20,17 @@ class DemoAccountResetter
   def reset!(demo_user)
     ActiveRecord::Base.transaction do
       TimelineEntry.joins(:job).where(jobs: { user: demo_user }).destroy_all
+      demo_user.contacts.destroy_all
       demo_user.jobs.destroy_all
       demo_user.organisations.destroy_all
-      demo_user.contacts.destroy_all
+      demo_user.interview_questions.destroy_all
 
       orgs_by_name = seed_organisations(demo_user)
       jobs_by_company = seed_jobs(demo_user, orgs_by_name)
       seed_timeline_entries(jobs_by_company)
       seed_contacts(demo_user, orgs_by_name, jobs_by_company)
+      seed_interviews(jobs_by_company)
+      seed_interview_questions(demo_user, orgs_by_name, jobs_by_company)
     end
   end
 
@@ -396,6 +399,229 @@ class DemoAccountResetter
           { type: "email", notes: "Sent role description and asked for availability for a phone screen.", occurred_at: 31.days.ago },
           { type: "call", notes: "20-minute screening call. Passed to take-home stage.", occurred_at: 28.days.ago }
         ] }
+    ]
+  end
+
+  def seed_interviews(jobs_by_company)
+    interview_data.each do |entry|
+      job = jobs_by_company[entry[:company]]
+      next unless job
+
+      entry[:interviews].each do |i|
+        job.interviews.create!(
+          scheduled_at: i[:scheduled_at],
+          interview_type: i[:interview_type],
+          format: i[:format],
+          location_or_link: i[:location_or_link],
+          prep_notes: i[:prep_notes],
+          debrief_notes: i[:debrief_notes],
+          outcome: i[:outcome] || "pending"
+        )
+      end
+    end
+  end
+
+  def seed_interview_questions(demo_user, orgs_by_name, jobs_by_company)
+    interview_questions_data.each do |q|
+      demo_user.interview_questions.create!(
+        question: q[:question],
+        answer: q[:answer],
+        category: q[:category],
+        is_favourite: q[:is_favourite] || false,
+        job: q[:job_name] ? jobs_by_company[q[:job_name]] : nil,
+        organisation: q[:org_name] ? orgs_by_name[q[:org_name]] : nil
+      )
+    end
+  end
+
+  def interview_data
+    [
+      # Zendesk — phone_screen, round 1 upcoming in 2 days
+      { company: "Zendesk", interviews: [
+        { scheduled_at: 2.days.from_now.change(hour: 10, min: 0),
+          interview_type: "phone_screen", format: "phone",
+          location_or_link: nil,
+          prep_notes: "## Prep Notes\n\n**Key points to cover:**\n- 4 years Rails experience, strong on API design\n- Comfortable with large-scale SaaS\n- Ask about team structure and on-call expectations\n\n**Research:**\n- Zendesk acquired Momentive in 2022 — understand the product suite\n- Ruby + React stack, microservices direction",
+          debrief_notes: nil, outcome: "pending" }
+      ] },
+
+      # Up Banking — phone_screen, past round, no debrief yet
+      { company: "Up Banking", interviews: [
+        { scheduled_at: 5.days.ago.change(hour: 14, min: 30),
+          interview_type: "phone_screen", format: "video",
+          location_or_link: "https://whereby.com/upbanking-interviews",
+          prep_notes: "## Prep Notes\n\n- Research Up's engineering blog\n- They use Ruby and are migrating parts to Go\n- Marcus Webb is EM — LinkedIn shows he values async communication\n\n**Questions to ask:**\n- How does the team balance feature work vs tech debt?\n- What does on-call look like?",
+          debrief_notes: "Went well overall. Marcus was down to earth. He spent a lot of time on how we handle failure and on-call culture. I gave a good answer about our incident postmortems at the last job.\n\n**Next step:** Take-home task — build a small API endpoint.",
+          outcome: "passed" }
+      ] },
+
+      # Seek — interviewing, 2 rounds complete
+      { company: "Seek", interviews: [
+        { scheduled_at: 25.days.ago.change(hour: 11, min: 0),
+          interview_type: "phone_screen", format: "phone",
+          location_or_link: nil,
+          prep_notes: "## Prep Notes\n\n- Sarah Chen is the recruiter, very responsive\n- Focus on Rails and React experience\n- Be ready to talk salary expectations ($120k-$150k range)",
+          debrief_notes: "Short 20-minute call with Sarah. She asked about availability, salary, and why I'm looking. Very friendly. Moved straight to the technical round.",
+          outcome: "passed" },
+        { scheduled_at: 15.days.ago.change(hour: 13, min: 0),
+          interview_type: "technical", format: "video",
+          location_or_link: "https://zoom.us/j/seek-technical",
+          prep_notes: "## Technical Round Prep\n\n**Format:** 90-minute pair programming on a Rails feature\n\n**Practice areas:**\n- ActiveRecord associations and scopes\n- RESTful API design\n- Writing clean, testable Ruby\n- RSpec basics\n\n**Tom Nguyen** (Senior Engineer) will be running it — check his GitHub.",
+          debrief_notes: "## How it went\n\nBuilt a small feature to add tagging to a model. Tom was collaborative and dropped hints when I got stuck — not adversarial at all.\n\n**What went well:**\n- Clean service object pattern\n- Good test coverage\n- Asked good clarifying questions upfront\n\n**What I'd improve:**\n- Took too long on the DB index decision — should be more decisive\n\n**Next step:** Final culture fit round with the team lead.",
+          outcome: "passed" }
+      ] },
+
+      # SafetyCulture — interviewing, round 1 past, round 2 upcoming
+      { company: "SafetyCulture", interviews: [
+        { scheduled_at: 20.days.ago.change(hour: 9, min: 30),
+          interview_type: "phone_screen", format: "video",
+          location_or_link: "https://meet.google.com/safetyculture-screen",
+          prep_notes: "## Prep\n\n- Go + React stack — brush up on Go basics\n- SafetyCulture is mission-driven: workplace safety\n- Growing fast — 2nd round means they're serious",
+          debrief_notes: "Good call. They asked about my experience with typed languages and whether I'd be open to learning Go. I said yes and mentioned my TypeScript background. Moved to second round.",
+          outcome: "passed" },
+        { scheduled_at: 3.days.from_now.change(hour: 14, min: 0),
+          interview_type: "panel", format: "video",
+          location_or_link: "https://zoom.us/j/safetyculture-panel",
+          prep_notes: "## Panel Round Prep\n\n**Panel members:** Engineering Manager + 2 Senior Engineers\n\n**Expect:**\n- System design question (design a checklist feature)\n- Behavioural questions — use STAR format\n- Deep dive on a past project\n\n**Research:**\n- iAuditor product — core inspection/checklist tool\n- They recently raised Series C\n- Go microservices + React frontend\n\n**Questions to ask:**\n- What does the onboarding process look like?\n- How does the team approach technical decisions?",
+          debrief_notes: nil, outcome: "pending" }
+      ] },
+
+      # Carsales — offer stage, 3 rounds all passed
+      { company: "Carsales", interviews: [
+        { scheduled_at: 38.days.ago.change(hour: 10, min: 0),
+          interview_type: "phone_screen", format: "phone",
+          location_or_link: nil,
+          prep_notes: "Initial screening with Priya from talent acquisition.",
+          debrief_notes: "Quick 15-minute call. Priya confirmed salary range alignment and asked about notice period. Moved to technical round.",
+          outcome: "passed" },
+        { scheduled_at: 25.days.ago.change(hour: 13, min: 0),
+          interview_type: "technical", format: "video",
+          location_or_link: "https://zoom.us/j/carsales-tech",
+          prep_notes: "## Technical Round\n\n- Rails API design\n- PostgreSQL performance — indexing, query optimisation\n- System design: design a vehicle listing search\n\n**High traffic focus** — carsales.com.au has millions of listings.",
+          debrief_notes: "Strong round. They asked me to design a search API for vehicle listings with filtering and pagination. I walked through indexing strategy and discussed caching with Redis. Interviewer seemed impressed with the query optimisation answer.",
+          outcome: "passed" },
+        { scheduled_at: 10.days.ago.change(hour: 10, min: 0),
+          interview_type: "final", format: "in_person",
+          location_or_link: "Level 4, 449 Punt Rd, Richmond VIC",
+          prep_notes: "## Final Panel — CTO + Team Lead\n\n**James Thornton (CTO)** — LinkedIn shows he values engineering leadership and architectural thinking.\n\n**Prepare:**\n- A story about leading a technical initiative\n- Opinions on monolith vs microservices\n- Questions about engineering culture and roadmap",
+          debrief_notes: "## Final Panel\n\nMet James (CTO) and two senior engineers. In-person at their Richmond office — great space.\n\n**Topics covered:**\n- Led most of the discussion on distributed systems\n- Asked about a time I disagreed with a technical decision\n- Culture and values alignment\n\n**Feeling:** Very positive. James said they'd be in touch by end of week.\n\n**Received verbal offer the next day — $135k + super.**",
+          outcome: "passed" }
+      ] },
+
+      # Redbubble — accepted, 3 rounds all passed
+      { company: "Redbubble", interviews: [
+        { scheduled_at: 48.days.ago.change(hour: 11, min: 0),
+          interview_type: "phone_screen", format: "phone",
+          location_or_link: nil,
+          prep_notes: "Referral intro. Screening with HR.",
+          debrief_notes: "Relaxed call. Talked about the role, team size, and stack. Ruby + React. Good energy.",
+          outcome: "passed" },
+        { scheduled_at: 38.days.ago.change(hour: 14, min: 0),
+          interview_type: "technical", format: "video",
+          location_or_link: "https://zoom.us/j/redbubble-tech",
+          prep_notes: "Take-home + code review. Focus on clean Ruby and good test coverage.",
+          debrief_notes: "Reviewed my take-home task together. They liked the service object pattern. One question about why I didn't use Sidekiq for background jobs — explained the trade-off well.",
+          outcome: "passed" },
+        { scheduled_at: 22.days.ago.change(hour: 10, min: 0),
+          interview_type: "final", format: "video",
+          location_or_link: "https://zoom.us/j/redbubble-final",
+          prep_notes: "Culture fit + meet the team. Be yourself.",
+          debrief_notes: "Met 4 team members. Very relaxed, mostly a two-way conversation. Asked great questions about how they handle tech debt. **Received offer 2 days later.**",
+          outcome: "passed" }
+      ] },
+
+      # Afterpay — rejected, 2 rounds, failed at technical
+      { company: "Afterpay", interviews: [
+        { scheduled_at: 33.days.ago.change(hour: 10, min: 0),
+          interview_type: "phone_screen", format: "phone",
+          location_or_link: nil,
+          prep_notes: "Screening call. Afterpay is now part of Block (Jack Dorsey's company).",
+          debrief_notes: "Fine call. They were upfront that the stack is heavily Java. I said I was open to it.",
+          outcome: "passed" },
+        { scheduled_at: 22.days.ago.change(hour: 13, min: 0),
+          interview_type: "technical", format: "video",
+          location_or_link: "https://zoom.us/j/afterpay-tech",
+          prep_notes: "## Technical Round\n\nExpect Java-heavy questions. Review:\n- Spring Boot basics\n- Java collections and generics\n- Microservices patterns",
+          debrief_notes: "Struggled with the Java-specific questions. My Spring Boot knowledge wasn't deep enough. The system design part went okay but they needed someone more comfortable in the Java ecosystem.\n\n**Rejection came 3 days later. Lesson: don't apply for roles where the stack is this far from my experience.**",
+          outcome: "failed" }
+      ] }
+    ]
+  end
+
+  def interview_questions_data
+    [
+      # ── Personal — Behavioural ──────────────────────────────────────────────
+      { question: "Tell me about yourself.",
+        answer: "## My background\n\nI'm a full stack developer with 4 years of experience, primarily in Ruby on Rails and React. I started in a small startup where I owned features end-to-end, then moved to a mid-size product company where I worked on a high-traffic Rails API serving millions of requests.\n\nI'm now looking for a role where I can go deeper on engineering quality and work with a team that cares about clean code and good architecture.",
+        category: "behavioural", is_favourite: true },
+
+      { question: "Why are you looking for a new role?",
+        answer: "My current team has been great but the product has entered a maintenance phase — most of the interesting architecture work is done. I'm looking for somewhere with harder problems and more room to grow, ideally with a strong engineering culture.",
+        category: "behavioural", is_favourite: true },
+
+      { question: "Tell me about a time you handled a difficult technical challenge.",
+        answer: "## STAR Format\n\n**Situation:** Our API response times spiked to 4s after a data migration doubled table size.\n\n**Task:** Diagnose and fix without taking the system down.\n\n**Action:** Used `EXPLAIN ANALYZE` to find a missing composite index, added it concurrently, and introduced a Redis cache for the hottest queries.\n\n**Result:** Response time dropped to 180ms. Wrote a runbook so the team could spot the pattern early next time.",
+        category: "behavioural" },
+
+      { question: "Describe a time you disagreed with a technical decision. What did you do?",
+        answer: "We were going to rewrite a core service in a new framework before understanding the problem well. I raised concerns in the design doc and proposed running a 2-week spike first. The team agreed. The spike showed the rewrite wasn't needed — a refactor solved the problem in half the time.",
+        category: "behavioural" },
+
+      { question: "Where do you see yourself in 3–5 years?",
+        answer: "I'd like to grow into a senior or lead engineer role — not necessarily managing people, but being a technical anchor for a team. I want to be the person who spots systemic problems early and helps raise the quality bar across the codebase.",
+        category: "behavioural" },
+
+      # ── Personal — Technical ───────────────────────────────────────────────
+      { question: "Explain how you'd approach optimising a slow Rails API endpoint.",
+        answer: "## Approach\n\n1. **Measure first** — use `rack-mini-profiler` or check logs for slow queries\n2. **N+1 queries** — most common culprit, fix with `includes`/`eager_load`\n3. **Missing indexes** — `EXPLAIN ANALYZE` to confirm\n4. **Caching** — fragment cache or Redis for expensive, rarely-changing data\n5. **Pagination** — never return unbounded collections\n6. **Background jobs** — move anything non-critical out of the request cycle",
+        category: "technical", is_favourite: true },
+
+      { question: "What's the difference between `has_many :through` and `has_and_belongs_to_many` in Rails?",
+        answer: "`has_and_belongs_to_many` (HABTM) is a direct many-to-many with a join table but no model — you can't add extra attributes to the join.\n\n`has_many :through` uses an intermediate model, which means you can add columns, validations, and callbacks to the join. Almost always prefer `:through` — it's more flexible and easier to extend later.",
+        category: "technical" },
+
+      { question: "How does Rails handle database transactions and when would you use them?",
+        answer: "Rails wraps operations in `ActiveRecord::Base.transaction`. If any exception is raised, everything rolls back.\n\nUse them when multiple writes must succeed or fail together — e.g. creating an order and decrementing stock. Also use `requires_new: true` for nested transactions (savepoints in PostgreSQL).",
+        category: "technical" },
+
+      # ── Personal — Questions to Ask ────────────────────────────────────────
+      { question: "What does a typical day look like for someone in this role?",
+        answer: nil, category: "questions_to_ask", is_favourite: true },
+
+      { question: "How does the team handle technical debt and unplanned work?",
+        answer: nil, category: "questions_to_ask", is_favourite: true },
+
+      { question: "What does the on-call rotation look like, and how does the team handle incidents?",
+        answer: nil, category: "questions_to_ask" },
+
+      { question: "What are the biggest technical challenges the team is facing in the next 6–12 months?",
+        answer: nil, category: "questions_to_ask" },
+
+      { question: "How are technical decisions made — is it top-down or collaborative?",
+        answer: nil, category: "questions_to_ask" },
+
+      # ── Org — Atlassian ────────────────────────────────────────────────────
+      { question: "Why do you want to work at Atlassian specifically?",
+        answer: "Atlassian has always been a benchmark for engineering culture in Australia. The TEAM values feel genuine rather than performative, and the remote-first approach means the engineering process has to be intentional and well-documented — which I find very appealing.\n\nI'm also excited about the scale — working on tools that millions of developers use every day is a different kind of challenge.",
+        category: "behavioural",
+        org_name: "Atlassian" },
+
+      { question: "How do you approach working in a large distributed codebase?",
+        answer: "Strong ownership boundaries, good documentation of interfaces, and investing in tooling. At Atlassian's scale I'd expect well-defined service contracts and feature flags — I've used both and can speak to tradeoffs.",
+        category: "technical",
+        org_name: "Atlassian" },
+
+      # ── Org — Seek ─────────────────────────────────────────────────────────
+      { question: "What do you know about Seek's engineering approach?",
+        answer: "From the job description and Sarah's intro, Seek is modernising a large Rails monolith — splitting responsibilities, improving test coverage, and improving deployment pipelines. The pair programming format in the technical round reflects a collaborative, quality-focused culture.\n\nI've worked in a similar context and can speak to strategies for incremental improvement without big-bang rewrites.",
+        category: "behavioural",
+        org_name: "Seek" },
+
+      # ── Job — Carsales ─────────────────────────────────────────────────────
+      { question: "How would you approach scaling a Rails app for millions of vehicle listings?",
+        answer: "## Approach\n\n**Read path:**\n- Elasticsearch or Postgres full-text for search with proper indexing\n- Cache popular searches and listing pages (Redis)\n- CDN for images and static assets\n\n**Write path:**\n- Background jobs for heavy processing (image resizing, indexing)\n- Database write replicas for reporting queries\n\n**Architecture:**\n- Consider extracting the search service first — it has the most load\n- Keep core listing CRUD in Rails — don't over-engineer early",
+        category: "technical",
+        job_name: "Carsales" }
     ]
   end
 

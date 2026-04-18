@@ -82,6 +82,29 @@ isDeleting={deletingId === item.id}
 
 ---
 
+## 5. Convert datetime-local input values to UTC before sending to the API
+
+**The pattern:** Sending the raw value from a `<input type="datetime-local">` directly to the backend.
+
+**Why it matters:** `datetime-local` gives a string like `2026-04-18T21:05` with no timezone.
+Rails stores it as UTC as-is. When the frontend receives it back as `2026-04-18T21:05:00Z`
+and renders it with `new Date()`, it converts from UTC to local time — adding the user's
+UTC offset (e.g. +10 for AEST), shifting the time forward by 10 hours.
+
+**The rule:** Always convert with `new Date(value).toISOString()` before submitting.
+
+```ts
+// Bad
+createMutation.mutate({ scheduled_at: form.scheduled_at })
+
+// Good
+createMutation.mutate({ scheduled_at: new Date(form.scheduled_at).toISOString() })
+```
+
+**Seen in:** interview scheduling (feature/interview).
+
+---
+
 ## 4. Use keepPreviousData for search/filter queries
 
 **The pattern:** A search input that causes `isLoading` to flip true on every keystroke,
