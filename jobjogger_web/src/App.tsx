@@ -4,6 +4,7 @@ import Layout from '@/components/layout/Layout'
 import AnalyticsPage from '@/pages/AnalyticsPage'
 import ContactDetailPage from '@/pages/ContactDetailPage'
 import ContactsPage from '@/pages/ContactsPage'
+import InterviewPrepPage from '@/pages/InterviewPrepPage'
 import DashboardPage from '@/pages/DashboardPage'
 import JobDetailPage from '@/pages/JobDetailPage'
 import JobsPage from '@/pages/JobsPage'
@@ -42,6 +43,7 @@ function App() {
           <Route path="/organisations/:id" element={<OrganisationDetailPage />} />
           <Route path="/contacts" element={<ContactsPage />} />
           <Route path="/contacts/:id" element={<ContactDetailPage />} />
+          <Route path="/interview-prep" element={<InterviewPrepPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
