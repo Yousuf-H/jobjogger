@@ -12,10 +12,11 @@ import type { CreateJobFormValues } from '@/lib/validations/job'
 import { createJob } from '@/services/api/jobs'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-export default function CreateJobDialog() {
+export default function CreateJobDialog({ className }: { className?: string }) {
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
 
@@ -48,8 +49,9 @@ export default function CreateJobDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="cursor-pointer" variant="success">
-          + New Job
+        <Button size="sm" variant="success" className={`min-w-36 ${className ?? ''}`}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          New Job
         </Button>
       </DialogTrigger>
 

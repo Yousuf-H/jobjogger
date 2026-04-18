@@ -23,8 +23,45 @@ import {
   type CreateJobFormValues,
 } from '@/lib/validations/job'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import { CalendarIcon } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
+
+interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange'> {
+  value: string
+  onChange: (v: string) => void
+}
+
+function DateInput({ value, onChange, ...props }: DateInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    if (val) {
+      const year = val.split('-')[0]
+      if (year.length > 4) return
+    }
+    onChange(val)
+  }
+
+  return (
+    <div className="relative">
+      <CalendarIcon
+        className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 cursor-pointer"
+        onClick={() => inputRef.current?.showPicker?.()}
+      />
+      <Input
+        ref={inputRef}
+        type="date"
+        className="pl-9 cursor-pointer"
+        value={value}
+        onChange={handleChange}
+        max="9999-12-31"
+        {...props}
+      />
+    </div>
+  )
+}
 
 const STATUS_OPTIONS = Object.entries(STATUS_CONFIG).map(([value, config]) => ({
   value,
@@ -148,11 +185,7 @@ export function JobForm({
               <FormItem>
                 <FormLabel>Date Applied</FormLabel>
                 <FormControl>
-                  <Input
-                    type="date"
-                    className="pr-2"
-                    {...field}
-                  />
+                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -272,7 +305,7 @@ export function JobForm({
               <FormItem>
                 <FormLabel>Follow-up Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

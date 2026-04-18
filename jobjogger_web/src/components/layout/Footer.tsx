@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="py-6 text-center">
       <p className="text-muted-foreground text-xs">
-        &copy; {new Date().getFullYear()} Job Jogger &middot;{' '}
+        &copy; {new Date().getFullYear()} JobJogger &middot;{' '}
         <Link
           to="/privacy-policy"
           className="hover:text-foreground underline underline-offset-4 transition-colors"
