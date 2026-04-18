@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
             <div className="bg-primary flex size-8 items-center justify-center rounded-lg">
               <Briefcase className="text-primary-foreground h-4 w-4" />
             </div>
-            <span className="text-lg font-semibold">Job Jogger</span>
+            <span className="text-lg font-semibold">JobJogger</span>
           </Link>
           <Link
             to="/signin"
@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Welcome to Job Jogger. We respect your privacy and are committed
+              Welcome to JobJogger. We respect your privacy and are committed
               to protecting your personal data. This policy explains what
               information we collect, how we use it, and your rights in relation
               to it.
@@ -92,7 +92,7 @@ export default function PrivacyPolicyPage() {
               4. How We Use Your Information
             </h2>
             <ul className="text-muted-foreground list-disc space-y-1 pl-6 leading-relaxed">
-              <li>To provide and maintain the Job Jogger service</li>
+              <li>To provide and maintain the JobJogger service</li>
               <li>To authenticate you and keep your account secure</li>
               <li>To respond to support requests</li>
               <li>
@@ -142,7 +142,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold">8. Third-Party Services</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Job Jogger may use third-party services for infrastructure (such
+              JobJogger may use third-party services for infrastructure (such
               as hosting). These providers are carefully selected and are
               contractually required to keep your data secure and confidential.
             </p>
@@ -176,7 +176,7 @@ export default function PrivacyPolicyPage() {
 
       <footer className="border-t px-6 py-6 text-center">
         <p className="text-muted-foreground text-xs">
-          &copy; {new Date().getFullYear()} Job Jogger &middot;{' '}
+          &copy; {new Date().getFullYear()} JobJogger &middot;{' '}
           <Link
             to="/terms"
             className="hover:text-foreground underline underline-offset-4 transition-colors"

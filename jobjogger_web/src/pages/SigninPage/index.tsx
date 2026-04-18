@@ -18,7 +18,7 @@ export default function SigninPage() {
               <Briefcase className="text-primary-foreground h-4 w-4" />
             </div>
             <span className="text-primary-foreground text-lg font-semibold">
-              Job Jogger
+              JobJogger
             </span>
           </div>
 
@@ -90,7 +90,7 @@ export default function SigninPage() {
           <div className="bg-primary flex size-8 items-center justify-center rounded-lg">
             <Briefcase className="text-primary-foreground h-4 w-4" />
           </div>
-          <span className="text-lg font-semibold">Job Jogger</span>
+          <span className="text-lg font-semibold">JobJogger</span>
         </div>
 
         <div className="w-full max-w-sm">

@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { TypographyH1 } from '@/components/ui/typography'
 import { useContactActions } from '@/hooks/useContactActions'
@@ -37,13 +38,20 @@ export default function ContactsPage() {
   if (error) return <PageError message={error.message} />
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-6">
+    <div className="page-container space-y-4">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <TypographyH1>Contacts</TypographyH1>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <TypographyH1 className="text-2xl font-bold tracking-tight">
+            Contacts
+          </TypographyH1>
+          <p className="text-muted-foreground text-sm">
+            People you've met throughout your job search.
+          </p>
+        </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button variant="success" size="sm">
+            <Button variant="success" size="sm" className="min-w-36 w-full sm:w-auto">
               <Plus className="mr-1.5 h-4 w-4" />
               New Contact
             </Button>
@@ -62,14 +70,19 @@ export default function ContactsPage() {
       </div>
 
       {/* Search */}
-      <div className="mb-6">
-        <Input
-          placeholder="Search by name, role or email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={`max-w-sm transition-opacity ${isFetching && !isLoading ? 'opacity-60' : ''}`}
-        />
-      </div>
+      <Card className="mb-6 border-0 shadow-sm">
+        <CardContent className="flex items-center justify-between gap-4 p-4">
+          <Input
+            placeholder="Search by name, role or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={`max-w-sm transition-opacity ${isFetching && !isLoading ? 'opacity-60' : ''}`}
+          />
+          <p className="text-muted-foreground shrink-0 text-sm">
+            {contacts?.length ?? 0} {contacts?.length === 1 ? 'contact' : 'contacts'}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* List */}
       {contacts && contacts.length > 0 ? (

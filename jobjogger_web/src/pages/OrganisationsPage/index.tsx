@@ -116,7 +116,7 @@ function OrgRating({ rating }: { rating?: number | null }) {
   )
 }
 
-function CreateOrganisationDialog() {
+function CreateOrganisationDialog({ className }: { className?: string }) {
   const [open, setOpen] = useState(false)
   const { createMutation } = useOrganisationActions()
 
@@ -127,9 +127,9 @@ function CreateOrganisationDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="mr-1 h-4 w-4" />
-          Add Organisation
+        <Button size="sm" variant="success" className={`min-w-36 ${className ?? ''}`}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          New Organisation
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[95vh] overflow-y-auto">
@@ -260,7 +260,7 @@ export default function OrganisationsPage() {
 
   return (
     <div className="page-container space-y-4">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <TypographyH1 className="text-2xl font-bold tracking-tight">
             Organisations
@@ -269,7 +269,7 @@ export default function OrganisationsPage() {
             Track companies across your job applications.
           </p>
         </div>
-        <CreateOrganisationDialog />
+        <CreateOrganisationDialog className="w-full sm:w-auto" />
       </div>
 
       {hasOrganisations && <WelcomeBanner />}

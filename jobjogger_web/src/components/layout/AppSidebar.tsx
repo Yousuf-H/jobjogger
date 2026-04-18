@@ -50,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link to="/" className="flex items-center gap-2">
                 <FaPhoenixFramework className="size-5!" />
-                <span className="text-base font-semibold">Job Jogger</span>
+                <span className="text-base font-semibold">JobJogger</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

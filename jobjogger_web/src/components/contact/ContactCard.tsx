@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card'
 import type { Contact } from '@/types/contact'
-import { Briefcase, Building2, Mail, Phone } from 'lucide-react'
+import { Briefcase, Building2, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 interface ContactCardProps {
@@ -38,12 +38,7 @@ export function ContactCard({ contact }: ContactCardProps) {
                 <span className="max-w-36 truncate">{contact.email}</span>
               </span>
             )}
-            {contact.phone && (
-              <span className="text-muted-foreground flex items-center gap-1 text-xs">
-                <Phone className="h-3 w-3" />
-                {contact.phone}
-              </span>
-            )}
+
             {contact.jobs && contact.jobs.length > 0 && (
               <span className="text-muted-foreground flex items-center gap-1 text-xs">
                 <Briefcase className="h-3 w-3" />

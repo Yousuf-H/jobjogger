@@ -1,4 +1,5 @@
 import { columns as createColumns } from '@/components/job/columns'
+import CreateJobDialog from '@/components/job/CreateJobDialog'
 import DataTable from '@/components/job/DataTable'
 import { ExtensionBanner } from '@/components/job/ExtensionBanner'
 import { JobsToolbar } from '@/components/job/JobsToolbar'
@@ -26,13 +27,16 @@ export default function JobsPage() {
 
   return (
     <div className="page-container space-y-4">
-      <div>
-        <TypographyH1 className="text-2xl font-bold tracking-tight">
-          Jobs
-        </TypographyH1>
-        <p className="text-muted-foreground text-sm">
-          Manage and track all your job applications.
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <TypographyH1 className="text-2xl font-bold tracking-tight">
+            Jobs
+          </TypographyH1>
+          <p className="text-muted-foreground text-sm">
+            Manage and track all your job applications.
+          </p>
+        </div>
+        <CreateJobDialog className="w-full sm:w-auto" />
       </div>
 
       <ExtensionBanner />

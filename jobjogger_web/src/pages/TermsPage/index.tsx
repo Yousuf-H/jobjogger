@@ -13,7 +13,7 @@ export default function TermsPage() {
             <div className="bg-primary flex size-8 items-center justify-center rounded-lg">
               <Briefcase className="text-primary-foreground h-4 w-4" />
             </div>
-            <span className="text-lg font-semibold">Job Jogger</span>
+            <span className="text-lg font-semibold">JobJogger</span>
           </Link>
           <Link
             to="/signin"
@@ -38,7 +38,7 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold">1. Acceptance of Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
-              By creating an account or using Job Jogger, you agree to be bound
+              By creating an account or using JobJogger, you agree to be bound
               by these Terms &amp; Conditions. If you do not agree, please do
               not use the service.
             </p>
@@ -47,7 +47,7 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold">2. Description of Service</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Job Jogger is a job application tracking tool that helps you
+              JobJogger is a job application tracking tool that helps you
               organise and monitor your job search. We provide the platform
               as-is and reserve the right to modify or discontinue features with
               reasonable notice.
@@ -80,7 +80,7 @@ export default function TermsPage() {
                 service
               </li>
               <li>
-                Scrape or extract data from the Job Jogger service in an
+                Scrape or extract data from the JobJogger service in an
                 unauthorised or automated manner
               </li>
               <li>Impersonate another person or entity</li>
@@ -90,7 +90,7 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold">5. Your Data</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You retain ownership of the data you enter into Job Jogger. By
+              You retain ownership of the data you enter into JobJogger. By
               using the service, you grant us a limited licence to store and
               process your data solely for the purpose of providing the service
               to you. See our{' '}
@@ -118,7 +118,7 @@ export default function TermsPage() {
               7. Limitation of Liability
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Job Jogger is provided "as is" without warranties of any kind,
+              JobJogger is provided "as is" without warranties of any kind,
               express or implied. To the maximum extent permitted by law, we are
               not liable for any indirect, incidental, or consequential damages
               arising from your use of the service.
@@ -171,7 +171,7 @@ export default function TermsPage() {
 
       <footer className="border-t px-6 py-6 text-center">
         <p className="text-muted-foreground text-xs">
-          &copy; {new Date().getFullYear()} Job Jogger &middot;{' '}
+          &copy; {new Date().getFullYear()} JobJogger &middot;{' '}
           <Link
             to="/privacy-policy"
             className="hover:text-foreground underline underline-offset-4 transition-colors"

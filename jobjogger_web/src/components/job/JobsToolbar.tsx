@@ -1,4 +1,3 @@
-import CreateJobDialog from '@/components/job/CreateJobDialog'
 import { FacetedFilter } from '@/components/job/FacetedFilter'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -243,7 +242,6 @@ export function JobsToolbar({
           </Button>
 
           <div className="sm:ml-auto">
-            <CreateJobDialog />
           </div>
         </div>
 
