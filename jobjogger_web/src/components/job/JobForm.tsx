@@ -27,7 +27,12 @@ import { CalendarIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 
-function DateInput({ value, onChange, name }: { value: string; onChange: (v: string) => void; name: string }) {
+interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange'> {
+  value: string
+  onChange: (v: string) => void
+}
+
+function DateInput({ value, onChange, ...props }: DateInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,16 +48,16 @@ function DateInput({ value, onChange, name }: { value: string; onChange: (v: str
     <div className="relative">
       <CalendarIcon
         className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 cursor-pointer"
-        onClick={() => inputRef.current?.showPicker()}
+        onClick={() => inputRef.current?.showPicker?.()}
       />
       <Input
         ref={inputRef}
         type="date"
-        name={name}
         className="pl-9 cursor-pointer"
         value={value}
         onChange={handleChange}
         max="9999-12-31"
+        {...props}
       />
     </div>
   )
@@ -180,7 +185,7 @@ export function JobForm({
               <FormItem>
                 <FormLabel>Date Applied</FormLabel>
                 <FormControl>
-                  <DateInput name={field.name} value={field.value ?? ''} onChange={field.onChange} />
+                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -300,7 +305,7 @@ export function JobForm({
               <FormItem>
                 <FormLabel>Follow-up Date</FormLabel>
                 <FormControl>
-                  <DateInput name={field.name} value={field.value ?? ''} onChange={field.onChange} />
+                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
