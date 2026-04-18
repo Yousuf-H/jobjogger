@@ -1,3 +1,4 @@
+import { ScheduleInterviewPrompt } from '@/components/job/ScheduleInterviewPrompt'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Check, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
@@ -14,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { Job, JobStatus } from '@/types/job'
+
+const INTERVIEW_TRIGGER_STATUSES: JobStatus[] = ['phone_screen', 'interviewing']
 
 const STATUS_OPTIONS: { value: JobStatus; label: string }[] = [
   { value: 'wishlist', label: 'Wishlist' },
@@ -33,14 +36,18 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ job }: StatusBadgeProps) {
   const [open, setOpen] = useState(false)
+  const [promptOpen, setPromptOpen] = useState(false)
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: (newStatus: JobStatus) =>
       updateJob(job.id, { status: newStatus }),
-    onSuccess: () => {
+    onSuccess: (_, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Status updated!')
+      if (newStatus !== job.status && INTERVIEW_TRIGGER_STATUSES.includes(newStatus)) {
+        setPromptOpen(true)
+      }
     },
     onError: () => {
       toast.error('Failed to update status')
@@ -55,6 +62,12 @@ export function StatusBadge({ job }: StatusBadgeProps) {
   const config = getStatusConfig(job.status)
 
   return (
+    <>
+      <ScheduleInterviewPrompt
+        open={promptOpen}
+        onOpenChange={setPromptOpen}
+        jobId={job.id}
+      />
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
@@ -102,5 +115,6 @@ export function StatusBadge({ job }: StatusBadgeProps) {
         })}
       </DropdownMenuContent>
     </DropdownMenu>
+    </>
   )
 }

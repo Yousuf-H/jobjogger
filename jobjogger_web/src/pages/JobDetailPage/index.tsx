@@ -23,13 +23,14 @@ import { useOrganisations } from '@/hooks/useOrganisations'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
 import { updateJob } from '@/services/api/jobs'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, isFuture } from 'date-fns'
 import {
   ArrowLeft,
   Briefcase,
   Building2,
   Calendar,
   CalendarClock,
+  CalendarCheck2,
   Clock,
   DollarSign,
   ExternalLink,
@@ -369,6 +370,14 @@ export default function JobDetailPage() {
                   label="Follow up"
                   value={formatDate(job.follow_up_date)}
                   iconClassName="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300"
+                />
+              )}
+              {job.next_interview_at && isFuture(new Date(job.next_interview_at)) && (
+                <QuickStat
+                  icon={CalendarCheck2}
+                  label="Next interview"
+                  value={formatDistanceToNow(new Date(job.next_interview_at), { addSuffix: true })}
+                  iconClassName="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300"
                 />
               )}
               {job.job_url && (

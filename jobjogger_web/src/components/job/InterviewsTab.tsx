@@ -1,0 +1,524 @@
+import EmptyTabState from '@/components/job/EmptyTabState'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { MarkdownEditor } from '@/components/ui/markdown-editor'
+import { Markdown } from '@/components/ui/markdown'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useInterviewActions, useInterviews } from '@/hooks/useInterviews'
+import {
+  INTERVIEW_FORMAT_LABELS,
+  INTERVIEW_FORMATS,
+  INTERVIEW_OUTCOME_LABELS,
+  INTERVIEW_OUTCOMES,
+  INTERVIEW_TYPE_LABELS,
+  INTERVIEW_TYPES,
+  type Interview,
+  type InterviewFormat,
+  type InterviewOutcome,
+  type InterviewType,
+} from '@/types/interview'
+import { format, formatDistanceToNow, isPast } from 'date-fns'
+import {
+  AlertTriangle,
+  CalendarIcon,
+  CheckCircle2,
+  Clock,
+  MapPin,
+  Pencil,
+  Plus,
+  Trash2,
+  XCircle,
+} from 'lucide-react'
+import { useState } from 'react'
+
+interface InterviewFormState {
+  scheduled_at: string
+  interview_type: InterviewType
+  format: InterviewFormat | ''
+  location_or_link: string
+  prep_notes: string
+}
+
+const DEFAULT_FORM: InterviewFormState = {
+  scheduled_at: '',
+  interview_type: 'phone_screen',
+  format: '',
+  location_or_link: '',
+  prep_notes: '',
+}
+
+function InterviewForm({
+  initial,
+  onSubmit,
+  onCancel,
+  isSubmitting,
+}: {
+  initial?: InterviewFormState
+  onSubmit: (data: InterviewFormState) => void
+  onCancel: () => void
+  isSubmitting: boolean
+}) {
+  const [form, setForm] = useState<InterviewFormState>(initial ?? DEFAULT_FORM)
+
+  const set = (key: keyof InterviewFormState, value: string) =>
+    setForm((f) => ({ ...f, [key]: value }))
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label>Date & Time *</Label>
+          <div className="relative">
+            <CalendarIcon className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+            <input
+              type="datetime-local"
+              className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 pl-9 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1"
+              value={form.scheduled_at}
+              onChange={(e) => set('scheduled_at', e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Type *</Label>
+          <Select
+            value={form.interview_type}
+            onValueChange={(v) => set('interview_type', v)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {INTERVIEW_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {INTERVIEW_TYPE_LABELS[t]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label>Format</Label>
+          <Select
+            value={form.format}
+            onValueChange={(v) => set('format', v)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select format" />
+            </SelectTrigger>
+            <SelectContent>
+              {INTERVIEW_FORMATS.map((f) => (
+                <SelectItem key={f} value={f}>
+                  {INTERVIEW_FORMAT_LABELS[f]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Location / Link</Label>
+          <input
+            type="text"
+            className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1"
+            placeholder="e.g. Zoom link or office address"
+            value={form.location_or_link}
+            onChange={(e) => set('location_or_link', e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Prep Notes</Label>
+        <MarkdownEditor
+          value={form.prep_notes}
+          onChange={(v) => set('prep_notes', v)}
+          placeholder="Research, questions to prepare, key talking points… (markdown supported)"
+          rows={5}
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 pt-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          variant="success"
+          disabled={isSubmitting || !form.scheduled_at || !form.interview_type}
+          onClick={() => onSubmit(form)}
+        >
+          {isSubmitting ? 'Saving…' : 'Save Interview'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+const OUTCOME_STYLES: Record<InterviewOutcome, { active: string; hover: string }> = {
+  pending: {
+    active: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700',
+    hover: 'hover:bg-amber-50 hover:border-amber-200 dark:hover:bg-amber-900/10',
+  },
+  passed: {
+    active: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700',
+    hover: 'hover:bg-emerald-50 hover:border-emerald-200 dark:hover:bg-emerald-900/10',
+  },
+  failed: {
+    active: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700',
+    hover: 'hover:bg-red-50 hover:border-red-200 dark:hover:bg-red-900/10',
+  },
+}
+
+const OUTCOME_ICONS: Record<InterviewOutcome, React.ReactNode> = {
+  pending: <Clock className="h-3 w-3" />,
+  passed: <CheckCircle2 className="h-3 w-3" />,
+  failed: <XCircle className="h-3 w-3" />,
+}
+
+function InterviewCard({
+  interview,
+  round,
+  jobId,
+}: {
+  interview: Interview
+  round: number
+  jobId: number
+}) {
+  const { updateMutation, deleteMutation } = useInterviewActions(jobId)
+  const [editing, setEditing] = useState(false)
+  const [editingDebrief, setEditingDebrief] = useState(false)
+  const [debrief, setDebrief] = useState(interview.debrief_notes ?? '')
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+
+  const isPastInterview = isPast(new Date(interview.scheduled_at))
+  const scheduledDate = new Date(interview.scheduled_at)
+
+  const handleUpdate = (form: InterviewFormState) => {
+    updateMutation.mutate(
+      {
+        id: interview.id,
+        data: {
+          ...form,
+          scheduled_at: new Date(form.scheduled_at).toISOString(),
+          format: form.format || undefined,
+        },
+      },
+      { onSuccess: () => setEditing(false) }
+    )
+  }
+
+  const handleSaveDebrief = () => {
+    updateMutation.mutate(
+      { id: interview.id, data: { debrief_notes: debrief } },
+      { onSuccess: () => setEditingDebrief(false) }
+    )
+  }
+
+  const handleOutcome = (outcome: InterviewOutcome) => {
+    updateMutation.mutate({ id: interview.id, data: { outcome } })
+  }
+
+  const handleDelete = () => {
+    setDeletingId(interview.id)
+    deleteMutation.mutate(interview.id, {
+      onSettled: () => setDeletingId(null),
+    })
+  }
+
+  return (
+    <div className={`rounded-lg border bg-card p-4 shadow-sm ${
+      interview.outcome === 'passed'
+        ? 'border-emerald-200 dark:border-emerald-900/50'
+        : interview.outcome === 'failed'
+          ? 'border-red-200 dark:border-red-900/50'
+          : 'border-amber-200 dark:border-amber-900/50'
+    }`}>
+      {editing ? (
+        <InterviewForm
+          initial={{
+            scheduled_at: interview.scheduled_at.slice(0, 16),
+            interview_type: interview.interview_type,
+            format: interview.format ?? '',
+            location_or_link: interview.location_or_link ?? '',
+            prep_notes: interview.prep_notes ?? '',
+          }}
+          onSubmit={handleUpdate}
+          onCancel={() => setEditing(false)}
+          isSubmitting={updateMutation.isPending}
+        />
+      ) : (
+        <>
+          {/* Header row */}
+          <div className="mb-3 flex items-start justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-xs font-medium">
+                  Round {round}
+                </span>
+                <Badge variant="secondary" className="text-xs">
+                  {INTERVIEW_TYPE_LABELS[interview.interview_type]}
+                </Badge>
+                {interview.format && (
+                  <Badge variant="outline" className="text-xs">
+                    {INTERVIEW_FORMAT_LABELS[interview.format]}
+                  </Badge>
+                )}
+              </div>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                <span className="flex items-center gap-1 font-medium">
+                  <CalendarIcon className="text-muted-foreground h-3.5 w-3.5" />
+                  {format(scheduledDate, 'EEE d MMM yyyy, h:mm a')}
+                </span>
+                {!isPastInterview && (
+                  <span className="text-muted-foreground text-xs">
+                    {formatDistanceToNow(scheduledDate, { addSuffix: true })}
+                  </span>
+                )}
+              </div>
+              {interview.location_or_link && (
+                <div className="mt-1 flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400">
+                  <MapPin className="h-3 w-3" />
+                  {interview.location_or_link.startsWith('http') ? (
+                    <a
+                      href={interview.location_or_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      {interview.location_or_link}
+                    </a>
+                  ) : (
+                    interview.location_or_link
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => setEditing(true)}
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
+                disabled={deletingId === interview.id}
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Outcome buttons */}
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-muted-foreground text-xs">Outcome:</span>
+            <div className="flex gap-1.5">
+              {INTERVIEW_OUTCOMES.map((o) => {
+                const isActive = interview.outcome === o
+                const styles = OUTCOME_STYLES[o]
+                return (
+                  <button
+                    key={o}
+                    type="button"
+                    onClick={() => handleOutcome(o)}
+                    className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                      isActive
+                        ? styles.active
+                        : `border-input bg-background text-muted-foreground ${styles.hover}`
+                    }`}
+                  >
+                    {OUTCOME_ICONS[o]}
+                    {INTERVIEW_OUTCOME_LABELS[o]}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Prep notes */}
+          {interview.prep_notes && (
+            <div className="mb-3 rounded-md bg-muted/50 p-3 text-sm">
+              <p className="text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide">
+                Prep Notes
+              </p>
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                <Markdown>{interview.prep_notes}</Markdown>
+              </div>
+            </div>
+          )}
+
+          {/* Debrief — visible by default once past, editable inline */}
+          {isPastInterview && (
+            <div className="border-t pt-3 mt-1">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+                  Debrief
+                </p>
+                {!editingDebrief && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs text-muted-foreground"
+                    onClick={() => setEditingDebrief(true)}
+                  >
+                    <Pencil className="mr-1 h-3 w-3" />
+                    {interview.debrief_notes ? 'Edit' : 'Add'}
+                  </Button>
+                )}
+              </div>
+
+              {editingDebrief ? (
+                <div className="space-y-2">
+                  <MarkdownEditor
+                    value={debrief}
+                    onChange={setDebrief}
+                    placeholder="How did it go? What was asked? Any follow-up actions… (markdown supported)"
+                    rows={5}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setDebrief(interview.debrief_notes ?? '')
+                        setEditingDebrief(false)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="success"
+                      disabled={updateMutation.isPending}
+                      onClick={handleSaveDebrief}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              ) : interview.debrief_notes ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                  <Markdown>{interview.debrief_notes}</Markdown>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground/50 italic">
+                  No debrief yet. How did it go?
+                </p>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+interface InterviewsTabProps {
+  jobId: number
+}
+
+export function InterviewsTab({ jobId }: InterviewsTabProps) {
+  const { data: interviews = [], isLoading } = useInterviews(jobId)
+  const { createMutation } = useInterviewActions(jobId)
+  const [showForm, setShowForm] = useState(false)
+
+  // Oldest first for round numbering, newest first for display
+  const chronological = [...interviews].sort(
+    (a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
+  )
+  const displayOrder = [...chronological].reverse()
+
+  const latestOutcome = chronological[chronological.length - 1]?.outcome
+  const lastRoundFailed = latestOutcome === 'failed'
+
+  const handleCreate = (form: InterviewFormState) => {
+    createMutation.mutate(
+      {
+        ...form,
+        scheduled_at: new Date(form.scheduled_at).toISOString(),
+        format: form.format || undefined,
+      },
+      { onSuccess: () => setShowForm(false) }
+    )
+  }
+
+  if (isLoading) return <div className="py-8 text-center text-sm text-muted-foreground">Loading…</div>
+
+  return (
+    <div className="space-y-4">
+      {/* Add button */}
+      {!showForm && (
+        <div className="flex justify-end">
+          <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add Interview
+          </Button>
+        </div>
+      )}
+
+      {/* New interview form */}
+      {showForm && (
+        <div className="rounded-lg border p-4">
+          <p className="mb-4 text-sm font-semibold">Schedule Interview</p>
+          {lastRoundFailed && (
+            <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/10 dark:text-amber-400 mb-4">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              The last round was marked as failed. Are you sure you want to add another?
+            </div>
+          )}
+          <InterviewForm
+            onSubmit={handleCreate}
+            onCancel={() => setShowForm(false)}
+            isSubmitting={createMutation.isPending}
+          />
+        </div>
+      )}
+
+      {/* Interview list */}
+      {interviews.length === 0 && !showForm ? (
+        <EmptyTabState
+          icon={CalendarIcon}
+          title="No interviews yet"
+          description="Schedule your first interview to start tracking prep and outcomes."
+          actionLabel="Add Interview"
+          onAction={() => setShowForm(true)}
+        />
+      ) : (
+        <div className="space-y-3">
+          {displayOrder.map((interview) => (
+            <InterviewCard
+              key={interview.id}
+              interview={interview}
+              round={chronological.findIndex((i) => i.id === interview.id) + 1}
+              jobId={jobId}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
