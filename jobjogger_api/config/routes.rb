@@ -55,7 +55,13 @@ Rails.application.routes.draw do
 
         # Contacts linked to a specific job
         resources :job_contacts, only: [:index, :create, :destroy]
+
+        # Interviews
+        resources :interviews, only: [:index, :create, :update, :destroy]
       end
+
+      # Interview questions (scoped by query params: personal / job / org)
+      resources :interview_questions, only: [:index, :create, :update, :destroy]
 
       # Timeline entries (top-level for update/destroy)
       resources :timeline_entries, only: [:update, :destroy]

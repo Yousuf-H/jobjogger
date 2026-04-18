@@ -4,6 +4,16 @@ class Job < ApplicationRecord
   belongs_to :organisation, optional: true
   has_many :contact_jobs, dependent: :destroy
   has_many :contacts, through: :contact_jobs
+  has_many :interviews, -> { order(:scheduled_at) }, dependent: :destroy
+  has_many :interview_questions, dependent: :destroy
+
+  def next_interview_at
+    interviews.upcoming.first&.scheduled_at
+  end
+
+  def as_json(options = {})
+    super(options).merge('next_interview_at' => next_interview_at)
+  end
 
   TERMINAL_STATUSES = %w[accepted rejected ghosted withdrawn].freeze
 

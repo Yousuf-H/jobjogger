@@ -5,7 +5,7 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   before_action :check_demo_job_limit, only: [:create]
 
   def index
-    jobs = apply_filters(current_user.jobs)
+    jobs = apply_filters(current_user.jobs.includes(:interviews))
 
     render json: jobs
   end

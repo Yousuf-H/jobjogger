@@ -3,6 +3,7 @@ class User < ApplicationRecord
   has_one_attached :avatar
   has_many :organisations, dependent: :destroy
   has_many :contacts, dependent: :destroy
+  has_many :interview_questions, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
