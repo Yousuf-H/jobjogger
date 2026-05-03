@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -77,9 +78,9 @@ export function ScheduleInterviewPrompt({
               <Label>Date & Time *</Label>
               <div className="relative">
                 <CalendarIcon className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
-                <input
+                <Input
                   type="datetime-local"
-                  className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 pl-9 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1"
+                  className="pl-9"
                   value={form.scheduled_at}
                   onChange={(e) => set('scheduled_at', e.target.value)}
                 />
@@ -128,9 +129,7 @@ export function ScheduleInterviewPrompt({
 
             <div className="space-y-1.5">
               <Label>Location / Link</Label>
-              <input
-                type="text"
-                className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1"
+              <Input
                 placeholder="e.g. Zoom link or office address"
                 value={form.location_or_link}
                 onChange={(e) => set('location_or_link', e.target.value)}
