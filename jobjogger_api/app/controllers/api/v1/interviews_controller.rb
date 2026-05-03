@@ -16,6 +16,8 @@ class Api::V1::InterviewsController < Api::V1::AuthenticatedController
     else
       render json: { errors: interview.errors.full_messages }, status: :unprocessable_content
     end
+  rescue ArgumentError => e
+    render json: { errors: [ e.message ] }, status: :unprocessable_content
   end
 
   def update
