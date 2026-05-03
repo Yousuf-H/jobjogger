@@ -2,6 +2,7 @@ class InterviewQuestion < ApplicationRecord
   belongs_to :user
   belongs_to :job, optional: true
   belongs_to :organisation, optional: true
+  has_many :job_interview_questions, dependent: :destroy
 
   enum :category, {
     behavioural: 'behavioural',

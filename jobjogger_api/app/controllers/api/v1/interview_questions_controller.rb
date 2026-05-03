@@ -13,6 +13,8 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
                   questions.for_job(current_user.jobs.find(params[:job_id])) if params[:job_id].present?
                 when 'org'
                   questions.for_organisation(current_user.organisations.find(params[:organisation_id])) if params[:organisation_id].present?
+                when 'all'
+                  questions
                 else
                   questions.personal
                 end

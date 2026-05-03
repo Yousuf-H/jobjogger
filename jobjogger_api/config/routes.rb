@@ -58,6 +58,9 @@ Rails.application.routes.draw do
 
         # Interviews
         resources :interviews, only: [:index, :create, :update, :destroy]
+
+        # Questions pinned to this job via the join table
+        resources :job_interview_questions, only: [:index, :create, :destroy]
       end
 
       # Interview questions (scoped by query params: personal / job / org)

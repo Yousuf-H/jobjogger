@@ -6,6 +6,8 @@ class Job < ApplicationRecord
   has_many :contacts, through: :contact_jobs
   has_many :interviews, -> { order(:scheduled_at) }, dependent: :destroy
   has_many :interview_questions, dependent: :destroy
+  has_many :job_interview_questions, dependent: :destroy
+  has_many :pinned_questions, through: :job_interview_questions, source: :interview_question
 
   def next_interview_at
     interviews.upcoming.first&.scheduled_at
