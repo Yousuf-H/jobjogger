@@ -10,7 +10,12 @@ class Job < ApplicationRecord
   has_many :pinned_questions, through: :job_interview_questions, source: :interview_question
 
   def next_interview_at
-    interviews.upcoming.first&.scheduled_at
+    if interviews.loaded?
+      now = Time.current
+      interviews.find { |i| i.scheduled_at > now }&.scheduled_at
+    else
+      interviews.upcoming.first&.scheduled_at
+    end
   end
 
   def as_json(options = {})
