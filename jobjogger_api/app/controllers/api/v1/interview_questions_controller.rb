@@ -68,12 +68,19 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
 
   def scope_params
     resolved = {}
-    if (job_id = params.dig(:interview_question, :job_id)).present?
-      resolved[:job_id] = current_user.jobs.find(job_id).id
+    question_params_raw = params[:interview_question]
+    return resolved unless question_params_raw
+
+    if question_params_raw.key?(:job_id)
+      job_id = question_params_raw[:job_id]
+      resolved[:job_id] = job_id.present? ? current_user.jobs.find(job_id).id : nil
     end
-    if (organisation_id = params.dig(:interview_question, :organisation_id)).present?
-      resolved[:organisation_id] = current_user.organisations.find(organisation_id).id
+
+    if question_params_raw.key?(:organisation_id)
+      organisation_id = question_params_raw[:organisation_id]
+      resolved[:organisation_id] = organisation_id.present? ? current_user.organisations.find(organisation_id).id : nil
     end
+
     resolved
   end
 end
