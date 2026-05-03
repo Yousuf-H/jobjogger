@@ -275,7 +275,7 @@ function InterviewCard({
       {editing ? (
         <InterviewForm
           initial={{
-            scheduled_at: interview.scheduled_at.slice(0, 16),
+            scheduled_at: format(new Date(interview.scheduled_at), "yyyy-MM-dd'T'HH:mm"),
             interview_type: interview.interview_type,
             format: interview.format ?? '',
             location_or_link: interview.location_or_link ?? '',

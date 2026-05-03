@@ -36,7 +36,10 @@ export function useInterviewActions(jobId: number) {
   const queryClient = useQueryClient()
   const queryKey = ['interviews', userId, jobId]
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey })
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey })
+    queryClient.invalidateQueries({ queryKey: ['jobs', userId] })
+  }
 
   const createMutation = useMutation({
     mutationFn: (data: Partial<Interview>) => createInterview(jobId, data),

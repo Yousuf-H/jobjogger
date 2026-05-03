@@ -23,21 +23,25 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
   end
 
   def create
-    question = current_user.interview_questions.build(question_params)
+    question = current_user.interview_questions.build(question_params.merge(scope_params))
 
     if question.save
       render json: question, status: :created
     else
       render json: { errors: question.errors.full_messages }, status: :unprocessable_content
     end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Resource not found" }, status: :not_found
   end
 
   def update
-    if @question.update(question_params)
+    if @question.update(question_params.merge(scope_params))
       render json: @question
     else
       render json: { errors: @question.errors.full_messages }, status: :unprocessable_content
     end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Resource not found" }, status: :not_found
   end
 
   def destroy
@@ -58,9 +62,18 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
       :question,
       :answer,
       :category,
-      :is_favourite,
-      :job_id,
-      :organisation_id
+      :is_favourite
     )
+  end
+
+  def scope_params
+    resolved = {}
+    if (job_id = params.dig(:interview_question, :job_id)).present?
+      resolved[:job_id] = current_user.jobs.find(job_id).id
+    end
+    if (organisation_id = params.dig(:interview_question, :organisation_id)).present?
+      resolved[:organisation_id] = current_user.organisations.find(organisation_id).id
+    end
+    resolved
   end
 end
