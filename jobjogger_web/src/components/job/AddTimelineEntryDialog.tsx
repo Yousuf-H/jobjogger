@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Pencil, Plus } from 'lucide-react'
+import { CalendarIcon, Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -153,7 +153,10 @@ export default function AddTimelineEntryDialog({
                 <FormItem>
                   <FormLabel>Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <div className="relative">
+                      <CalendarIcon className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      <Input type="date" className="pl-9 cursor-pointer" max="9999-12-31" {...field} />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
