@@ -13,6 +13,6 @@ class CreateInterviews < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :interviews, [:job_id, :scheduled_at]
+    add_index :interviews, [ :job_id, :scheduled_at ]
   end
 end

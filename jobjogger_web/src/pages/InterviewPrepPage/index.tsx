@@ -3,9 +3,13 @@ import { PageLoading } from '@/components/layout/PageLoading'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -13,19 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import { TypographyH1 } from '@/components/ui/typography'
-import { useJobs } from '@/hooks/useJobs'
-import { useOrganisations } from '@/hooks/useOrganisations'
 import {
   useInterviewQuestionActions,
   useInterviewQuestions,
 } from '@/hooks/useInterviews'
+import { useJobs } from '@/hooks/useJobs'
+import { useOrganisations } from '@/hooks/useOrganisations'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import {
   QUESTION_CATEGORIES,
@@ -119,9 +118,7 @@ function QuestionForm({
           <Label>Scope *</Label>
           <Select
             value={form.scope}
-            onValueChange={(v) =>
-              set('scope', v as QuestionFormState['scope'])
-            }
+            onValueChange={(v) => set('scope', v as QuestionFormState['scope'])}
           >
             <SelectTrigger>
               <SelectValue />
@@ -159,10 +156,7 @@ function QuestionForm({
       {form.scope === 'job' && (
         <div className="space-y-1.5">
           <Label>Job *</Label>
-          <Select
-            value={form.job_id}
-            onValueChange={(v) => set('job_id', v)}
-          >
+          <Select value={form.job_id} onValueChange={(v) => set('job_id', v)}>
             <SelectTrigger>
               <SelectValue placeholder="Select job" />
             </SelectTrigger>
@@ -247,19 +241,21 @@ function QuestionCard({
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="rounded-lg border bg-card p-4 shadow-sm">
+    <div className="bg-card rounded-lg border p-4 shadow-sm">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
             {question.is_favourite && (
               <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
             )}
-            <p className="text-sm font-medium leading-snug">{question.question}</p>
+            <p className="text-sm font-medium leading-snug">
+              {question.question}
+            </p>
           </div>
           {question.answer && (
             <button
               type="button"
-              className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs mt-1 transition-colors"
+              className="text-muted-foreground hover:text-foreground mt-1 flex items-center gap-1 text-xs transition-colors"
               onClick={() => setExpanded((v) => !v)}
             >
               {expanded ? (
@@ -271,7 +267,7 @@ function QuestionCard({
             </button>
           )}
           {expanded && question.answer && (
-            <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap bg-muted/50 rounded-md p-3">
+            <p className="text-muted-foreground bg-muted/50 mt-2 whitespace-pre-wrap rounded-md p-3 text-sm">
               {question.answer}
             </p>
           )}
@@ -309,25 +305,35 @@ export default function InterviewPrepPage() {
   usePageTitle('Interview Prep')
 
   const [scopeTab, setScopeTab] = useState<ScopeTab>('personal')
-  const [categoryFilter, setCategoryFilter] = useState<QuestionCategory | 'all'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<
+    QuestionCategory | 'all'
+  >('all')
   const [selectedJobId, setSelectedJobId] = useState<string>('')
   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
   const [createOpen, setCreateOpen] = useState(false)
-  const [editingQuestion, setEditingQuestion] = useState<InterviewQuestion | null>(null)
+  const [editingQuestion, setEditingQuestion] =
+    useState<InterviewQuestion | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
 
   const { data: jobs = [] } = useJobs()
   const { data: orgs = [] } = useOrganisations()
-  const { createMutation, updateMutation, deleteMutation } = useInterviewQuestionActions()
+  const { createMutation, updateMutation, deleteMutation } =
+    useInterviewQuestionActions()
 
   const queryParams = {
     scope: scopeTab,
-    job_id: scopeTab === 'job' && selectedJobId ? Number(selectedJobId) : undefined,
-    organisation_id: scopeTab === 'org' && selectedOrgId ? Number(selectedOrgId) : undefined,
+    job_id:
+      scopeTab === 'job' && selectedJobId ? Number(selectedJobId) : undefined,
+    organisation_id:
+      scopeTab === 'org' && selectedOrgId ? Number(selectedOrgId) : undefined,
     category: categoryFilter !== 'all' ? categoryFilter : undefined,
   }
 
-  const { data: questions = [], isLoading, error } = useInterviewQuestions(queryParams)
+  const {
+    data: questions = [],
+    isLoading,
+    error,
+  } = useInterviewQuestions(queryParams)
 
   const handleCreate = (form: QuestionFormState) => {
     createMutation.mutate(
@@ -337,7 +343,8 @@ export default function InterviewPrepPage() {
         category: form.category,
         is_favourite: form.is_favourite,
         job_id: form.scope === 'job' ? Number(form.job_id) : undefined,
-        organisation_id: form.scope === 'org' ? Number(form.organisation_id) : undefined,
+        organisation_id:
+          form.scope === 'org' ? Number(form.organisation_id) : undefined,
       },
       { onSuccess: () => setCreateOpen(false) }
     )
@@ -354,7 +361,8 @@ export default function InterviewPrepPage() {
           category: form.category,
           is_favourite: form.is_favourite,
           job_id: form.scope === 'job' ? Number(form.job_id) : undefined,
-          organisation_id: form.scope === 'org' ? Number(form.organisation_id) : undefined,
+          organisation_id:
+            form.scope === 'org' ? Number(form.organisation_id) : undefined,
         },
       },
       { onSuccess: () => setEditingQuestion(null) }
@@ -379,13 +387,14 @@ export default function InterviewPrepPage() {
             Interview Prep
           </TypographyH1>
           <p className="text-muted-foreground text-sm">
-            Build your question bank across jobs, organisations, and personal prep.
+            Build your question bank across jobs, organisations, and personal
+            prep.
           </p>
         </div>
         <Button
           variant="success"
           size="sm"
-          className="min-w-36 w-full sm:w-auto"
+          className="w-full min-w-36 sm:w-auto"
           onClick={() => setCreateOpen(true)}
         >
           <Plus className="mr-1.5 h-4 w-4" />
@@ -395,9 +404,9 @@ export default function InterviewPrepPage() {
 
       {/* Scope tabs + filters */}
       <Card className="border-0 shadow-sm">
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="space-y-3 p-4">
           {/* Scope tabs */}
-          <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
+          <div className="bg-muted flex w-fit gap-1 rounded-lg p-1">
             {(['personal', 'org', 'job'] as ScopeTab[]).map((s) => (
               <button
                 key={s}
@@ -409,7 +418,11 @@ export default function InterviewPrepPage() {
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {s === 'personal' ? 'Personal' : s === 'org' ? 'Organisation' : 'Job'}
+                {s === 'personal'
+                  ? 'Personal'
+                  : s === 'org'
+                    ? 'Organisation'
+                    : 'Job'}
               </button>
             ))}
           </div>
@@ -473,8 +486,9 @@ export default function InterviewPrepPage() {
                   {QUESTION_CATEGORY_LABELS[c]}
                 </button>
               ))}
-              <span className="text-muted-foreground ml-auto text-xs self-center">
-                {questions.length} {questions.length === 1 ? 'question' : 'questions'}
+              <span className="text-muted-foreground ml-auto self-center text-xs">
+                {questions.length}{' '}
+                {questions.length === 1 ? 'question' : 'questions'}
               </span>
             </div>
           )}
@@ -486,7 +500,8 @@ export default function InterviewPrepPage() {
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <BookOpen className="text-muted-foreground/40 mb-4 h-12 w-12" />
           <p className="text-muted-foreground text-sm">
-            Select a {scopeTab === 'job' ? 'job' : 'organisation'} above to view its questions.
+            Select a {scopeTab === 'job' ? 'job' : 'organisation'} above to view
+            its questions.
           </p>
         </div>
       ) : isLoading ? (
@@ -541,7 +556,11 @@ export default function InterviewPrepPage() {
             <DialogTitle>New Question</DialogTitle>
           </DialogHeader>
           <QuestionForm
-            initial={{ scope: scopeTab, job_id: selectedJobId, organisation_id: selectedOrgId }}
+            initial={{
+              scope: scopeTab,
+              job_id: selectedJobId,
+              organisation_id: selectedOrgId,
+            }}
             onSubmit={handleCreate}
             onCancel={() => setCreateOpen(false)}
             isSubmitting={createMutation.isPending}
@@ -552,7 +571,10 @@ export default function InterviewPrepPage() {
       </Dialog>
 
       {/* Edit dialog */}
-      <Dialog open={!!editingQuestion} onOpenChange={() => setEditingQuestion(null)}>
+      <Dialog
+        open={!!editingQuestion}
+        onOpenChange={() => setEditingQuestion(null)}
+      >
         <DialogContent className="max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Question</DialogTitle>
@@ -569,7 +591,9 @@ export default function InterviewPrepPage() {
                   : editingQuestion.organisation_id
                     ? 'org'
                     : 'personal',
-                job_id: editingQuestion.job_id ? String(editingQuestion.job_id) : '',
+                job_id: editingQuestion.job_id
+                  ? String(editingQuestion.job_id)
+                  : '',
                 organisation_id: editingQuestion.organisation_id
                   ? String(editingQuestion.organisation_id)
                   : '',

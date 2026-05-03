@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
-  before_action :set_question, only: [:update, :destroy]
+  before_action :set_question, only: [ :update, :destroy ]
 
   def index
     questions = current_user.interview_questions
@@ -9,15 +9,15 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
 
     # Scope filter: personal, job, org
     questions = case params[:scope]
-                when 'job'
+    when "job"
                   questions.for_job(current_user.jobs.find(params[:job_id])) if params[:job_id].present?
-                when 'org'
+    when "org"
                   questions.for_organisation(current_user.organisations.find(params[:organisation_id])) if params[:organisation_id].present?
-                when 'all'
+    when "all"
                   questions
-                else
+    else
                   questions.personal
-                end
+    end
 
     render json: questions&.order(:category, :created_at) || []
   end

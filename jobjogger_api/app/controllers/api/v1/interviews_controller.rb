@@ -2,7 +2,7 @@
 
 class Api::V1::InterviewsController < Api::V1::AuthenticatedController
   before_action :set_job
-  before_action :set_interview, only: [:update, :destroy]
+  before_action :set_interview, only: [ :update, :destroy ]
 
   def index
     render json: @job.interviews.ordered
@@ -25,7 +25,7 @@ class Api::V1::InterviewsController < Api::V1::AuthenticatedController
       render json: { errors: @interview.errors.full_messages }, status: :unprocessable_content
     end
   rescue ArgumentError => e
-    render json: { errors: [e.message] }, status: :unprocessable_content
+    render json: { errors: [ e.message ] }, status: :unprocessable_content
   end
 
   def destroy

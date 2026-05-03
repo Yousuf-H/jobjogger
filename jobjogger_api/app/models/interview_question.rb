@@ -5,9 +5,9 @@ class InterviewQuestion < ApplicationRecord
   has_many :job_interview_questions, dependent: :destroy
 
   enum :category, {
-    behavioural: 'behavioural',
-    technical: 'technical',
-    questions_to_ask: 'questions_to_ask'
+    behavioural: "behavioural",
+    technical: "technical",
+    questions_to_ask: "questions_to_ask"
   }
 
   validates :question, presence: true

@@ -12,6 +12,6 @@ class CreateInterviewQuestions < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :interview_questions, [:user_id, :category]
+    add_index :interview_questions, [ :user_id, :category ]
   end
 end
