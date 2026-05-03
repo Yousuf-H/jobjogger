@@ -8,6 +8,17 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -205,16 +216,34 @@ function OrganisationSection({ jobId, organisationId }: { jobId: number; organis
 
           <div className="flex items-center gap-2">
             {org ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive"
-                onClick={() => linkMutation.mutate(null)}
-                disabled={linkMutation.isPending}
-              >
-                <Link2Off className="mr-1.5 h-3.5 w-3.5" />
-                Detach
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    disabled={linkMutation.isPending}
+                  >
+                    <Link2Off className="mr-1.5 h-3.5 w-3.5" />
+                    Detach
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Detach organisation?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      <strong>{org.name}</strong> will be removed from this job.
+                      The organisation itself won't be deleted.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => linkMutation.mutate(null)}>
+                      Detach
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
               <LinkOrgDialog
                 onLink={(orgId) => linkMutation.mutate(orgId)}
