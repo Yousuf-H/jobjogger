@@ -32,6 +32,8 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
     end
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Resource not found" }, status: :not_found
+  rescue ArgumentError => e
+    render json: { errors: [ e.message ] }, status: :unprocessable_content
   end
 
   def update
@@ -42,6 +44,8 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
     end
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Resource not found" }, status: :not_found
+  rescue ArgumentError => e
+    render json: { errors: [ e.message ] }, status: :unprocessable_content
   end
 
   def destroy

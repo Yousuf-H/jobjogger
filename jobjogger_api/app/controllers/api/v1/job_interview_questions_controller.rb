@@ -51,6 +51,8 @@ class Api::V1::JobInterviewQuestionsController < Api::V1::AuthenticatedControlle
     render json: question, status: :created
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+  rescue ArgumentError => e
+    render json: { errors: [ e.message ] }, status: :unprocessable_content
   end
 
   def new_question_params
