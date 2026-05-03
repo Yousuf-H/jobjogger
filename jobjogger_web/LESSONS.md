@@ -114,3 +114,58 @@ replacing the list with a loading spinner.
 
 **The rule:** Add `placeholderData: keepPreviousData` to any query whose key changes on
 user input.
+
+---
+
+## 6. Pre-fill datetime-local edit forms in local time, not UTC
+
+**The pattern:** Pre-filling an edit form's `datetime-local` input by slicing the raw UTC
+string returned by the API.
+
+**Why it matters:** The API returns timestamps as UTC (e.g. `"2026-04-18T11:00:00.000Z"`).
+`.slice(0, 16)` gives `"2026-04-18T11:00"` — the UTC time. For a user in AEST (+10) whose
+interview was scheduled at 9 PM local time, the edit form shows 11 AM instead. Saving
+without changes shifts the stored time by the user's UTC offset.
+
+**The rule:** Convert UTC → browser local time using `format` from date-fns before assigning
+to the form state.
+
+```ts
+// Bad — slices UTC string, shows wrong hour for non-UTC users
+scheduled_at: interview.scheduled_at.slice(0, 16)
+
+// Good — converts UTC to local time before pre-filling
+import { format } from 'date-fns'
+scheduled_at: format(new Date(interview.scheduled_at), "yyyy-MM-dd'T'HH:mm")
+```
+
+**Seen in:** InterviewsTab edit form (feature/interview PR #38).
+
+---
+
+## 7. Invalidate all affected query keys after a mutation
+
+**The pattern:** A mutation that changes data visible in multiple query caches only
+invalidates the query key for the resource it directly mutates.
+
+**Why it matters:** Other views that read from a different query key show stale data until
+an unrelated refetch. For example, creating/updating/deleting an interview changes
+`next_interview_at` on the job — if only the `interviews` cache is invalidated, the job
+detail and job list continue to show the old value.
+
+**The rule:** In the action hook's `invalidate` function, call `invalidateQueries` for
+every query key that could reflect the mutation's effect — not just the primary resource.
+
+```ts
+// Bad — only the interviews cache is refreshed
+const invalidate = () =>
+  queryClient.invalidateQueries({ queryKey: ['interviews', userId, jobId] })
+
+// Good — jobs cache also refreshed so next_interview_at updates immediately
+const invalidate = () => {
+  queryClient.invalidateQueries({ queryKey: ['interviews', userId, jobId] })
+  queryClient.invalidateQueries({ queryKey: ['jobs', userId] })
+}
+```
+
+**Seen in:** useInterviews hook (feature/interview PR #38).
