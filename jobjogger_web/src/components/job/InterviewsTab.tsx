@@ -50,6 +50,7 @@ import {
   type InterviewType,
   type QuestionCategory,
 } from '@/types/interview'
+import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import { format, formatDistanceToNow, isPast } from 'date-fns'
 import {
   AlertTriangle,
@@ -654,7 +655,7 @@ function NewQuestionDialog({
 
 // ─── Relevant Questions Section ───────────────────────────────────────────────
 
-function RelevantQuestionsSection({ jobId }: { jobId: number }) {
+function RelevantQuestionsSection({ jobId, readOnly }: { jobId: number; readOnly: boolean }) {
   const { data: questions = [] } = usePinnedQuestions(jobId)
   const { unpinMutation } = usePinnedQuestionActions(jobId)
   const [showBankDialog, setShowBankDialog] = useState(false)
@@ -673,16 +674,18 @@ function RelevantQuestionsSection({ jobId }: { jobId: number }) {
           <BookOpen className="h-4 w-4" />
           Relevant Questions
         </h3>
-        <div className="flex gap-1.5">
-          <Button size="sm" variant="outline" onClick={() => setShowNewDialog(true)}>
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            New Question
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => setShowBankDialog(true)}>
-            <Library className="mr-1 h-3.5 w-3.5" />
-            Add from Bank
-          </Button>
-        </div>
+        {!readOnly && (
+          <div className="flex gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => setShowNewDialog(true)}>
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              New Question
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setShowBankDialog(true)}>
+              <Library className="mr-1 h-3.5 w-3.5" />
+              Add from Bank
+            </Button>
+          </div>
+        )}
       </div>
 
       {questions.length === 0 ? (
@@ -745,9 +748,11 @@ function RelevantQuestionsSection({ jobId }: { jobId: number }) {
 
 interface InterviewsTabProps {
   jobId: number
+  status: JobStatus
 }
 
-export function InterviewsTab({ jobId }: InterviewsTabProps) {
+export function InterviewsTab({ jobId, status }: InterviewsTabProps) {
+  const readOnly = TERMINAL_STATUSES.includes(status)
   const { data: interviews = [], isLoading } = useInterviews(jobId)
   const { createMutation } = useInterviewActions(jobId)
   const [showForm, setShowForm] = useState(false)
@@ -777,12 +782,12 @@ export function InterviewsTab({ jobId }: InterviewsTabProps) {
   return (
     <div className="space-y-4">
       {/* Relevant Questions */}
-      <RelevantQuestionsSection jobId={jobId} />
+      <RelevantQuestionsSection jobId={jobId} readOnly={readOnly} />
 
       <div className="border-t" />
 
       {/* Add button */}
-      {!showForm && (
+      {!readOnly && !showForm && (
         <div className="flex justify-end">
           <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
             <Plus className="mr-1.5 h-4 w-4" />

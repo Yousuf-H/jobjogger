@@ -22,6 +22,8 @@ export type JobSource =
   | 'company_site'
   | 'other'
 
+export const TERMINAL_STATUSES: JobStatus[] = ['accepted', 'rejected', 'ghosted', 'withdrawn']
+
 export type JobPriority = 'low' | 'medium' | 'high' | null
 
 export type JobSort =
