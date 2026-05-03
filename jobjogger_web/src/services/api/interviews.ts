@@ -39,13 +39,41 @@ export async function deleteInterview(
 // --- Interview Questions ---
 
 export async function fetchInterviewQuestions(params?: {
-  scope?: 'personal' | 'job' | 'org'
+  scope?: 'personal' | 'job' | 'org' | 'all'
   job_id?: number
   organisation_id?: number
   category?: string
 }): Promise<InterviewQuestion[]> {
   const response = await apiClient.get('/interview_questions', { params })
   return response.data
+}
+
+// --- Pinned Questions (via join table) ---
+
+export async function fetchPinnedQuestions(jobId: number): Promise<InterviewQuestion[]> {
+  const response = await apiClient.get(`/jobs/${jobId}/job_interview_questions`)
+  return response.data
+}
+
+export async function pinQuestion(jobId: number, interviewQuestionId: number): Promise<InterviewQuestion> {
+  const response = await apiClient.post(`/jobs/${jobId}/job_interview_questions`, {
+    interview_question_id: interviewQuestionId,
+  })
+  return response.data
+}
+
+export async function createAndPinQuestion(
+  jobId: number,
+  data: Partial<InterviewQuestion>
+): Promise<InterviewQuestion> {
+  const response = await apiClient.post(`/jobs/${jobId}/job_interview_questions`, {
+    interview_question: data,
+  })
+  return response.data
+}
+
+export async function unpinQuestion(jobId: number, interviewQuestionId: number): Promise<void> {
+  await apiClient.delete(`/jobs/${jobId}/job_interview_questions/${interviewQuestionId}`)
 }
 
 export async function createInterviewQuestion(

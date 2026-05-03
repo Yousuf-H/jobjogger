@@ -1,10 +1,14 @@
 import {
+  createAndPinQuestion,
   createInterview,
   createInterviewQuestion,
   deleteInterview,
   deleteInterviewQuestion,
   fetchInterviewQuestions,
   fetchInterviews,
+  fetchPinnedQuestions,
+  pinQuestion,
+  unpinQuestion,
   updateInterview,
   updateInterviewQuestion,
 } from '@/services/api/interviews'
@@ -67,18 +71,66 @@ export function useInterviewActions(jobId: number) {
 
 // --- Interview Questions ---
 
-export function useInterviewQuestions(params?: {
-  scope?: 'personal' | 'job' | 'org'
-  job_id?: number
-  organisation_id?: number
-  category?: string
-}) {
+export function useInterviewQuestions(
+  params?: {
+    scope?: 'personal' | 'job' | 'org' | 'all'
+    job_id?: number
+    organisation_id?: number
+    category?: string
+  },
+  options?: { enabled?: boolean }
+) {
   const userId = getUserId()
+  const defaultEnabled =
+    (params?.scope !== 'job' || !!params?.job_id) &&
+    (params?.scope !== 'org' || !!params?.organisation_id)
   return useQuery({
     queryKey: ['interview_questions', userId, params],
     queryFn: () => fetchInterviewQuestions(params),
-    enabled: params?.scope !== 'job' || !!params?.job_id,
+    enabled: options?.enabled !== undefined ? options.enabled && defaultEnabled : defaultEnabled,
   })
+}
+
+// --- Pinned Questions (join table) ---
+
+export function usePinnedQuestions(jobId: number) {
+  const userId = getUserId()
+  return useQuery({
+    queryKey: ['pinned_questions', userId, jobId],
+    queryFn: () => fetchPinnedQuestions(jobId),
+    enabled: !!jobId,
+  })
+}
+
+export function usePinnedQuestionActions(jobId: number) {
+  const userId = getUserId()
+  const queryClient = useQueryClient()
+  const queryKey = ['pinned_questions', userId, jobId]
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey })
+
+  const pinMutation = useMutation({
+    mutationFn: (interviewQuestionId: number) => pinQuestion(jobId, interviewQuestionId),
+    onSuccess: invalidate,
+    onError: () => toast.error('Failed to add question'),
+  })
+
+  const createAndPinMutation = useMutation({
+    mutationFn: (data: Partial<InterviewQuestion>) => createAndPinQuestion(jobId, data),
+    onSuccess: () => {
+      invalidate()
+      toast.success('Question saved!')
+    },
+    onError: () => toast.error('Failed to save question'),
+  })
+
+  const unpinMutation = useMutation({
+    mutationFn: (interviewQuestionId: number) => unpinQuestion(jobId, interviewQuestionId),
+    onSuccess: invalidate,
+    onError: () => toast.error('Failed to remove question'),
+  })
+
+  return { pinMutation, createAndPinMutation, unpinMutation }
 }
 
 export function useInterviewQuestionActions() {

@@ -1,6 +1,15 @@
 import EmptyTabState from '@/components/job/EmptyTabState'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import {
   Dialog,
   DialogContent,
@@ -18,7 +27,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useInterviewActions, useInterviews } from '@/hooks/useInterviews'
+import {
+  useInterviewActions,
+  useInterviewQuestions,
+  useInterviews,
+  usePinnedQuestionActions,
+  usePinnedQuestions,
+} from '@/hooks/useInterviews'
 import {
   INTERVIEW_FORMAT_LABELS,
   INTERVIEW_FORMATS,
@@ -26,21 +41,27 @@ import {
   INTERVIEW_OUTCOMES,
   INTERVIEW_TYPE_LABELS,
   INTERVIEW_TYPES,
+  QUESTION_CATEGORIES,
+  QUESTION_CATEGORY_LABELS,
   type Interview,
   type InterviewFormat,
   type InterviewOutcome,
   type InterviewType,
+  type QuestionCategory,
 } from '@/types/interview'
 import { format, formatDistanceToNow, isPast } from 'date-fns'
 import {
   AlertTriangle,
+  BookOpen,
   CalendarIcon,
   CheckCircle2,
   Clock,
+  Library,
   MapPin,
   Pencil,
   Plus,
   Trash2,
+  X,
   XCircle,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -244,7 +265,7 @@ function InterviewCard({
   }
 
   return (
-    <div className={`rounded-lg border bg-card p-4 shadow-sm ${
+    <div className={`rounded-lg border-2 bg-card p-4 shadow-sm ${
       interview.outcome === 'passed'
         ? 'border-emerald-200 dark:border-emerald-900/50'
         : interview.outcome === 'failed'
@@ -437,6 +458,292 @@ function InterviewCard({
   )
 }
 
+// ─── Add from Question Bank ───────────────────────────────────────────────────
+
+function AddFromBankDialog({
+  open,
+  onOpenChange,
+  jobId,
+  pinnedIds,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  jobId: number
+  pinnedIds: number[]
+}) {
+  const { data: allQuestions = [] } = useInterviewQuestions({ scope: 'all' }, { enabled: open })
+  const { pinMutation } = usePinnedQuestionActions(jobId)
+  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [search, setSearch] = useState('')
+
+  const available = allQuestions.filter((q) => !pinnedIds.includes(q.id))
+  const filtered = search
+    ? available.filter((q) => q.question.toLowerCase().includes(search.toLowerCase()))
+    : available
+
+  const toggle = (id: number) =>
+    setSelected((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+
+  const handleAdd = async () => {
+    try {
+      await Promise.all(Array.from(selected).map((id) => pinMutation.mutateAsync(id)))
+      setSelected(new Set())
+      onOpenChange(false)
+    } catch {
+      // individual errors handled by the mutation
+    }
+  }
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next) { setSelected(new Set()); setSearch('') }
+    onOpenChange(next)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add from Question Bank</DialogTitle>
+        </DialogHeader>
+        <Command shouldFilter={false}>
+          <CommandInput
+            placeholder="Search questions…"
+            value={search}
+            onValueChange={setSearch}
+          />
+          <CommandList className="max-h-72">
+            <CommandEmpty>No questions found.</CommandEmpty>
+            {QUESTION_CATEGORIES.map((cat) => {
+              const catQs = filtered.filter((q) => q.category === cat)
+              if (catQs.length === 0) return null
+              return (
+                <CommandGroup key={cat} heading={QUESTION_CATEGORY_LABELS[cat]}>
+                  {catQs.map((q) => (
+                    <CommandItem
+                      key={q.id}
+                      value={String(q.id)}
+                      onSelect={() => toggle(q.id)}
+                      className="gap-2"
+                    >
+                      <Checkbox
+                        checked={selected.has(q.id)}
+                        onCheckedChange={() => toggle(q.id)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <span className="flex-1 leading-snug">{q.question}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )
+            })}
+          </CommandList>
+        </Command>
+        <div className="flex justify-end gap-2 pt-1">
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            disabled={selected.size === 0 || pinMutation.isPending}
+            onClick={handleAdd}
+          >
+            Add {selected.size > 0 ? selected.size : ''} question{selected.size !== 1 ? 's' : ''}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── New Question ─────────────────────────────────────────────────────────────
+
+function NewQuestionDialog({
+  open,
+  onOpenChange,
+  jobId,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  jobId: number
+}) {
+  const { createAndPinMutation } = usePinnedQuestionActions(jobId)
+  const [form, setForm] = useState({
+    question: '',
+    category: 'behavioural' as QuestionCategory,
+    answer: '',
+  })
+
+  const set = (key: keyof typeof form, value: string) =>
+    setForm((f) => ({ ...f, [key]: value }))
+
+  const handleSubmit = () => {
+    createAndPinMutation.mutate(
+      {
+        question: form.question,
+        category: form.category,
+        answer: form.answer || undefined,
+      },
+      {
+        onSuccess: () => {
+          setForm({ question: '', category: 'behavioural', answer: '' })
+          onOpenChange(false)
+        },
+      }
+    )
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>New Question</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Question *</Label>
+            <Textarea
+              value={form.question}
+              onChange={(e) => set('question', e.target.value)}
+              placeholder="e.g. Tell me about a time you had to…"
+              rows={3}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Category *</Label>
+            <Select value={form.category} onValueChange={(v) => set('category', v)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {QUESTION_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {QUESTION_CATEGORY_LABELS[cat]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Answer / Notes</Label>
+            <MarkdownEditor
+              value={form.answer}
+              onChange={(v) => set('answer', v)}
+              placeholder="Optional — your prepared answer or key points… (markdown supported)"
+              rows={4}
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="success"
+              disabled={!form.question || createAndPinMutation.isPending}
+              onClick={handleSubmit}
+            >
+              {createAndPinMutation.isPending ? 'Saving…' : 'Save Question'}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Relevant Questions Section ───────────────────────────────────────────────
+
+function RelevantQuestionsSection({ jobId }: { jobId: number }) {
+  const { data: questions = [] } = usePinnedQuestions(jobId)
+  const { unpinMutation } = usePinnedQuestionActions(jobId)
+  const [showBankDialog, setShowBankDialog] = useState(false)
+  const [showNewDialog, setShowNewDialog] = useState(false)
+  const [unpinningId, setUnpinningId] = useState<number | null>(null)
+
+  const handleUnpin = (id: number) => {
+    setUnpinningId(id)
+    unpinMutation.mutate(id, { onSettled: () => setUnpinningId(null) })
+  }
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold">
+          <BookOpen className="h-4 w-4" />
+          Relevant Questions
+        </h3>
+        <div className="flex gap-1.5">
+          <Button size="sm" variant="outline" onClick={() => setShowNewDialog(true)}>
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            New Question
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setShowBankDialog(true)}>
+            <Library className="mr-1 h-3.5 w-3.5" />
+            Add from Bank
+          </Button>
+        </div>
+      </div>
+
+      {questions.length === 0 ? (
+        <p className="text-muted-foreground/60 text-sm italic">
+          No questions yet — add from your bank or create a new one.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {QUESTION_CATEGORIES.map((cat) => {
+            const catQs = questions.filter((q) => q.category === cat)
+            if (catQs.length === 0) return null
+            return (
+              <div key={cat}>
+                <p className="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide">
+                  {QUESTION_CATEGORY_LABELS[cat]}
+                </p>
+                <div className="space-y-2">
+                  {catQs.map((q) => (
+                    <div key={q.id} className="bg-muted/30 rounded-md border px-3 py-2 text-sm">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-medium leading-snug">{q.question}</p>
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-destructive mt-0.5 shrink-0 disabled:opacity-40"
+                          disabled={unpinningId === q.id}
+                          onClick={() => handleUnpin(q.id)}
+                          aria-label="Remove question"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      {q.answer && (
+                        <div className="prose prose-sm dark:prose-invert mt-1.5 max-w-none text-muted-foreground">
+                          <Markdown>{q.answer}</Markdown>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      <AddFromBankDialog
+        open={showBankDialog}
+        onOpenChange={setShowBankDialog}
+        jobId={jobId}
+        pinnedIds={questions.map((q) => q.id)}
+      />
+      <NewQuestionDialog
+        open={showNewDialog}
+        onOpenChange={setShowNewDialog}
+        jobId={jobId}
+      />
+    </div>
+  )
+}
+
 interface InterviewsTabProps {
   jobId: number
 }
@@ -470,6 +777,11 @@ export function InterviewsTab({ jobId }: InterviewsTabProps) {
 
   return (
     <div className="space-y-4">
+      {/* Relevant Questions */}
+      <RelevantQuestionsSection jobId={jobId} />
+
+      <div className="border-t" />
+
       {/* Add button */}
       {!showForm && (
         <div className="flex justify-end">
@@ -519,6 +831,7 @@ export function InterviewsTab({ jobId }: InterviewsTabProps) {
           ))}
         </div>
       )}
+
     </div>
   )
 }
