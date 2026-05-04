@@ -218,10 +218,12 @@ function InterviewCard({
   interview,
   round,
   jobId,
+  readOnly = false,
 }: {
   interview: Interview
   round: number
   jobId: number
+  readOnly?: boolean
 }) {
   const { updateMutation, deleteMutation } = useInterviewActions(jobId)
   const [editing, setEditing] = useState(false)
@@ -333,25 +335,27 @@ function InterviewCard({
               )}
             </div>
 
-            <div className="flex shrink-0 items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => setEditing(true)}
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
-                disabled={deletingId === interview.id}
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+            {!readOnly && (
+              <div className="flex shrink-0 items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  onClick={() => setEditing(true)}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
+                  disabled={deletingId === interview.id}
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Outcome buttons */}
@@ -365,11 +369,13 @@ function InterviewCard({
                   <button
                     key={o}
                     type="button"
-                    onClick={() => handleOutcome(o)}
-                    className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                    onClick={!readOnly ? () => handleOutcome(o) : undefined}
+                    className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                      readOnly ? 'cursor-default' : 'cursor-pointer'
+                    } ${
                       isActive
                         ? styles.active
-                        : `border-input bg-background text-muted-foreground ${styles.hover}`
+                        : `border-input bg-background text-muted-foreground ${!readOnly ? styles.hover : ''}`
                     }`}
                   >
                     {OUTCOME_ICONS[o]}
@@ -399,7 +405,7 @@ function InterviewCard({
                 <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
                   Debrief
                 </p>
-                {!editingDebrief && (
+                {!editingDebrief && !readOnly && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -835,6 +841,7 @@ export function InterviewsTab({ jobId, status }: InterviewsTabProps) {
               interview={interview}
               round={chronological.findIndex((i) => i.id === interview.id) + 1}
               jobId={jobId}
+              readOnly={readOnly}
             />
           ))}
         </div>
