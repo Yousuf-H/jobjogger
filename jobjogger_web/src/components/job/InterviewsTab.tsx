@@ -11,6 +11,17 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -346,15 +357,30 @@ function InterviewCard({
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
-                  disabled={deletingId === interview.id}
-                  onClick={handleDelete}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
+                      disabled={deletingId === interview.id}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete interview?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete this interview record including prep and debrief notes. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             )}
           </div>
@@ -717,15 +743,30 @@ function RelevantQuestionsSection({ jobId, readOnly }: { jobId: number; readOnly
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium leading-snug">{q.question}</p>
                         {!readOnly && (
-                          <button
-                            type="button"
-                            className="text-muted-foreground hover:text-destructive mt-0.5 shrink-0 disabled:opacity-40"
-                            disabled={unpinningId === q.id}
-                            onClick={() => handleUnpin(q.id)}
-                            aria-label="Remove question"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-muted-foreground hover:text-destructive mt-0.5 shrink-0 disabled:opacity-40"
+                                disabled={unpinningId === q.id}
+                                aria-label="Remove question"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove question?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This question will be removed from this job's prep list. The question itself won't be deleted.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleUnpin(q.id)}>Remove</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
                       </div>
                       {q.answer && (

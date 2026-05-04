@@ -122,6 +122,7 @@ export function usePinnedQuestionActions(jobId: number) {
     mutationFn: (data: Partial<InterviewQuestion>) => createAndPinQuestion(jobId, data),
     onSuccess: () => {
       invalidate()
+      queryClient.invalidateQueries({ queryKey: ['interview_questions', userId] })
       toast.success('Question saved!')
     },
     onError: () => toast.error('Failed to save question'),
