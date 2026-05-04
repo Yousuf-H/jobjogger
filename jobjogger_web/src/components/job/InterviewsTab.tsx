@@ -147,6 +147,7 @@ function InterviewForm({
               <SelectValue placeholder="Select format" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">Not specified</SelectItem>
               {INTERVIEW_FORMATS.map((f) => (
                 <SelectItem key={f} value={f}>
                   {INTERVIEW_FORMAT_LABELS[f]}
