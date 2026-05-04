@@ -709,15 +709,17 @@ function RelevantQuestionsSection({ jobId, readOnly }: { jobId: number; readOnly
                     <div key={q.id} className="bg-muted/30 rounded-md border px-3 py-2 text-sm">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium leading-snug">{q.question}</p>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-destructive mt-0.5 shrink-0 disabled:opacity-40"
-                          disabled={unpinningId === q.id}
-                          onClick={() => handleUnpin(q.id)}
-                          aria-label="Remove question"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-destructive mt-0.5 shrink-0 disabled:opacity-40"
+                            disabled={unpinningId === q.id}
+                            onClick={() => handleUnpin(q.id)}
+                            aria-label="Remove question"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
                       </div>
                       {q.answer && (
                         <div className="prose prose-sm dark:prose-invert mt-1.5 max-w-none text-muted-foreground">
