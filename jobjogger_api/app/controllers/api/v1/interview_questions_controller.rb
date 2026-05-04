@@ -20,6 +20,8 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
     end
 
     render json: questions&.order(:category, :created_at) || []
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Resource not found" }, status: :not_found
   end
 
   def create

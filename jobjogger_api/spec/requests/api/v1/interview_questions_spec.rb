@@ -62,6 +62,18 @@ RSpec.describe "Interview Questions API", type: :request do
       expect(json_response).to eq([])
     end
 
+    it "returns 404 when job_id does not belong to the user" do
+      other_job = create(:job, user: create(:user))
+      get "/api/v1/interview_questions", params: { scope: "job", job_id: other_job.id }, headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "returns 404 when organisation_id does not belong to the user" do
+      other_org = create(:organisation, user: create(:user))
+      get "/api/v1/interview_questions", params: { scope: "org", organisation_id: other_org.id }, headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
     it "returns 401 without authentication" do
       get "/api/v1/interview_questions", headers: { "Content-Type" => "application/json" }
       expect(response).to have_http_status(:unauthorized)
