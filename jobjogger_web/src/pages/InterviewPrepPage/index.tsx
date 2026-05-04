@@ -342,9 +342,9 @@ export default function InterviewPrepPage() {
         answer: form.answer || undefined,
         category: form.category,
         is_favourite: form.is_favourite,
-        job_id: form.scope === 'job' ? Number(form.job_id) : undefined,
+        job_id: form.scope === 'job' ? Number(form.job_id) : null,
         organisation_id:
-          form.scope === 'org' ? Number(form.organisation_id) : undefined,
+          form.scope === 'org' ? Number(form.organisation_id) : null,
       },
       { onSuccess: () => setCreateOpen(false) }
     )
@@ -360,9 +360,9 @@ export default function InterviewPrepPage() {
           answer: form.answer || undefined,
           category: form.category,
           is_favourite: form.is_favourite,
-          job_id: form.scope === 'job' ? Number(form.job_id) : undefined,
+          job_id: form.scope === 'job' ? Number(form.job_id) : null,
           organisation_id:
-            form.scope === 'org' ? Number(form.organisation_id) : undefined,
+            form.scope === 'org' ? Number(form.organisation_id) : null,
         },
       },
       { onSuccess: () => setEditingQuestion(null) }
