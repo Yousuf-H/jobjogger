@@ -824,8 +824,8 @@ export function InterviewsTab({ jobId, status }: InterviewsTabProps) {
           icon={CalendarIcon}
           title="No interviews yet"
           description="Schedule your first interview to start tracking prep and outcomes."
-          actionLabel="Add Interview"
-          onAction={() => setShowForm(true)}
+          actionLabel={!readOnly ? "Add Interview" : undefined}
+          onAction={!readOnly ? () => setShowForm(true) : undefined}
         />
       ) : (
         <div className="space-y-3">
