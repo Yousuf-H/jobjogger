@@ -140,14 +140,14 @@ function InterviewForm({
         <div className="space-y-1.5">
           <Label>Format</Label>
           <Select
-            value={form.format}
-            onValueChange={(v) => set('format', v)}
+            value={form.format || '__none'}
+            onValueChange={(v) => set('format', v === '__none' ? '' : v)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select format" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Not specified</SelectItem>
+              <SelectItem value="__none">Not specified</SelectItem>
               {INTERVIEW_FORMATS.map((f) => (
                 <SelectItem key={f} value={f}>
                   {INTERVIEW_FORMAT_LABELS[f]}
