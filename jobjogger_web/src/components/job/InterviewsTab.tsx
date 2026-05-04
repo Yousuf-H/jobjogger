@@ -253,7 +253,7 @@ function InterviewCard({
         data: {
           ...form,
           scheduled_at: new Date(form.scheduled_at).toISOString(),
-          format: form.format || undefined,
+          format: form.format || null,
         },
       },
       { onSuccess: () => setEditing(false) }
@@ -619,7 +619,7 @@ function NewQuestionDialog({
       {
         question: form.question,
         category: form.category,
-        answer: form.answer || undefined,
+        answer: form.answer || null,
       },
       {
         onSuccess: () => {
@@ -823,7 +823,7 @@ export function InterviewsTab({ jobId, status }: InterviewsTabProps) {
       {
         ...form,
         scheduled_at: new Date(form.scheduled_at).toISOString(),
-        format: form.format || undefined,
+        format: form.format || null,
       },
       { onSuccess: () => setShowForm(false) }
     )

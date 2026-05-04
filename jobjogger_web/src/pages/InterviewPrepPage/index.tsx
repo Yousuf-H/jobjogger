@@ -365,7 +365,7 @@ export default function InterviewPrepPage() {
     createMutation.mutate(
       {
         question: form.question,
-        answer: form.answer || undefined,
+        answer: form.answer || null,
         category: form.category,
         is_favourite: form.is_favourite,
         job_id: form.scope === 'job' ? Number(form.job_id) : null,
@@ -383,7 +383,7 @@ export default function InterviewPrepPage() {
         id: editingQuestion.id,
         data: {
           question: form.question,
-          answer: form.answer || undefined,
+          answer: form.answer || null,
           category: form.category,
           is_favourite: form.is_favourite,
           job_id: form.scope === 'job' ? Number(form.job_id) : null,
