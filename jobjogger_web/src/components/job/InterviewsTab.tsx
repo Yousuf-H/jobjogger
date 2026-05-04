@@ -476,7 +476,9 @@ function AddFromBankDialog({
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [search, setSearch] = useState('')
 
-  const available = allQuestions.filter((q) => !pinnedIds.includes(q.id))
+  const available = allQuestions.filter(
+    (q) => !pinnedIds.includes(q.id) && (q.job_id === null || q.job_id === jobId)
+  )
   const filtered = search
     ? available.filter((q) => q.question.toLowerCase().includes(search.toLowerCase()))
     : available
