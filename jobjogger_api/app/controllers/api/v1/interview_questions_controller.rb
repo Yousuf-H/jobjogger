@@ -37,7 +37,15 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
   end
 
   def update
-    if @question.update(question_params.merge(scope_params))
+    new_scope = scope_params
+
+    if new_scope[:job_id].present?
+      if @question.job_interview_questions.where.not(job_id: new_scope[:job_id]).exists?
+        return render json: { error: "Cannot scope this question to a job while it is pinned to other jobs" }, status: :unprocessable_content
+      end
+    end
+
+    if @question.update(question_params.merge(new_scope))
       render json: @question
     else
       render json: { errors: @question.errors.full_messages }, status: :unprocessable_content
