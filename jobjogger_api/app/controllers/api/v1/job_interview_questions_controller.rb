@@ -34,6 +34,11 @@ class Api::V1::JobInterviewQuestionsController < Api::V1::AuthenticatedControlle
 
   def associate_existing
     question = current_user.interview_questions.find(params[:interview_question_id])
+
+    if question.job_id.present? && question.job_id != @job.id
+      return render json: { error: "This question is scoped to a different job and cannot be pinned here" }, status: :unprocessable_content
+    end
+
     @job.job_interview_questions.find_or_create_by!(interview_question: question)
     render json: question, status: :created
   rescue ActiveRecord::RecordNotFound
