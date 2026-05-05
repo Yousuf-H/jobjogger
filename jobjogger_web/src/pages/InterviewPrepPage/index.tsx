@@ -43,6 +43,7 @@ import {
   type InterviewQuestion,
   type QuestionCategory,
 } from '@/types/interview'
+import { ALL_JOB_STATUSES } from '@/types/job'
 import {
   BookOpen,
   ChevronDown,
@@ -341,7 +342,7 @@ export default function InterviewPrepPage() {
     useState<InterviewQuestion | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
 
-  const { data: jobs = [] } = useJobs()
+  const { data: jobs = [] } = useJobs({ status: ALL_JOB_STATUSES })
   const { data: orgs = [] } = useOrganisations()
   const { createMutation, updateMutation, deleteMutation } =
     useInterviewQuestionActions()

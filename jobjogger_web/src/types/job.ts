@@ -24,6 +24,11 @@ export type JobSource =
 
 export const TERMINAL_STATUSES: JobStatus[] = ['accepted', 'rejected', 'ghosted', 'withdrawn']
 
+export const ALL_JOB_STATUSES: JobStatus[] = [
+  'wishlist', 'applied', 'phone_screen', 'interviewing', 'offer',
+  'accepted', 'rejected', 'ghosted', 'withdrawn',
+]
+
 export type JobPriority = 'low' | 'medium' | 'high' | null
 
 export type JobSort =
