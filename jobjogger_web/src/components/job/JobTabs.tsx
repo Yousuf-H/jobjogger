@@ -97,7 +97,7 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
 
           {showInterviews && (
             <TabsContent value="interviews" className="mt-0">
-              <InterviewsTab jobId={job.id} status={job.status} />
+              <InterviewsTab jobId={job.id} status={job.status} organisationId={job.organisation_id ?? null} />
             </TabsContent>
           )}
         </div>

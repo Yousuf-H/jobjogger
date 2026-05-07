@@ -497,11 +497,13 @@ function AddFromBankDialog({
   open,
   onOpenChange,
   jobId,
+  organisationId,
   pinnedIds,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   jobId: number
+  organisationId: number | null
   pinnedIds: number[]
 }) {
   const { data: allQuestions = [] } = useInterviewQuestions({ scope: 'all' }, { enabled: open })
@@ -510,7 +512,10 @@ function AddFromBankDialog({
   const [search, setSearch] = useState('')
 
   const available = allQuestions.filter(
-    (q) => !pinnedIds.includes(q.id) && (q.job_id === null || q.job_id === jobId)
+    (q) =>
+      !pinnedIds.includes(q.id) &&
+      (q.job_id === null || q.job_id === jobId) &&
+      (q.organisation_id === null || q.organisation_id === organisationId)
   )
   const filtered = search
     ? available.filter((q) => q.question.toLowerCase().includes(search.toLowerCase()))
@@ -787,6 +792,7 @@ function RelevantQuestionsSection({ jobId, readOnly }: { jobId: number; readOnly
         open={showBankDialog}
         onOpenChange={setShowBankDialog}
         jobId={jobId}
+        organisationId={organisationId}
         pinnedIds={questions.map((q) => q.id)}
       />
       <NewQuestionDialog
@@ -801,9 +807,10 @@ function RelevantQuestionsSection({ jobId, readOnly }: { jobId: number; readOnly
 interface InterviewsTabProps {
   jobId: number
   status: JobStatus
+  organisationId: number | null
 }
 
-export function InterviewsTab({ jobId, status }: InterviewsTabProps) {
+export function InterviewsTab({ jobId, status, organisationId }: InterviewsTabProps) {
   const readOnly = TERMINAL_STATUSES.includes(status)
   const { data: interviews = [], isLoading } = useInterviews(jobId)
   const { createMutation } = useInterviewActions(jobId)

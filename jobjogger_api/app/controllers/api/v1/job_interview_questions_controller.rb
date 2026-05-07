@@ -39,6 +39,10 @@ class Api::V1::JobInterviewQuestionsController < Api::V1::AuthenticatedControlle
       return render json: { error: "This question is scoped to a different job and cannot be pinned here" }, status: :unprocessable_content
     end
 
+    if question.organisation_id.present? && question.organisation_id != @job.organisation_id
+      return render json: { error: "This question is scoped to a different organisation and cannot be pinned here" }, status: :unprocessable_content
+    end
+
     @job.job_interview_questions.find_or_create_by!(interview_question: question)
     render json: question, status: :created
   rescue ActiveRecord::RecordNotFound
