@@ -10,16 +10,16 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
     # Scope filter: personal, job, org
     questions = case params[:scope]
     when "job"
-                  questions.for_job(current_user.jobs.find(params[:job_id])) if params[:job_id].present?
+      params[:job_id].present? ? questions.for_job(current_user.jobs.find(params[:job_id])) : questions.none
     when "org"
-                  questions.for_organisation(current_user.organisations.find(params[:organisation_id])) if params[:organisation_id].present?
+      params[:organisation_id].present? ? questions.for_organisation(current_user.organisations.find(params[:organisation_id])) : questions.none
     when "all"
-                  questions
+      questions
     else
-                  questions.personal
+      questions.personal
     end
 
-    render json: questions&.order(:category, :created_at) || []
+    render json: questions.order(:category, :created_at)
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Resource not found" }, status: :not_found
   end
@@ -44,6 +44,12 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
     if new_scope[:job_id].present?
       if @question.job_interview_questions.where.not(job_id: new_scope[:job_id]).exists?
         return render json: { error: "Cannot scope this question to a job while it is pinned to other jobs" }, status: :unprocessable_content
+      end
+    end
+
+    if new_scope[:organisation_id].present?
+      if @question.job_interview_questions.joins(:job).where.not(jobs: { organisation_id: new_scope[:organisation_id] }).exists?
+        return render json: { error: "Cannot scope this question to an organisation while it is pinned to jobs in other organisations" }, status: :unprocessable_content
       end
     end
 

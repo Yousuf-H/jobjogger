@@ -34,8 +34,4 @@ class Interview < ApplicationRecord
   def debrief_available?
     scheduled_at <= Time.current
   end
-
-  def round_number
-    job.interviews.ordered.pluck(:id).index(id).to_i + 1
-  end
 end

@@ -67,6 +67,24 @@ RSpec.describe "Job Interview Questions API", type: :request do
       }.not_to change(JobInterviewQuestion, :count)
     end
 
+    it "returns 422 when pinning an org-scoped question to a job in a different org" do
+      org_a = create(:organisation, user: user)
+      org_b = create(:organisation, user: user)
+      org_question = create(:interview_question, user: user, organisation: org_a)
+      job_in_org_b = create(:job, user: user, organisation: org_b)
+      post "/api/v1/jobs/#{job_in_org_b.id}/job_interview_questions",
+           params: { interview_question_id: org_question.id }.to_json, headers: headers
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "returns 422 when pinning a job-scoped question to a different job" do
+      other_job = create(:job, user: user)
+      job_question = create(:interview_question, user: user, job: other_job)
+      post "/api/v1/jobs/#{job.id}/job_interview_questions",
+           params: { interview_question_id: job_question.id }.to_json, headers: headers
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
     it "returns 404 for a question that does not belong to the user" do
       other_question = create(:interview_question, user: create(:user))
       post "/api/v1/jobs/#{job.id}/job_interview_questions",

@@ -190,6 +190,27 @@ RSpec.describe "Interview Questions API", type: :request do
       expect(response).to have_http_status(:unprocessable_content)
     end
 
+    it "returns 422 when re-scoping to an org while pinned to jobs in other orgs" do
+      org_a = create(:organisation, user: user)
+      org_b = create(:organisation, user: user)
+      job_in_org_b = create(:job, user: user, organisation: org_b)
+      job_in_org_b.job_interview_questions.create!(interview_question: question)
+      patch "/api/v1/interview_questions/#{question.id}",
+            params: { interview_question: { organisation_id: org_a.id } }.to_json,
+            headers: headers
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "allows re-scoping to an org when all pinned jobs belong to that org" do
+      org = create(:organisation, user: user)
+      job = create(:job, user: user, organisation: org)
+      job.job_interview_questions.create!(interview_question: question)
+      patch "/api/v1/interview_questions/#{question.id}",
+            params: { interview_question: { organisation_id: org.id } }.to_json,
+            headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
     it "returns 401 without authentication" do
       patch "/api/v1/interview_questions/#{question.id}",
             params: { interview_question: { question: "Updated?" } }.to_json,
