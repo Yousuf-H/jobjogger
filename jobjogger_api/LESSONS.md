@@ -129,3 +129,29 @@ end
 ```
 
 **Seen in:** interview_questions controller scope_params (feature/interview PR #38).
+
+---
+
+## 6. `where.not` on a nullable column does not match NULL rows
+
+**The pattern:** Writing a guard like `where.not(jobs: { organisation_id: value })` to find
+records that don't belong to a given organisation.
+
+**Why it matters:** SQL's three-valued logic means `WHERE NOT (col = val)` evaluates to NULL
+(not TRUE) for rows where `col IS NULL`. Those rows are silently excluded from the result,
+so unassigned records pass through the guard undetected.
+
+**The rule:** When using `where.not` against a nullable column, always add an explicit
+`OR col IS NULL` clause to catch unassigned rows.
+
+```ruby
+# Bad — rows with organisation_id = NULL are silently ignored
+.where.not(jobs: { organisation_id: org_id })
+
+# Good — catches both wrong-org and no-org rows
+.where("jobs.organisation_id != ? OR jobs.organisation_id IS NULL", org_id)
+```
+
+**Seen in:** interview_questions controller org re-scope guard (feature/interview PR #38).
+`jobs.organisation_id` is nullable by design — any SQL comparison against it must
+handle NULL explicitly.

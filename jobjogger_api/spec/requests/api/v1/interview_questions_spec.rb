@@ -201,6 +201,16 @@ RSpec.describe "Interview Questions API", type: :request do
       expect(response).to have_http_status(:unprocessable_content)
     end
 
+    it "returns 422 when re-scoping to an org while pinned to a job with no organisation" do
+      org = create(:organisation, user: user)
+      unassigned_job = create(:job, user: user)
+      unassigned_job.job_interview_questions.create!(interview_question: question)
+      patch "/api/v1/interview_questions/#{question.id}",
+            params: { interview_question: { organisation_id: org.id } }.to_json,
+            headers: headers
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
     it "allows re-scoping to an org when all pinned jobs belong to that org" do
       org = create(:organisation, user: user)
       job = create(:job, user: user, organisation: org)
