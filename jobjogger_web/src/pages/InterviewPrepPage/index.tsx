@@ -17,6 +17,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -581,6 +582,9 @@ export default function InterviewPrepPage() {
         <DialogContent className="max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>New Question</DialogTitle>
+            <DialogDescription className="sr-only">
+              Add a new question to your interview question bank.
+            </DialogDescription>
           </DialogHeader>
           <QuestionForm
             initial={{
@@ -605,6 +609,9 @@ export default function InterviewPrepPage() {
         <DialogContent className="max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Question</DialogTitle>
+            <DialogDescription className="sr-only">
+              Edit the question text, category, or your prepared answer.
+            </DialogDescription>
           </DialogHeader>
           {editingQuestion && (
             <QuestionForm

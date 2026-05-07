@@ -23,8 +23,8 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
   return (
     <Card className="overflow-hidden border-0 shadow-sm">
       <Tabs defaultValue="description" className="w-full">
-        <div className="px-6 pt-2">
-          <TabsList className="h-auto w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
+        <div className="overflow-x-auto px-6 pt-2">
+          <TabsList className="h-auto w-max min-w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
             <TabsTrigger
               value="description"
               className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"

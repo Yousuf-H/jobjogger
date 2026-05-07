@@ -24,6 +24,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -113,7 +114,7 @@ function InterviewForm({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <div className="space-y-1.5">
           <Label>Date & Time *</Label>
           <div className="relative">
@@ -147,7 +148,7 @@ function InterviewForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <div className="space-y-1.5">
           <Label>Format</Label>
           <Select
@@ -303,8 +304,8 @@ function InterviewCard({
         <>
           {/* Header row */}
           <div className="mb-3 flex items-start justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground text-xs font-medium">
                   Round {round}
                 </span>
@@ -329,19 +330,19 @@ function InterviewCard({
                 )}
               </div>
               {interview.location_or_link && (
-                <div className="mt-1 flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400">
-                  <MapPin className="h-3 w-3" />
+                <div className="mt-1 flex min-w-0 items-center gap-1 text-xs text-sky-600 dark:text-sky-400">
+                  <MapPin className="h-3 w-3 shrink-0" />
                   {interview.location_or_link.startsWith('http') ? (
                     <a
                       href={interview.location_or_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:underline"
+                      className="truncate hover:underline"
                     >
                       {interview.location_or_link}
                     </a>
                   ) : (
-                    interview.location_or_link
+                    <span className="truncate">{interview.location_or_link}</span>
                   )}
                 </div>
               )}
@@ -386,9 +387,9 @@ function InterviewCard({
           </div>
 
           {/* Outcome buttons */}
-          <div className="mb-3 flex items-center gap-2">
-            <span className="text-muted-foreground text-xs">Outcome:</span>
-            <div className="flex gap-1.5">
+          <div className="mb-3 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+            <span className="text-muted-foreground shrink-0 text-xs">Outcome:</span>
+            <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap">
               {INTERVIEW_OUTCOMES.map((o) => {
                 const isActive = interview.outcome === o
                 const styles = OUTCOME_STYLES[o]
@@ -397,7 +398,7 @@ function InterviewCard({
                     key={o}
                     type="button"
                     onClick={!readOnly ? () => handleOutcome(o) : undefined}
-                    className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    className={`inline-flex items-center justify-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
                       readOnly ? 'cursor-default' : 'cursor-pointer'
                     } ${
                       isActive
@@ -548,6 +549,9 @@ function AddFromBankDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Add from Question Bank</DialogTitle>
+          <DialogDescription className="sr-only">
+            Search and pin existing questions from your question bank to this job.
+          </DialogDescription>
         </DialogHeader>
         <Command shouldFilter={false}>
           <CommandInput
@@ -640,6 +644,9 @@ function NewQuestionDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>New Question</DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new interview question and pin it to this job.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -695,7 +702,7 @@ function NewQuestionDialog({
 
 // ─── Relevant Questions Section ───────────────────────────────────────────────
 
-function RelevantQuestionsSection({ jobId, readOnly }: { jobId: number; readOnly: boolean }) {
+function RelevantQuestionsSection({ jobId, readOnly, organisationId }: { jobId: number; readOnly: boolean; organisationId: number | null }) {
   const { data: questions = [] } = usePinnedQuestions(jobId)
   const { unpinMutation } = usePinnedQuestionActions(jobId)
   const [showBankDialog, setShowBankDialog] = useState(false)
@@ -709,13 +716,13 @@ function RelevantQuestionsSection({ jobId, readOnly }: { jobId: number; readOnly
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold">
           <BookOpen className="h-4 w-4" />
           Relevant Questions
         </h3>
         {!readOnly && (
-          <div className="flex gap-1.5">
+          <div className="flex flex-col gap-1.5 sm:flex-row">
             <Button size="sm" variant="outline" onClick={() => setShowNewDialog(true)}>
               <Plus className="mr-1 h-3.5 w-3.5" />
               New Question
@@ -841,7 +848,7 @@ export function InterviewsTab({ jobId, status, organisationId }: InterviewsTabPr
   return (
     <div className="space-y-4">
       {/* Relevant Questions */}
-      <RelevantQuestionsSection jobId={jobId} readOnly={readOnly} />
+      <RelevantQuestionsSection jobId={jobId} readOnly={readOnly} organisationId={organisationId} />
 
       <div className="border-t" />
 
