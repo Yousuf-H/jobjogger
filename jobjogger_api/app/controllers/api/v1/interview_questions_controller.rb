@@ -50,7 +50,7 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
     if new_scope[:organisation_id].present?
       conflicting = @question.job_interview_questions.joins(:job)
         .where("jobs.organisation_id != ? OR jobs.organisation_id IS NULL", new_scope[:organisation_id])
-        
+
       if conflicting.exists?
         return render json: { error: "Cannot scope this question to an organisation while it is pinned to jobs in other organisations" }, status: :unprocessable_content
       end
