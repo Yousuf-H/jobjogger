@@ -18,8 +18,8 @@ interface JobTabsProps {
 
 export function JobTabs({ job, timelineEntries }: JobTabsProps) {
   const { data: jobContacts = [] } = useJobContacts(job.id)
-  const showInterviews = job.status !== 'wishlist'
-  const { data: interviews = [] } = useInterviews(showInterviews ? job.id : undefined)
+  const { data: interviews = [] } = useInterviews(job.id)
+  const showInterviews = job.status !== 'wishlist' || interviews.length > 0
   return (
     <Card className="overflow-hidden border-0 shadow-sm">
       <Tabs defaultValue="description" className="w-full">
