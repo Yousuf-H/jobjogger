@@ -8,6 +8,17 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -23,13 +34,14 @@ import { useOrganisations } from '@/hooks/useOrganisations'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
 import { updateJob } from '@/services/api/jobs'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, isFuture } from 'date-fns'
 import {
   ArrowLeft,
   Briefcase,
   Building2,
   Calendar,
   CalendarClock,
+  CalendarCheck2,
   Clock,
   DollarSign,
   ExternalLink,
@@ -204,16 +216,34 @@ function OrganisationSection({ jobId, organisationId }: { jobId: number; organis
 
           <div className="flex items-center gap-2">
             {org ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive"
-                onClick={() => linkMutation.mutate(null)}
-                disabled={linkMutation.isPending}
-              >
-                <Link2Off className="mr-1.5 h-3.5 w-3.5" />
-                Detach
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    disabled={linkMutation.isPending}
+                  >
+                    <Link2Off className="mr-1.5 h-3.5 w-3.5" />
+                    Detach
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Detach organisation?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      <strong>{org.name}</strong> will be removed from this job.
+                      The organisation itself won't be deleted.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => linkMutation.mutate(null)}>
+                      Detach
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
               <LinkOrgDialog
                 onLink={(orgId) => linkMutation.mutate(orgId)}
@@ -369,6 +399,14 @@ export default function JobDetailPage() {
                   label="Follow up"
                   value={formatDate(job.follow_up_date)}
                   iconClassName="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300"
+                />
+              )}
+              {job.next_interview_at && isFuture(new Date(job.next_interview_at)) && (
+                <QuickStat
+                  icon={CalendarCheck2}
+                  label="Next interview"
+                  value={formatDistanceToNow(new Date(job.next_interview_at), { addSuffix: true })}
+                  iconClassName="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300"
                 />
               )}
               {job.job_url && (

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_17_005039) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,47 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_005039) do
     t.index ["organisation_id"], name: "index_contacts_on_organisation_id"
     t.index ["user_id", "name"], name: "index_contacts_on_user_id_and_name"
     t.index ["user_id"], name: "index_contacts_on_user_id"
+  end
+
+  create_table "interview_questions", force: :cascade do |t|
+    t.text "answer"
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.boolean "is_favourite", default: false, null: false
+    t.bigint "job_id"
+    t.bigint "organisation_id"
+    t.text "question", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["job_id"], name: "index_interview_questions_on_job_id"
+    t.index ["organisation_id"], name: "index_interview_questions_on_organisation_id"
+    t.index ["user_id", "category"], name: "index_interview_questions_on_user_id_and_category"
+    t.index ["user_id"], name: "index_interview_questions_on_user_id"
+  end
+
+  create_table "interviews", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "debrief_notes"
+    t.string "format"
+    t.string "interview_type", null: false
+    t.bigint "job_id", null: false
+    t.string "location_or_link"
+    t.string "outcome", default: "pending", null: false
+    t.text "prep_notes"
+    t.datetime "scheduled_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_id", "scheduled_at"], name: "index_interviews_on_job_id_and_scheduled_at"
+    t.index ["job_id"], name: "index_interviews_on_job_id"
+  end
+
+  create_table "job_interview_questions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "interview_question_id", null: false
+    t.bigint "job_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["interview_question_id"], name: "index_job_interview_questions_on_interview_question_id"
+    t.index ["job_id", "interview_question_id"], name: "index_job_interview_questions_on_job_and_question", unique: true
+    t.index ["job_id"], name: "index_job_interview_questions_on_job_id"
   end
 
   create_table "jobs", force: :cascade do |t|
@@ -163,6 +204,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_005039) do
   add_foreign_key "contact_jobs", "jobs"
   add_foreign_key "contacts", "organisations"
   add_foreign_key "contacts", "users"
+  add_foreign_key "interview_questions", "jobs"
+  add_foreign_key "interview_questions", "organisations"
+  add_foreign_key "interview_questions", "users"
+  add_foreign_key "interviews", "jobs"
+  add_foreign_key "job_interview_questions", "interview_questions"
+  add_foreign_key "job_interview_questions", "jobs"
   add_foreign_key "jobs", "organisations"
   add_foreign_key "jobs", "users"
   add_foreign_key "organisations", "users"

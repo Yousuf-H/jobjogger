@@ -2,6 +2,7 @@ import ActionsCell from '@/components/job/ActionsCell'
 import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
 import type { Job } from '@/types/job'
 import type { ColumnDef } from '@tanstack/react-table'
+import { formatDistanceToNow, isFuture } from 'date-fns'
 
 export const columns = (
   onView: (id: number) => void,
@@ -71,6 +72,21 @@ export const columns = (
       return (
         <span className={isOverdue ? 'text-destructive font-medium' : ''}>
           {formatted}
+        </span>
+      )
+    },
+  },
+  {
+    accessorKey: 'next_interview_at',
+    header: 'Next Interview',
+    cell: ({ row }) => {
+      const job = row.original as import('@/types/job').Job
+      if (!job.next_interview_at) return null
+      const date = new Date(job.next_interview_at)
+      if (!isFuture(date)) return null
+      return (
+        <span className="text-violet-600 dark:text-violet-400 font-medium text-xs">
+          {formatDistanceToNow(date, { addSuffix: true })}
         </span>
       )
     },

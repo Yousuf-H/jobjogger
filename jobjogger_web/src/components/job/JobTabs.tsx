@@ -1,7 +1,9 @@
 import { JobContactsTab } from '@/components/job/JobContactsTab'
+import { InterviewsTab } from '@/components/job/InterviewsTab'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useJobContacts } from '@/hooks/useContacts'
+import { useInterviews } from '@/hooks/useInterviews'
 import type { Job } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
@@ -16,11 +18,13 @@ interface JobTabsProps {
 
 export function JobTabs({ job, timelineEntries }: JobTabsProps) {
   const { data: jobContacts = [] } = useJobContacts(job.id)
+  const { data: interviews = [] } = useInterviews(job.id)
+  const showInterviews = job.status !== 'wishlist' || interviews.length > 0
   return (
     <Card className="overflow-hidden border-0 shadow-sm">
       <Tabs defaultValue="description" className="w-full">
-        <div className="px-6 pt-2">
-          <TabsList className="h-auto w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
+        <div className="overflow-x-auto px-6 pt-2">
+          <TabsList className="h-auto w-max min-w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
             <TabsTrigger
               value="description"
               className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
@@ -55,6 +59,19 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
                 </span>
               )}
             </TabsTrigger>
+            {showInterviews && (
+              <TabsTrigger
+                value="interviews"
+                className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                Interviews
+                {interviews.length > 0 && (
+                  <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
+                    {interviews.length}
+                  </span>
+                )}
+              </TabsTrigger>
+            )}
           </TabsList>
         </div>
 
@@ -77,6 +94,12 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
               organisationId={job.organisation_id}
             />
           </TabsContent>
+
+          {showInterviews && (
+            <TabsContent value="interviews" className="mt-0">
+              <InterviewsTab jobId={job.id} status={job.status} organisationId={job.organisation_id ?? null} />
+            </TabsContent>
+          )}
         </div>
       </Tabs>
     </Card>

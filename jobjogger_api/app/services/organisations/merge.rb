@@ -11,8 +11,9 @@ module Organisations
       return false if @duplicate.id == @target.id
 
       ActiveRecord::Base.transaction do
-        # Relink all jobs from duplicate to target
+        # Relink all jobs and interview questions from duplicate to target
         @duplicate.jobs.update_all(organisation_id: @target.id)
+        @duplicate.interview_questions.update_all(organisation_id: @target.id)
 
         # Absorb the duplicate's name and aliases into target's aliases
         new_aliases = (@target.aliases + [ @duplicate.name ] + @duplicate.aliases).uniq.reject do |a|

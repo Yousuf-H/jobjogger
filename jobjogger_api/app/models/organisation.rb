@@ -3,6 +3,7 @@
 class Organisation < ApplicationRecord
   belongs_to :user
   has_many :jobs, dependent: :nullify
+  has_many :interview_questions, dependent: :nullify
 
   SIZES = %w[1-10 11-50 51-200 201-1000 1000+].freeze
 

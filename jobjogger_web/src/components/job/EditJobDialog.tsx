@@ -1,4 +1,5 @@
 import { JobForm } from '@/components/job/JobForm'
+import { ScheduleInterviewPrompt } from '@/components/job/ScheduleInterviewPrompt'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -17,6 +18,8 @@ import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+const INTERVIEW_TRIGGER_STATUSES = ['phone_screen', 'interviewing']
+
 interface EditJobDialogProps {
   job: Job
   trigger?: ReactNode
@@ -24,15 +27,20 @@ interface EditJobDialogProps {
 
 export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
   const [open, setOpen] = useState(false)
+  const [promptOpen, setPromptOpen] = useState(false)
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: (jobData: Job) => updateJob(job.id, jobData),
-    onSuccess: () => {
+    onSuccess: (_, jobData) => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       queryClient.invalidateQueries({ queryKey: ['jobs', job.id.toString()] })
       toast.success('Job updated successfully!')
       setOpen(false)
+      const statusChanged = jobData.status !== job.status
+      if (statusChanged && INTERVIEW_TRIGGER_STATUSES.includes(jobData.status)) {
+        setPromptOpen(true)
+      }
     },
     onError: (
       error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
@@ -56,6 +64,12 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
   }
 
   return (
+    <>
+    <ScheduleInterviewPrompt
+      open={promptOpen}
+      onOpenChange={setPromptOpen}
+      jobId={job.id}
+    />
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
@@ -96,5 +110,6 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
         />
       </DialogContent>
     </Dialog>
+    </>
   )
 }

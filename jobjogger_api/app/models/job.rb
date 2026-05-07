@@ -4,6 +4,23 @@ class Job < ApplicationRecord
   belongs_to :organisation, optional: true
   has_many :contact_jobs, dependent: :destroy
   has_many :contacts, through: :contact_jobs
+  has_many :interviews, -> { order(:scheduled_at) }, dependent: :destroy
+  has_many :interview_questions, dependent: :nullify
+  has_many :job_interview_questions, dependent: :destroy
+  has_many :pinned_questions, through: :job_interview_questions, source: :interview_question
+
+  def next_interview_at
+    if interviews.loaded?
+      now = Time.current
+      interviews.find { |i| i.scheduled_at > now }&.scheduled_at
+    else
+      interviews.upcoming.first&.scheduled_at
+    end
+  end
+
+  def as_json(options = {})
+    super(options).merge('next_interview_at' => next_interview_at)
+  end
 
   TERMINAL_STATUSES = %w[accepted rejected ghosted withdrawn].freeze
 

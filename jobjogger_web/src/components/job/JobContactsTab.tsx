@@ -63,7 +63,7 @@ function ContactRow({
           >
             {contact.name}
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
             {contact.role && (
               <p className="text-muted-foreground truncate text-xs">
                 {contact.role}
@@ -90,9 +90,10 @@ function ContactRow({
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 shrink-0 p-0 text-muted-foreground hover:text-destructive"
+            className="shrink-0 text-muted-foreground hover:text-destructive"
           >
-            <Unlink className="h-3.5 w-3.5" />
+            <Unlink className="mr-1.5 h-3.5 w-3.5" />
+            Unlink
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
@@ -241,13 +242,13 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-muted-foreground text-sm">
           {jobContacts.length === 0
             ? 'No contacts linked to this job.'
             : `${jobContacts.length} contact${jobContacts.length !== 1 ? 's' : ''}`}
         </p>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           {linkableContacts.length > 0 && (
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
               <DialogTrigger asChild>

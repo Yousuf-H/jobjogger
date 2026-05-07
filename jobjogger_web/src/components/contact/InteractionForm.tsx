@@ -8,6 +8,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -35,7 +37,7 @@ export function InteractionForm({ onSubmit, isSubmitting }: InteractionFormProps
     defaultValues: {
       interaction_type: undefined,
       notes: '',
-      occurred_at: new Date().toISOString().split('T')[0],
+      occurred_at: format(new Date(), 'yyyy-MM-dd'),
     },
   })
 
@@ -74,7 +76,10 @@ export function InteractionForm({ onSubmit, isSubmitting }: InteractionFormProps
               <FormItem>
                 <FormLabel>Date *</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <div className="relative">
+                    <CalendarIcon className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    <Input type="date" className="pl-9 cursor-pointer" max="9999-12-31" {...field} />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

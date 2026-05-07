@@ -22,6 +22,13 @@ export type JobSource =
   | 'company_site'
   | 'other'
 
+export const TERMINAL_STATUSES: JobStatus[] = ['accepted', 'rejected', 'ghosted', 'withdrawn']
+
+export const ALL_JOB_STATUSES: JobStatus[] = [
+  'wishlist', 'applied', 'phone_screen', 'interviewing', 'offer',
+  'accepted', 'rejected', 'ghosted', 'withdrawn',
+]
+
 export type JobPriority = 'low' | 'medium' | 'high' | null
 
 export type JobSort =
@@ -52,6 +59,7 @@ export interface Job {
   date_applied?: string
   archived_at?: string
   organisation_id?: number | null
+  next_interview_at?: string | null
   created_at: string
   updated_at: string
 }

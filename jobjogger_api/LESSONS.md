@@ -59,3 +59,99 @@ constraint violations) and returns a record with errors instead of raising.
 
 **The rule:** Use `find_or_create_by!` and rescue `ActiveRecord::RecordInvalid` explicitly
 if you need to handle the failure path.
+
+---
+
+## 4. Rescue ArgumentError in every action that accepts an enum param
+
+**The pattern:** Adding `rescue ArgumentError` to `update` but not to `create`.
+
+**Why it matters:** Rails raises `ArgumentError` at `.build()` / `.assign_attributes()` time
+when an unrecognised enum value is passed — before `.save` is called. Without a rescue in
+`create`, a bad client payload (stale value, typo, different API version) returns a 500
+instead of a 422.
+
+**The rule:** Any action that calls `.build(params)` or `.update(params)` with a permitted
+enum field needs `rescue ArgumentError => e` wrapping the whole action — not just the save.
+
+```ruby
+# Bad — create has no rescue, update does
+def create
+  interview = @job.interviews.build(interview_params)
+  if interview.save
+    render json: interview, status: :created
+  else
+    render json: { errors: interview.errors.full_messages }, status: :unprocessable_content
+  end
+end
+
+# Good — both actions rescue the same way
+def create
+  interview = @job.interviews.build(interview_params)
+  if interview.save
+    render json: interview, status: :created
+  else
+    render json: { errors: interview.errors.full_messages }, status: :unprocessable_content
+  end
+rescue ArgumentError => e
+  render json: { errors: [ e.message ] }, status: :unprocessable_content
+end
+```
+
+**Seen in:** interviews controller (feature/interview PR #38).
+
+---
+
+## 5. Use .key?() not .present?() when a FK param can be explicitly cleared
+
+**The pattern:** A `scope_params` / merge helper that only sets a foreign key when the
+param value is present, intending to also handle the case where a user clears the association.
+
+**Why it matters:** `nil.present?` is `false`, so sending `job_id: null` from the client
+looks identical to omitting `job_id` entirely. The stale FK stays on the record — the
+question (or contact, etc.) remains tied to the previous job/org after the update.
+
+**The rule:** Use `.key?(:field)` to detect whether the client explicitly sent the param
+(even as nil). Only then decide whether to set or clear the value. Omitting the key
+entirely means "don't touch it" (correct PATCH semantics).
+
+```ruby
+# Bad — nil sent by client is silently ignored; stale FK survives the update
+if (job_id = params.dig(:interview_question, :job_id)).present?
+  resolved[:job_id] = current_user.jobs.find(job_id).id
+end
+
+# Good — key present but nil → clear; key present with value → verify & set; key absent → skip
+if question_params_raw.key?(:job_id)
+  job_id = question_params_raw[:job_id]
+  resolved[:job_id] = job_id.present? ? current_user.jobs.find(job_id).id : nil
+end
+```
+
+**Seen in:** interview_questions controller scope_params (feature/interview PR #38).
+
+---
+
+## 6. `where.not` on a nullable column does not match NULL rows
+
+**The pattern:** Writing a guard like `where.not(jobs: { organisation_id: value })` to find
+records that don't belong to a given organisation.
+
+**Why it matters:** SQL's three-valued logic means `WHERE NOT (col = val)` evaluates to NULL
+(not TRUE) for rows where `col IS NULL`. Those rows are silently excluded from the result,
+so unassigned records pass through the guard undetected.
+
+**The rule:** When using `where.not` against a nullable column, always add an explicit
+`OR col IS NULL` clause to catch unassigned rows.
+
+```ruby
+# Bad — rows with organisation_id = NULL are silently ignored
+.where.not(jobs: { organisation_id: org_id })
+
+# Good — catches both wrong-org and no-org rows
+.where("jobs.organisation_id != ? OR jobs.organisation_id IS NULL", org_id)
+```
+
+**Seen in:** interview_questions controller org re-scope guard (feature/interview PR #38).
+`jobs.organisation_id` is nullable by design — any SQL comparison against it must
+handle NULL explicitly.
