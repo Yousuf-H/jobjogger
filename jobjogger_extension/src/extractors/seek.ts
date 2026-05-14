@@ -51,7 +51,12 @@ export function extractSeek(): ExtractionResult {
 }
 
 function isSeekJobPage(url: string): boolean {
-  return /seek\.com\.au\/job\/\d+/.test(url);
+  if (/(?:seek\.com\.au|au\.seek\.com)\/job\/\d+/.test(url)) return true;
+  // Fallback: if Seek change their domain again, detect by their DOM attributes
+  return (
+    document.querySelector('[data-automation="job-detail-title"]') !== null &&
+    document.querySelector('[data-automation="advertiser-name"]') !== null
+  );
 }
 
 function extractText(selector: string): string | null {
