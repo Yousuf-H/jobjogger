@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "JobJogger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extract job listings and save them to JobJogger",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": [
     "https://www.seek.com.au/*",
+    "https://au.seek.com/*",
     "http://localhost:3000/*",
     "https://api.jobjogger.com/*"
   ],

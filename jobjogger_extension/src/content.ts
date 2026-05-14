@@ -4,7 +4,7 @@ import type { ExtractionResult } from "./types";
 function extract(): ExtractionResult {
   const url = window.location.href;
 
-  if (url.includes("seek.com.au")) {
+  if (url.includes("seek.com.au") || url.includes("au.seek.com")) {
     return extractSeek();
   }
 
