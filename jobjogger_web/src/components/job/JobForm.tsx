@@ -22,6 +22,7 @@ import {
   createJobSchema,
   type CreateJobFormValues,
 } from '@/lib/validations/job'
+import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CalendarIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
@@ -63,7 +64,7 @@ function DateInput({ value, onChange, ...props }: DateInputProps) {
   )
 }
 
-const STATUS_OPTIONS = Object.entries(STATUS_CONFIG).map(([value, config]) => ({
+const ALL_STATUS_OPTIONS = Object.entries(STATUS_CONFIG).map(([value, config]) => ({
   value,
   label: config.label,
 }))
@@ -81,6 +82,11 @@ export function JobForm({
   isSubmitting,
   mode = 'create',
 }: JobFormProps) {
+  const statusOptions =
+    mode === 'edit' && defaultValues?.status === 'wishlist'
+      ? ALL_STATUS_OPTIONS.filter(o => !TERMINAL_STATUSES.includes(o.value as JobStatus))
+      : ALL_STATUS_OPTIONS
+
   const form = useForm<CreateJobFormValues>({
     resolver: zodResolver(createJobSchema),
     defaultValues: {
@@ -164,7 +170,7 @@ export function JobForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {STATUS_OPTIONS.map((option) => (
+                    {statusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         <div className="flex items-center gap-2">
                           <div className={cn('h-2.5 w-2.5 rounded-full', getStatusConfig(option.value).badgeClass)} />
