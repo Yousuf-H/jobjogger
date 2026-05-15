@@ -77,11 +77,25 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   end
 
   def activity_by_period(period)
-    date_expr = "COALESCE(date_applied::timestamp, created_at)"
+    # Prefer date_applied (user-set backdate) over the timeline entry's occurred_at
+    # (which falls back to created_at). The INNER JOIN on the applied timeline entry
+    # is the authoritative "was ever applied" filter — it exists for every non-wishlist
+    # job regardless of current status or whether date_applied was explicitly set.
+    date_expr = "COALESCE(jobs.date_applied::timestamp, first_applied.occurred_at)"
     trunc_fn = "date_trunc('#{period}', #{date_expr})"
 
+    lateral = <<~SQL.squish
+      INNER JOIN LATERAL (
+        SELECT MIN(occurred_at) AS occurred_at
+        FROM timeline_entries
+        WHERE timeline_entries.job_id = jobs.id
+          AND timeline_entries.entry_type = 'status_change'
+          AND timeline_entries.metadata->>'to' = 'applied'
+      ) first_applied ON first_applied.occurred_at IS NOT NULL
+    SQL
+
     results = jobs
-      .where.not(date_applied: nil)
+      .joins(lateral)
       .select("#{trunc_fn} AS period, COUNT(*) AS count")
       .group("period")
       .order("period ASC")
