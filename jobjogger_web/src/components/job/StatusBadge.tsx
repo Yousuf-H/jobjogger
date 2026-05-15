@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { Job, JobStatus } from '@/types/job'
+import { TERMINAL_STATUSES, type Job, type JobStatus } from '@/types/job'
 
 const INTERVIEW_TRIGGER_STATUSES: JobStatus[] = ['phone_screen', 'interviewing']
 
@@ -87,7 +87,7 @@ export function StatusBadge({ job }: StatusBadgeProps) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" className="w-38">
-        {STATUS_OPTIONS.map((option) => {
+        {(job.status === 'wishlist' ? STATUS_OPTIONS.filter(o => !TERMINAL_STATUSES.includes(o.value)) : STATUS_OPTIONS).map((option) => {
           const optionConfig = getStatusConfig(option.value)
           return (
             <DropdownMenuItem

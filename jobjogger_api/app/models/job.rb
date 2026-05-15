@@ -171,7 +171,7 @@ class Job < ApplicationRecord
 
     # If jumping from wishlist past applied, create an applied entry first
     # so the analytics can track the application start point
-    if from_status == "wishlist" && to_status != "applied"
+    if from_status == "wishlist" && PIPELINE_ORDER.include?(to_status) && to_status != "applied"
       timeline_entries.create!(
         entry_type: "status_change",
         description: "Status changed from wishlist to applied",
