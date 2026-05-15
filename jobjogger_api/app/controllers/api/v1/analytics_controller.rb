@@ -77,9 +77,11 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   end
 
   def activity_by_period(period)
-    trunc_fn = period == "week" ? "date_trunc('week', created_at)" : "date_trunc('month', created_at)"
+    date_expr = "COALESCE(date_applied::timestamp, created_at)"
+    trunc_fn = "date_trunc('#{period}', #{date_expr})"
 
     results = jobs
+      .where(status: APPLIED_STATUSES)
       .select("#{trunc_fn} AS period, COUNT(*) AS count")
       .group("period")
       .order("period ASC")
