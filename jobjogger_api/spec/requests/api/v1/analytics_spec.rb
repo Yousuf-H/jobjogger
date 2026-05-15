@@ -262,9 +262,9 @@ RSpec.describe "Analytics API", type: :request do
 
       context "with jobs created across multiple weeks" do
         before do
-          create(:job, :wishlist, user: user, created_at: 3.weeks.ago)
-          create(:job, :wishlist, user: user, created_at: 3.weeks.ago + 1.day)
-          create(:job, :wishlist, user: user, created_at: 1.week.ago)
+          create(:job, :applied, user: user, date_applied: 3.weeks.ago.to_date)
+          create(:job, :applied, user: user, date_applied: (3.weeks.ago + 1.day).to_date)
+          create(:job, :applied, user: user, date_applied: 1.week.ago.to_date)
         end
 
         it "groups weekly data into distinct periods" do
@@ -293,9 +293,9 @@ RSpec.describe "Analytics API", type: :request do
 
       context "with jobs created across multiple months" do
         before do
-          create(:job, :wishlist, user: user, created_at: 2.months.ago)
-          create(:job, :wishlist, user: user, created_at: 1.month.ago)
-          create(:job, :wishlist, user: user, created_at: Time.current)
+          create(:job, :applied, user: user, date_applied: 2.months.ago.to_date)
+          create(:job, :applied, user: user, date_applied: 1.month.ago.to_date)
+          create(:job, :applied, user: user, date_applied: Date.current)
         end
 
         it "groups monthly data correctly" do

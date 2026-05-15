@@ -41,7 +41,7 @@ export function ActivityChart({ weekly, monthly }: ActivityChartProps) {
 
   const chartConfig = {
     count: {
-      label: 'Jobs created',
+      label: 'Applications',
       color: 'var(--chart-1)',
     },
   }
@@ -53,7 +53,7 @@ export function ActivityChart({ weekly, monthly }: ActivityChartProps) {
           <CardTitle>Application activity</CardTitle>
           <div className="flex items-center gap-1.5">
             <p className="text-muted-foreground text-sm">
-              Jobs created over time
+              Applications submitted over time
             </p>
             <Popover>
               <PopoverTrigger asChild>
@@ -63,8 +63,8 @@ export function ActivityChart({ weekly, monthly }: ActivityChartProps) {
               </PopoverTrigger>
               <PopoverContent side="bottom" className="max-w-[240px] text-xs">
                 {mode === 'weekly'
-                  ? "Each point shows the total jobs created that week, labelled by the week's start date (Monday)."
-                  : 'Each point shows the total jobs created that month.'}
+                  ? "Each point shows applications submitted that week, using the date applied (or creation date if not set). Weeks are labelled by their start date (Monday)."
+                  : 'Each point shows applications submitted that month, using the date applied (or creation date if not set).'}
               </PopoverContent>
             </Popover>
           </div>
