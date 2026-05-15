@@ -81,7 +81,7 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
     trunc_fn = "date_trunc('#{period}', #{date_expr})"
 
     results = jobs
-      .where(status: APPLIED_STATUSES)
+      .where.not(date_applied: nil)
       .select("#{trunc_fn} AS period, COUNT(*) AS count")
       .group("period")
       .order("period ASC")
