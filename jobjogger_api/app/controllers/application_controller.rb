@@ -18,7 +18,9 @@ class ApplicationController < ActionController::API
       avatar_url: avatar_url(user),
       demo: user.demo?,
       terms_agreed_at: user.terms_agreed_at,
-      created_at: user.created_at
+      created_at: user.created_at,
+      google_linked: user.google_uid.present?,
+      has_password: user.encrypted_password.present?
     }
   end
 

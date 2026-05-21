@@ -5,16 +5,52 @@ class OmniauthCallbacksController < ApplicationController
 
   def google_oauth2
     auth = request.env["omniauth.auth"]
-    user = User.from_google(auth)
+    params = request.env["omniauth.params"].to_h
 
-    set_jwt_cookie(generate_jwt(user))
-    redirect_to "#{frontend_url}/auth/callback", allow_other_host: true
+    if params["link"] == "true"
+      handle_link(auth)
+    else
+      handle_signin(auth)
+    end
   rescue StandardError => e
     Rails.logger.error("Google OAuth callback error: #{e.message}")
     redirect_to "#{frontend_url}/signin?oauth_error=true", allow_other_host: true
   end
 
   private
+
+  def handle_signin(auth)
+    user = User.from_google(auth)
+    set_jwt_cookie(generate_jwt(user))
+    redirect_to "#{frontend_url}/auth/callback", allow_other_host: true
+  end
+
+  def handle_link(auth)
+    user = current_user_from_jwt
+    unless user
+      redirect_to "#{frontend_url}/signin", allow_other_host: true
+      return
+    end
+
+    if User.where(google_uid: auth.uid).where.not(id: user.id).exists?
+      redirect_to "#{frontend_url}/profile?oauth_error=google_taken", allow_other_host: true
+      return
+    end
+
+    user.update!(google_uid: auth.uid)
+    set_jwt_cookie(generate_jwt(user))
+    redirect_to "#{frontend_url}/auth/callback?redirect=/profile", allow_other_host: true
+  end
+
+  def current_user_from_jwt
+    token = cookies.signed[:jwt]
+    return nil unless token
+
+    payload = JWT.decode(token, jwt_secret, true, algorithms: [ "HS256" ]).first
+    User.find_by(id: payload["sub"])
+  rescue JWT::DecodeError
+    nil
+  end
 
   def frontend_url
     ENV.fetch("FRONTEND_URL", "http://localhost:5173")

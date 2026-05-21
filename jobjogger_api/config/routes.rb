@@ -26,6 +26,7 @@ Rails.application.routes.draw do
         patch 'users/password', to: 'users/registrations#update_password'
         patch 'users/avatar', to: 'users/registrations#update_avatar'
         delete 'users/avatar', to: 'users/registrations#delete_avatar'
+        delete 'users/google', to: 'users/registrations#unlink_google'
       end
 
       # Analytics

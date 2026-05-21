@@ -6,4 +6,6 @@ export interface User {
   demo: boolean
   terms_agreed_at: string | null
   created_at: string
+  google_linked: boolean
+  has_password: boolean
 }

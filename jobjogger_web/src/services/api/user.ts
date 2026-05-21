@@ -49,3 +49,8 @@ export async function demoSigninApi() {
   const response = await apiClient.post('/demo/session')
   return response
 }
+
+export async function unlinkGoogle() {
+  const response = await apiClient.delete('/users/google')
+  return response.data
+}

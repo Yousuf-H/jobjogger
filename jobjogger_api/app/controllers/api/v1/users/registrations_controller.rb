@@ -6,7 +6,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
   respond_to :json
   skip_before_action :authenticate_scope!, raise: false
-  before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
+  before_action :authenticate_user!, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar, :unlink_google ]
   before_action :prevent_demo_changes, only: [ :update, :update_password, :destroy, :update_avatar, :delete_avatar ]
 
   def create
@@ -139,6 +139,24 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     end
   end
 
+  def unlink_google
+    unless current_user.google_uid.present?
+      return render json: { status: { message: 'No Google account linked.' } }, status: :unprocessable_content
+    end
+
+    unless current_user.encrypted_password.present?
+      return render json: {
+        status: { message: 'Set a password before unlinking Google so you can still sign in.' }
+      }, status: :unprocessable_content
+    end
+
+    current_user.update!(google_uid: nil)
+    render json: {
+      status: { code: 200, message: 'Google account unlinked.' },
+      user: user_payload(current_user)
+    }, status: :ok
+  end
+
   private
 
   def sign_up_params
@@ -168,8 +186,11 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       email: user.email,
       name: user.name,
       avatar_url: avatar_url,
+      demo: user.demo?,
       terms_agreed_at: user.terms_agreed_at,
-      created_at: user.created_at
+      created_at: user.created_at,
+      google_linked: user.google_uid.present?,
+      has_password: user.encrypted_password.present?
     }
   end
 
