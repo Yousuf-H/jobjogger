@@ -43,6 +43,11 @@ gem "rack-attack"
 
 # Authentication with Devise
 gem "devise"
+
+# Google OAuth 2.0
+gem "omniauth-google-oauth2"
+
+# JSON API serialization
 gem "jsonapi-serializer"
 
 group :development, :test do
