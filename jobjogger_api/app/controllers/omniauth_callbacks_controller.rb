@@ -8,7 +8,7 @@ class OmniauthCallbacksController < ApplicationController
     user = User.from_google(auth)
 
     set_jwt_cookie(generate_jwt(user))
-    redirect_to frontend_url, allow_other_host: true
+    redirect_to "#{frontend_url}/auth/callback", allow_other_host: true
   rescue StandardError => e
     Rails.logger.error("Google OAuth callback error: #{e.message}")
     redirect_to "#{frontend_url}/signin?oauth_error=true", allow_other_host: true
