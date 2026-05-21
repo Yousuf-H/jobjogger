@@ -4,6 +4,9 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Google OAuth callback (OmniAuth middleware handles /auth/google_oauth2 initiation)
+  get "/auth/google_oauth2/callback", to: "omniauth_callbacks#google_oauth2"
+
   namespace :api do
     namespace :v1 do
       # Demo login

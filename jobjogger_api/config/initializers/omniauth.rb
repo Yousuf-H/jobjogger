@@ -6,6 +6,12 @@
 OmniAuth.config.allowed_request_methods = %i[get post]
 OmniAuth.config.silence_get_warning = true
 
+# On failure (user cancels, provider error), redirect to the frontend sign-in page.
+OmniAuth.config.on_failure = proc do |env|
+  frontend_url = ENV.fetch("FRONTEND_URL", "http://localhost:5173")
+  [ 302, { "Location" => "#{frontend_url}/signin?oauth_error=true", "Content-Type" => "text/html" }, [] ]
+end
+
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :google_oauth2,
            ENV.fetch("GOOGLE_CLIENT_ID", ""),
