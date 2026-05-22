@@ -21,8 +21,8 @@ class OmniauthCallbacksController < ApplicationController
 
   def handle_signin(auth)
     user = User.from_google(auth)
-    set_jwt_cookie(generate_jwt(user))
-    redirect_to "#{frontend_url}/auth/callback", allow_other_host: true
+    token = generate_exchange_token(user)
+    redirect_to "#{frontend_url}/auth/callback?token=#{token}", allow_other_host: true
   end
 
   def handle_link(auth)
@@ -38,7 +38,6 @@ class OmniauthCallbacksController < ApplicationController
     end
 
     user.update!(google_uid: auth.uid)
-    set_jwt_cookie(generate_jwt(user))
     redirect_to "#{frontend_url}/auth/callback?redirect=/profile", allow_other_host: true
   end
 

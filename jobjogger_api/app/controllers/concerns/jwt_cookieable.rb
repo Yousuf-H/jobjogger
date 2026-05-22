@@ -36,6 +36,16 @@ module JwtCookieable
     Rails.env.production? ? ".jobjogger.com" : "localhost"
   end
 
+  def generate_exchange_token(user)
+    payload = {
+      sub: user.id,
+      type: "exchange",
+      exp: 5.minutes.from_now.to_i,
+      iat: Time.current.to_i
+    }
+    JWT.encode(payload, jwt_secret, "HS256")
+  end
+
   def jwt_cookie_expiry
     1.day.from_now
   end

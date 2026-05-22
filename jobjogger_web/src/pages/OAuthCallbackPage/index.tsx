@@ -9,12 +9,15 @@ export default function OAuthCallbackPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/'
+  const token = searchParams.get('token')
 
   useEffect(() => {
-    apiClient
-      .get('/users/me')
-      .then((response) => {
-        const user = response.data.user
+    const establish = token
+      ? apiClient.post('/auth/session', { token }).then((r) => r.data.user)
+      : apiClient.get('/users/me').then((r) => r.data.user)
+
+    establish
+      .then((user) => {
         if (user) {
           updateUser(user)
           navigate(redirectTo, { replace: true })

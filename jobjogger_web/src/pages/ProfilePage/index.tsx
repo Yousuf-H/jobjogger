@@ -20,6 +20,7 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import { googleOAuthUrl } from '@/services/api/client'
 import {
   deleteAccount,
+  setInitialPassword,
   unlinkGoogle,
   updatePassword,
   updateProfile,
@@ -122,6 +123,43 @@ export default function ProfilePage() {
       setPasswordError(
         axiosError.response?.data?.status?.message ||
           'Failed to update password'
+      )
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
+  const handleSetInitialPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError('')
+
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match')
+      return
+    }
+
+    setPasswordLoading(true)
+
+    try {
+      const data = await setInitialPassword({
+        password: newPassword,
+        password_confirmation: confirmPassword,
+      })
+      updateUser(data.user)
+      setNewPassword('')
+      setConfirmPassword('')
+      toast.success('Password set successfully')
+    } catch (err: unknown) {
+      const axiosError = err as {
+        response?: { data?: { status?: { message?: string } } }
+      }
+      setPasswordError(
+        axiosError.response?.data?.status?.message || 'Failed to set password'
       )
     } finally {
       setPasswordLoading(false)
@@ -258,13 +296,20 @@ export default function ProfilePage() {
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6">
           <div className="mb-6">
-            <h2 className="text-lg font-semibold">Change password</h2>
+            <h2 className="text-lg font-semibold">
+              {user?.has_password ? 'Change password' : 'Set a password'}
+            </h2>
             <p className="text-muted-foreground text-sm">
-              Update your password to keep your account secure.
+              {user?.has_password
+                ? 'Update your password to keep your account secure.'
+                : 'Add a password so you can sign in without Google.'}
             </p>
           </div>
 
-          <form onSubmit={handlePasswordUpdate} className="space-y-4">
+          <form
+            onSubmit={user?.has_password ? handlePasswordUpdate : handleSetInitialPassword}
+            className="space-y-4"
+          >
             {passwordError && (
               <Alert variant="destructive">
                 <AlertDescription>{passwordError}</AlertDescription>
@@ -280,21 +325,25 @@ export default function ProfilePage() {
             )}
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="current-password">Current password</Label>
-                <Input
-                  id="current-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                  disabled={isDemo}
-                />
-              </div>
+              {user?.has_password && (
+                <div className="space-y-2">
+                  <Label htmlFor="current-password">Current password</Label>
+                  <Input
+                    id="current-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    required
+                    disabled={isDemo}
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
-                <Label htmlFor="new-password">New password</Label>
+                <Label htmlFor="new-password">
+                  {user?.has_password ? 'New password' : 'Password'}
+                </Label>
                 <Input
                   id="new-password"
                   type="password"
@@ -311,9 +360,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm-new-password">
-                  Confirm new password
-                </Label>
+                <Label htmlFor="confirm-new-password">Confirm password</Label>
                 <Input
                   id="confirm-new-password"
                   type="password"
@@ -332,13 +379,15 @@ export default function ProfilePage() {
               disabled={
                 isDemo ||
                 passwordLoading ||
-                !currentPassword ||
+                (user?.has_password ? !currentPassword : false) ||
                 !newPassword ||
                 !confirmPassword
               }
               size="sm"
             >
-              {passwordLoading ? 'Updating...' : 'Update password'}
+              {passwordLoading
+                ? (user?.has_password ? 'Updating...' : 'Setting...')
+                : (user?.has_password ? 'Update password' : 'Set password')}
             </Button>
           </form>
         </CardContent>
@@ -465,18 +514,20 @@ export default function ProfilePage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
-                <div className="space-y-2 py-2">
-                  <Label htmlFor="delete-password">
-                    Enter your password to confirm
-                  </Label>
-                  <Input
-                    id="delete-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                  />
-                </div>
+                {user?.has_password && (
+                  <div className="space-y-2 py-2">
+                    <Label htmlFor="delete-password">
+                      Enter your password to confirm
+                    </Label>
+                    <Input
+                      id="delete-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                    />
+                  </div>
+                )}
 
                 <AlertDialogFooter>
                   <AlertDialogCancel onClick={() => setDeletePassword('')}>
@@ -484,7 +535,7 @@ export default function ProfilePage() {
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteAccount}
-                    disabled={deleteLoading || !deletePassword}
+                    disabled={deleteLoading || (user?.has_password ? !deletePassword : false)}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     {deleteLoading ? 'Deleting...' : 'Delete account'}
