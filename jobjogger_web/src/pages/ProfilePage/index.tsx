@@ -24,7 +24,7 @@ import {
   updatePassword,
   updateProfile,
 } from '@/services/api/user'
-import { Save } from 'lucide-react'
+import { Save, Unlink } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -381,7 +381,13 @@ export default function ProfilePage() {
             {user?.google_linked ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" disabled={googleLoading || isDemo}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                    disabled={googleLoading || isDemo}
+                  >
+                    <Unlink className="mr-1.5 h-3.5 w-3.5" />
                     Unlink
                   </Button>
                 </AlertDialogTrigger>
