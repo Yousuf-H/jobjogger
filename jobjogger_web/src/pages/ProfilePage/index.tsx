@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
 import { usePageTitle } from '@/hooks/usePageTitle'
-import { googleOAuthUrl } from '@/services/api/client'
+import { submitGoogleOAuthForm } from '@/services/api/client'
 import {
   deleteAccount,
   setInitialPassword,
@@ -476,7 +476,7 @@ export default function ProfilePage() {
                 variant="outline"
                 size="sm"
                 disabled={isDemo}
-                onClick={() => { window.location.href = `${googleOAuthUrl}?link=true` }}
+                onClick={() => submitGoogleOAuthForm({ link: 'true' })}
               >
                 Link Google account
               </Button>

@@ -24,7 +24,7 @@ RSpec.describe "OmniAuth callbacks", type: :request do
 
   describe "GET /auth/google_oauth2/callback (sign-in)" do
     def make_signin_request
-      get "/auth/google_oauth2"
+      post "/auth/google_oauth2"
       follow_redirect!
     end
 
@@ -84,7 +84,7 @@ RSpec.describe "OmniAuth callbacks", type: :request do
 
   describe "GET /auth/google_oauth2/callback (link)" do
     def make_link_request
-      get "/auth/google_oauth2?link=true"
+      post "/auth/google_oauth2?link=true"
       follow_redirect!
     end
 

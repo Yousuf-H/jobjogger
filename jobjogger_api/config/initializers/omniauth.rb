@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Allow GET requests so the React SPA can navigate directly to /auth/google_oauth2.
-# This is intentional for a decoupled SPA + API setup where Rails has no CSRF tokens
-# to verify against anyway (ActionController::API with JWT auth).
-OmniAuth.config.allowed_request_methods = %i[get post]
-OmniAuth.config.silence_get_warning = true
+# OmniAuth 2 defaults request_validation_phase to AuthenticityTokenProtection, which
+# expects a session-based CSRF token. ActionController::API never issues those, so we
+# disable it here. Cross-site initiation risk is mitigated by requiring POST (the
+# default since OmniAuth 2) and by SameSite cookie policy on the JWT cookie.
+OmniAuth.config.request_validation_phase = nil
 
 # On failure (user cancels, provider error), redirect to the frontend sign-in page.
 OmniAuth.config.on_failure = proc do |env|
