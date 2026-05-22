@@ -32,6 +32,11 @@ class OmniauthCallbacksController < ApplicationController
       return
     end
 
+    if user.demo?
+      redirect_to "#{frontend_url}/profile?oauth_error=demo_account", allow_other_host: true
+      return
+    end
+
     if User.where(google_uid: auth.uid).where.not(id: user.id).exists?
       redirect_to "#{frontend_url}/profile?oauth_error=google_taken", allow_other_host: true
       return

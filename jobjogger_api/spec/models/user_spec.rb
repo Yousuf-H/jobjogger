@@ -82,6 +82,75 @@ RSpec.describe User, type: :model do
   end
 
 
+  # ── Google OAuth ─────────────────────────────────────────────────────────────
+
+  describe ".from_google" do
+    let(:auth) do
+      OmniAuth::AuthHash.new(
+        "uid"  => "google-uid-abc",
+        "info" => { "email" => "google@example.com", "name" => "Google User" }
+      )
+    end
+
+    context "when no user with that uid or email exists" do
+      it "creates a new user" do
+        expect { User.from_google(auth) }.to change(User, :count).by(1)
+      end
+
+      it "sets google_uid, email, and name from the auth hash" do
+        user = User.from_google(auth)
+        expect(user.google_uid).to eq("google-uid-abc")
+        expect(user.email).to eq("google@example.com")
+        expect(user.name).to eq("Google User")
+      end
+
+      it "sets terms_agreed_at" do
+        user = User.from_google(auth)
+        expect(user.terms_agreed_at).to be_present
+      end
+
+      it "falls back to the email prefix when name is blank" do
+        auth["info"]["name"] = ""
+        user = User.from_google(auth)
+        expect(user.name).to eq("google")
+      end
+    end
+
+    context "when a user with the same google_uid already exists" do
+      let!(:existing) { create(:user, :google, google_uid: "google-uid-abc") }
+
+      it "returns the existing user without creating a new one" do
+        expect { User.from_google(auth) }.not_to change(User, :count)
+        expect(User.from_google(auth)).to eq(existing)
+      end
+    end
+
+    context "when a user with the same email exists but no google_uid" do
+      let!(:existing) { create(:user, email: "google@example.com") }
+
+      it "links the google_uid to the existing user" do
+        User.from_google(auth)
+        expect(existing.reload.google_uid).to eq("google-uid-abc")
+      end
+
+      it "does not create a new user" do
+        expect { User.from_google(auth) }.not_to change(User, :count)
+      end
+    end
+  end
+
+  describe "#password_required?" do
+    it "returns false for a Google-only user (no encrypted_password)" do
+      user = create(:user, :google, password: nil, password_confirmation: nil)
+      expect(user.password_required?).to be(false)
+    end
+
+    it "returns true for a regular email/password user" do
+      user = build(:user)
+      expect(user.password_required?).to be(true)
+    end
+  end
+
   # ── Persistence ──────────────────────────────────────────────────────────────
 
   describe "persistence" do

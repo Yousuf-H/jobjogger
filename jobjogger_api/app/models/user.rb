@@ -38,6 +38,9 @@ class User < ApplicationRecord
   end
 
   def password_required?
-    google_uid.present? ? false : super
+    # Allow Google-only users to be persisted without a password, but still
+    # run Devise's confirmation validation when a password is actively being set.
+    return false if google_uid.present? && password.blank?
+    super
   end
 end

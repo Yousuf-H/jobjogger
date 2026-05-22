@@ -37,6 +37,7 @@ export default function ProfilePage() {
   const isDemo = user?.demo ?? false
   const [searchParams] = useSearchParams()
   const googleTaken = searchParams.get('oauth_error') === 'google_taken'
+  const googleDemoBlocked = searchParams.get('oauth_error') === 'demo_account'
 
   // Google linking state
   const [googleLoading, setGoogleLoading] = useState(false)
@@ -407,6 +408,14 @@ export default function ProfilePage() {
             <Alert variant="destructive" className="mb-4">
               <AlertDescription>
                 That Google account is already linked to a different JobJogger account.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {googleDemoBlocked && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>
+                Demo accounts cannot be modified.
               </AlertDescription>
             </Alert>
           )}
