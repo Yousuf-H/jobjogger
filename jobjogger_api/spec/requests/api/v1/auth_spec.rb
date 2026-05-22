@@ -222,6 +222,24 @@ RSpec.describe "Authentication", type: :request do
       end
     end
 
+    context "when the password param is blank" do
+      it "returns 422 without updating encrypted_password" do
+        patch "/api/v1/users/password/set",
+              params: { user: { password: "", password_confirmation: "" } }.to_json,
+              headers: headers
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(google_user.reload.encrypted_password).to be_blank
+      end
+
+      it "returns 422 when the user key is present but empty" do
+        patch "/api/v1/users/password/set",
+              params: { user: {} }.to_json,
+              headers: headers
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(google_user.reload.encrypted_password).to be_blank
+      end
+    end
+
     context "when passwords do not match" do
       let(:bad_params) do
         { user: { password: "NewPassword1!", password_confirmation: "Different1!" } }.to_json

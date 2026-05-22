@@ -107,6 +107,12 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       }, status: :unprocessable_content
     end
 
+    if params.dig(:user, :password).blank?
+      return render json: {
+        status: { message: "Password can't be blank." }
+      }, status: :unprocessable_content
+    end
+
     if current_user.update(password_params)
       render json: {
         status: { code: 200, message: 'Password set successfully.' },
