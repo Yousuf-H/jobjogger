@@ -4,22 +4,25 @@ class Api::V1::Auth::CallbackController < ApplicationController
   include JwtCookieable
 
   def create
-    token = params[:token]
-    return render json: { status: { message: "Missing token." } }, status: :bad_request if token.blank?
+    jti = params[:jti]
+    return render json: { status: { message: "Missing token." } }, status: :bad_request if jti.blank?
 
-    payload = JWT.decode(token, jwt_secret, true, algorithms: [ "HS256" ]).first
+    cache_key = "oauth_exchange:#{jti}"
+    entry     = Rails.cache.read(cache_key)
+    Rails.cache.delete(cache_key)
 
-    unless payload["type"] == "exchange"
-      return render json: { status: { message: "Invalid token." } }, status: :unprocessable_entity
+    unless entry
+      return render json: { status: { message: "Invalid or expired session." } }, status: :unprocessable_entity
     end
 
-    user = User.find(payload["sub"])
-    set_jwt_cookie(generate_jwt(user))
+    unless request.session.id.to_s == entry[:session_id]
+      return render json: { status: { message: "Session mismatch." } }, status: :forbidden
+    end
 
+    user = User.find(entry[:user_id])
+    set_jwt_cookie(generate_jwt(user))
     render json: { user: user_payload(user) }, status: :ok
-  rescue JWT::ExpiredSignature
-    render json: { status: { message: "Exchange token expired. Please try signing in again." } }, status: :unprocessable_entity
-  rescue JWT::DecodeError, ActiveRecord::RecordNotFound
-    render json: { status: { message: "Invalid token." } }, status: :unprocessable_entity
+  rescue ActiveRecord::RecordNotFound
+    render json: { status: { message: "Invalid or expired session." } }, status: :unprocessable_entity
   end
 end

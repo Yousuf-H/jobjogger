@@ -52,37 +52,6 @@ module AuthHelpers
     JWT.decode(token, jwt_secret, true, { algorithm: "HS256" }).first
   end
 
-  def generate_exchange_token_for(user)
-    payload = {
-      sub:  user.id,
-      type: "exchange",
-      exp:  5.minutes.from_now.to_i,
-      iat:  Time.current.to_i
-    }
-    JWT.encode(payload, jwt_secret, "HS256")
-  end
-
-  def expired_exchange_token_for(user)
-    payload = {
-      sub:  user.id,
-      type: "exchange",
-      iat:  10.minutes.ago.to_i,
-      exp:  5.minutes.ago.to_i
-    }
-    JWT.encode(payload, jwt_secret, "HS256")
-  end
-
-  # Extracts and decodes the exchange token embedded in an OAuth redirect Location.
-  def decode_exchange_token_from_redirect
-    uri   = URI.parse(response.location)
-    token = URI.decode_www_form(uri.query || "").to_h["token"]
-    return nil if token.blank?
-
-    JWT.decode(token, jwt_secret, true, algorithms: [ "HS256" ]).first
-  rescue JWT::DecodeError
-    nil
-  end
-
   def json_response
     JSON.parse(response.body)
   end

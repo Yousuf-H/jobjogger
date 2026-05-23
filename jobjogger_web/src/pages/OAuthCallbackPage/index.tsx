@@ -9,11 +9,11 @@ export default function OAuthCallbackPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/'
-  const token = searchParams.get('token')
+  const jti = searchParams.get('jti')
 
   useEffect(() => {
-    const establish = token
-      ? apiClient.post('/auth/session', { token }).then((r) => r.data.user)
+    const establish = jti
+      ? apiClient.post('/auth/session', { jti }).then((r) => r.data.user)
       : apiClient.get('/users/me').then((r) => r.data.user)
 
     establish

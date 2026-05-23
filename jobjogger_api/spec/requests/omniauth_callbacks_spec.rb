@@ -20,6 +20,15 @@ RSpec.describe "OmniAuth callbacks", type: :request do
     OmniAuth.config.mock_auth.delete(:google_oauth2)
   end
 
+  # Reads the jti from the redirect Location header and retrieves the cache entry.
+  def exchange_entry_from_redirect
+    uri = URI.parse(response.location)
+    jti = URI.decode_www_form(uri.query || "").to_h["jti"]
+    return nil if jti.blank?
+
+    Rails.cache.read("oauth_exchange:#{jti}")
+  end
+
   # ── Sign-in flow ──────────────────────────────────────────────────────────────
 
   describe "GET /auth/google_oauth2/callback (sign-in)" do
@@ -33,16 +42,17 @@ RSpec.describe "OmniAuth callbacks", type: :request do
         expect { make_signin_request }.to change(User, :count).by(1)
       end
 
-      it "redirects to /auth/callback with an exchange token" do
+      it "redirects to /auth/callback with a jti param" do
         make_signin_request
-        expect(response.location).to match(%r{/auth/callback\?token=})
+        expect(response.location).to match(%r{/auth/callback\?jti=})
       end
 
-      it "embeds a valid exchange token with the new user's id" do
+      it "writes a cache entry for the new user bound to the session" do
         make_signin_request
-        payload = decode_exchange_token_from_redirect
-        expect(payload["type"]).to eq("exchange")
-        expect(User.exists?(payload["sub"])).to be(true)
+        entry = exchange_entry_from_redirect
+        expect(entry).to be_present
+        expect(User.exists?(entry[:user_id])).to be(true)
+        expect(entry[:session_id]).to be_present
       end
     end
 
@@ -53,10 +63,10 @@ RSpec.describe "OmniAuth callbacks", type: :request do
         expect { make_signin_request }.not_to change(User, :count)
       end
 
-      it "embeds an exchange token for the existing user" do
+      it "writes a cache entry for the existing user" do
         make_signin_request
-        payload = decode_exchange_token_from_redirect
-        expect(payload["sub"]).to eq(existing_user.id)
+        entry = exchange_entry_from_redirect
+        expect(entry[:user_id]).to eq(existing_user.id)
       end
     end
 
@@ -72,10 +82,10 @@ RSpec.describe "OmniAuth callbacks", type: :request do
         expect(email_user.reload.google_uid).to eq("google-uid-123")
       end
 
-      it "embeds an exchange token for that user" do
+      it "writes a cache entry for that user" do
         make_signin_request
-        payload = decode_exchange_token_from_redirect
-        expect(payload["sub"]).to eq(email_user.id)
+        entry = exchange_entry_from_redirect
+        expect(entry[:user_id]).to eq(email_user.id)
       end
     end
   end
@@ -138,10 +148,9 @@ RSpec.describe "OmniAuth callbacks", type: :request do
         expect(response.location).to match(%r{/auth/callback\?redirect=/profile})
       end
 
-      it "does not embed an exchange token (existing session is reused)" do
+      it "does not write a cache exchange entry (existing session is reused)" do
         make_link_request
-        uri = URI.parse(response.location)
-        expect(URI.decode_www_form(uri.query || "").to_h["token"]).to be_blank
+        expect(exchange_entry_from_redirect).to be_nil
       end
     end
   end

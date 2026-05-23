@@ -21,8 +21,13 @@ class OmniauthCallbacksController < ApplicationController
 
   def handle_signin(auth)
     user = User.from_google(auth)
-    token = generate_exchange_token(user)
-    redirect_to "#{frontend_url}/auth/callback?token=#{token}", allow_other_host: true
+    jti  = SecureRandom.urlsafe_base64(32)
+    Rails.cache.write(
+      "oauth_exchange:#{jti}",
+      { user_id: user.id, session_id: request.session.id.to_s },
+      expires_in: 5.minutes
+    )
+    redirect_to "#{frontend_url}/auth/callback?jti=#{jti}", allow_other_host: true
   end
 
   def handle_link(auth)
