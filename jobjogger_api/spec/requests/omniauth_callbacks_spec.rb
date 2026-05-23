@@ -29,6 +29,34 @@ RSpec.describe "OmniAuth callbacks", type: :request do
     Rails.cache.read("oauth_exchange:#{jti}")
   end
 
+  # ── Origin validation (request phase) ────────────────────────────────────────
+
+  describe "POST /auth/google_oauth2 (request phase)" do
+    context "when the Origin header is a foreign site" do
+      it "does not initiate OAuth (redirects to failure)" do
+        post "/auth/google_oauth2", headers: { "Origin" => "https://evil.example.com" }
+        expect(response).to be_redirect
+        expect(response.location).to match(%r{/signin\?oauth_error=true})
+      end
+    end
+
+    context "when the Origin header matches FRONTEND_URL" do
+      it "allows the request through" do
+        post "/auth/google_oauth2", headers: { "Origin" => ENV.fetch("FRONTEND_URL", "http://localhost:5173") }
+        follow_redirect!
+        expect(response.location).to match(%r{/auth/callback\?jti=})
+      end
+    end
+
+    context "when no Origin header is present" do
+      it "allows the request through" do
+        post "/auth/google_oauth2"
+        follow_redirect!
+        expect(response.location).to match(%r{/auth/callback\?jti=})
+      end
+    end
+  end
+
   # ── Sign-in flow ──────────────────────────────────────────────────────────────
 
   describe "GET /auth/google_oauth2/callback (sign-in)" do
