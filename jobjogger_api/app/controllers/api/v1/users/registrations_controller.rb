@@ -7,7 +7,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
   skip_before_action :authenticate_scope!, raise: false
   before_action :authenticate_user!, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google ]
-  before_action :prevent_demo_changes, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar ]
+  before_action :prevent_demo_changes, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google ]
 
   def create
     build_resource(sign_up_params)
