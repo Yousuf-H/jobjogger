@@ -145,6 +145,29 @@ RSpec.describe "Demo Account Restrictions", type: :request do
     end
   end
 
+  # ── Set initial password ──────────────────────────────────────────────────────
+
+  describe "PATCH /api/v1/users/password/set (set initial password)" do
+    let(:password_params) do
+      {
+        user: {
+          password: "NewPassword1!",
+          password_confirmation: "NewPassword1!"
+        }
+      }
+    end
+
+    it "returns 403 Forbidden for a demo user" do
+      patch "/api/v1/users/password/set", params: password_params.to_json, headers: headers
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "returns a descriptive error message" do
+      patch "/api/v1/users/password/set", params: password_params.to_json, headers: headers
+      expect(json_response.dig("status", "message")).to match(/cannot be modified/i)
+    end
+  end
+
   # ── Avatar upload ─────────────────────────────────────────────────────────────
 
   describe "PATCH /api/v1/users/avatar (upload avatar)" do

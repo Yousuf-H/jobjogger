@@ -4,8 +4,14 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Google OAuth callback (OmniAuth middleware handles /auth/google_oauth2 initiation)
+  get "/auth/google_oauth2/callback", to: "omniauth_callbacks#google_oauth2"
+
   namespace :api do
     namespace :v1 do
+      # OAuth session exchange (converts short-lived exchange token to JWT cookie)
+      post "auth/session", to: "auth/callback#create"
+
       # Demo login
       post "demo/session", to: "demo/sessions#create"
 
@@ -21,8 +27,10 @@ Rails.application.routes.draw do
         patch 'users', to: 'users/registrations#update'
         delete 'users', to: 'users/registrations#destroy'
         patch 'users/password', to: 'users/registrations#update_password'
+        patch 'users/password/set', to: 'users/registrations#set_initial_password'
         patch 'users/avatar', to: 'users/registrations#update_avatar'
         delete 'users/avatar', to: 'users/registrations#delete_avatar'
+        delete 'users/google', to: 'users/registrations#unlink_google'
       end
 
       # Analytics

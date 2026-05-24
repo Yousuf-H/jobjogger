@@ -14,4 +14,33 @@ class User < ApplicationRecord
     with: /\A[^[:space:]]+.*[^[:space:]]+\z/,
     message: "must contain at least 2 non-whitespace characters"
   }, if: -> { name.present? && name.length >= 2 }
+
+  def self.from_google(auth)
+    uid   = auth.uid
+    email = auth.info.email
+    name  = auth.info.name.presence || email.split("@").first
+
+    user = find_by(google_uid: uid)
+    return user if user
+
+    user = find_by(email: email)
+    if user
+      user.update!(google_uid: uid)
+      return user
+    end
+
+    create!(
+      email:           email,
+      name:            name,
+      google_uid:      uid,
+      terms_agreed_at: Time.current
+    )
+  end
+
+  def password_required?
+    # Allow Google-only users to be persisted without a password, but still
+    # run Devise's confirmation validation when a password is actively being set.
+    return false if google_uid.present? && password.blank?
+    super
+  end
 end

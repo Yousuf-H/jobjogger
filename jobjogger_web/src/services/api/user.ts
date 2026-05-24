@@ -18,6 +18,14 @@ export async function updatePassword(data: {
   return response.data
 }
 
+export async function setInitialPassword(data: {
+  password: string
+  password_confirmation: string
+}) {
+  const response = await apiClient.patch('/users/password/set', { user: data })
+  return response.data
+}
+
 export async function deleteAccount(password: string) {
   const response = await apiClient.delete('/users', {
     data: { user: { password } },
@@ -48,4 +56,9 @@ export async function acceptTermsApi() {
 export async function demoSigninApi() {
   const response = await apiClient.post('/demo/session')
   return response
+}
+
+export async function unlinkGoogle() {
+  const response = await apiClient.delete('/users/google')
+  return response.data
 }

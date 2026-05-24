@@ -34,6 +34,8 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include AuthHelpers, type: :request
 
+  config.before(:each) { Rails.cache.clear }
+
   # Match the cookie domain used by JwtCookieable in non-production environments.
   config.before(:each, type: :request) do
     host! "localhost"
