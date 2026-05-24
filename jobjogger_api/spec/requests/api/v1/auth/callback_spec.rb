@@ -8,7 +8,12 @@ RSpec.describe "POST /api/v1/auth/session (OAuth exchange)", type: :request do
 
   # Simulates the server-side entry written by OmniauthCallbacksController#handle_signin.
   def write_exchange_entry(jti:, user_id:, session_id:)
-    Rails.cache.write("oauth_exchange:#{jti}", { user_id: user_id, session_id: session_id }, expires_in: 5.minutes)
+    OauthExchange.create!(
+      jti:        jti,
+      user_id:    user_id,
+      session_id: session_id,
+      expires_at: 5.minutes.from_now
+    )
   end
 
   def current_session_id

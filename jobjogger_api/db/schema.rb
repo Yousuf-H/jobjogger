@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_21_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_23_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -154,6 +154,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_000001) do
     t.index ["user_id"], name: "index_jobs_on_user_id"
   end
 
+  create_table "oauth_exchanges", force: :cascade do |t|
+    t.datetime "consumed_at"
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "jti", null: false
+    t.string "session_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["expires_at"], name: "index_oauth_exchanges_on_expires_at"
+    t.index ["jti"], name: "index_oauth_exchanges_on_jti", unique: true
+    t.index ["user_id"], name: "index_oauth_exchanges_on_user_id"
+  end
+
   create_table "organisations", force: :cascade do |t|
     t.string "aliases", default: [], array: true
     t.datetime "created_at", null: false
@@ -214,6 +227,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_000001) do
   add_foreign_key "job_interview_questions", "jobs"
   add_foreign_key "jobs", "organisations"
   add_foreign_key "jobs", "users"
+  add_foreign_key "oauth_exchanges", "users"
   add_foreign_key "organisations", "users"
   add_foreign_key "timeline_entries", "jobs"
 end

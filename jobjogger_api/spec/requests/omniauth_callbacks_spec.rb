@@ -20,13 +20,16 @@ RSpec.describe "OmniAuth callbacks", type: :request do
     OmniAuth.config.mock_auth.delete(:google_oauth2)
   end
 
-  # Reads the jti from the redirect Location header and retrieves the cache entry.
+  # Reads the jti from the redirect Location header and retrieves the exchange entry.
   def exchange_entry_from_redirect
     uri = URI.parse(response.location)
     jti = URI.decode_www_form(uri.query || "").to_h["jti"]
     return nil if jti.blank?
 
-    Rails.cache.read("oauth_exchange:#{jti}")
+    exchange = OauthExchange.find_by(jti: jti)
+    return nil unless exchange
+
+    { user_id: exchange.user_id, session_id: exchange.session_id }
   end
 
   # ── Origin validation (request phase) ────────────────────────────────────────
