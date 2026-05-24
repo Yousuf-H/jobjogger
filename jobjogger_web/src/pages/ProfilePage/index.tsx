@@ -298,17 +298,17 @@ export default function ProfilePage() {
         <CardContent className="p-6">
           <div className="mb-6">
             <h2 className="text-lg font-semibold">
-              {user?.has_password ? 'Change password' : 'Set a password'}
+              {user?.has_password !== false ? 'Change password' : 'Set a password'}
             </h2>
             <p className="text-muted-foreground text-sm">
-              {user?.has_password
+              {user?.has_password !== false
                 ? 'Update your password to keep your account secure.'
                 : 'Add a password so you can sign in without Google.'}
             </p>
           </div>
 
           <form
-            onSubmit={user?.has_password ? handlePasswordUpdate : handleSetInitialPassword}
+            onSubmit={user?.has_password !== false ? handlePasswordUpdate : handleSetInitialPassword}
             className="space-y-4"
           >
             {passwordError && (
@@ -326,7 +326,7 @@ export default function ProfilePage() {
             )}
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              {user?.has_password && (
+              {user?.has_password !== false && (
                 <div className="space-y-2">
                   <Label htmlFor="current-password">Current password</Label>
                   <Input
@@ -343,7 +343,7 @@ export default function ProfilePage() {
 
               <div className="space-y-2">
                 <Label htmlFor="new-password">
-                  {user?.has_password ? 'New password' : 'Password'}
+                  {user?.has_password !== false ? 'New password' : 'Password'}
                 </Label>
                 <Input
                   id="new-password"
@@ -380,15 +380,15 @@ export default function ProfilePage() {
               disabled={
                 isDemo ||
                 passwordLoading ||
-                (user?.has_password ? !currentPassword : false) ||
+                (user?.has_password !== false ? !currentPassword : false) ||
                 !newPassword ||
                 !confirmPassword
               }
               size="sm"
             >
               {passwordLoading
-                ? (user?.has_password ? 'Updating...' : 'Setting...')
-                : (user?.has_password ? 'Update password' : 'Set password')}
+                ? (user?.has_password !== false ? 'Updating...' : 'Setting...')
+                : (user?.has_password !== false ? 'Update password' : 'Set password')}
             </Button>
           </form>
         </CardContent>
@@ -453,14 +453,14 @@ export default function ProfilePage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Unlink Google account?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      {user?.has_password
+                      {user?.has_password !== false
                         ? 'You\'ll no longer be able to sign in with Google. You can still sign in with your email and password.'
                         : 'Set a password first — unlinking Google without one would lock you out of your account.'}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    {user?.has_password && (
+                    {user?.has_password !== false && (
                       <AlertDialogAction
                         onClick={handleUnlinkGoogle}
                         disabled={googleLoading}
@@ -523,7 +523,7 @@ export default function ProfilePage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
-                {user?.has_password && (
+                {user?.has_password !== false && (
                   <div className="space-y-2 py-2">
                     <Label htmlFor="delete-password">
                       Enter your password to confirm
@@ -544,7 +544,7 @@ export default function ProfilePage() {
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteAccount}
-                    disabled={deleteLoading || (user?.has_password ? !deletePassword : false)}
+                    disabled={deleteLoading || (user?.has_password !== false ? !deletePassword : false)}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     {deleteLoading ? 'Deleting...' : 'Delete account'}
