@@ -1,3 +1,9 @@
+export interface LinkedJob {
+  id: number
+  company_name: string
+  job_title: string
+}
+
 export interface ResumeVariant {
   id: number
   resume_template_id: number
@@ -5,6 +11,7 @@ export interface ResumeVariant {
   notes?: string
   pdf_url: string | null
   pdf_filename: string | null
+  linked_jobs: LinkedJob[]
   created_at: string
   updated_at: string
 }

@@ -248,23 +248,57 @@ function VariantRow({
   const { deleteMutation } = useResumeVariantActions(templateId)
   const [editOpen, setEditOpen] = useState(false)
 
+  const MAX_JOB_BADGES = 2
+  const visibleJobs = variant.linked_jobs.slice(0, MAX_JOB_BADGES)
+  const hiddenCount = variant.linked_jobs.length - MAX_JOB_BADGES
+
   return (
     <>
-      <div className="flex items-center justify-between gap-3 rounded-md border px-4 py-3 text-sm">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <FileText className="text-muted-foreground h-4 w-4 shrink-0" />
-          <div className="min-w-0">
-            {variant.notes ? (
-              <p className="truncate">{variant.notes}</p>
-            ) : (
-              <p className="text-muted-foreground italic">No notes</p>
-            )}
-            {variant.pdf_filename && (
-              <p className="text-muted-foreground truncate text-xs">{variant.pdf_filename}</p>
-            )}
-          </div>
+      <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2.5 text-sm">
+        {/* Notes — takes remaining space */}
+        <div className="min-w-0 flex-1">
+          {variant.notes ? (
+            <p className="truncate text-sm">{variant.notes}</p>
+          ) : variant.pdf_filename ? (
+            <p className="text-muted-foreground truncate text-sm">{variant.pdf_filename}</p>
+          ) : (
+            <p className="text-muted-foreground/50 text-xs italic">No notes</p>
+          )}
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+
+        {/* Job badges */}
+        <div className="hidden shrink-0 items-center gap-1 sm:flex">
+          {variant.linked_jobs.length === 0 ? (
+            <span className="text-muted-foreground/50 text-xs">Not linked</span>
+          ) : (
+            <>
+              {visibleJobs.map(j => (
+                <Badge key={j.id} variant="secondary" className="text-xs font-normal">
+                  {j.company_name}
+                </Badge>
+              ))}
+              {hiddenCount > 0 && (
+                <span className="text-muted-foreground text-xs">+{hiddenCount}</span>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* PDF chip */}
+        <div className="shrink-0">
+          {variant.pdf_filename ? (
+            <Badge className="border-emerald-200 bg-emerald-100 text-xs font-normal text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+              PDF
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-muted-foreground/50 text-xs font-normal">
+              No PDF
+            </Badge>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-0.5">
           {variant.pdf_url && (
             <Button variant="ghost" size="sm" className="h-7 w-7 p-0" asChild>
               <a href={variant.pdf_url} target="_blank" rel="noopener noreferrer" title="View PDF">
@@ -280,7 +314,7 @@ function VariantRow({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-destructive hover:text-destructive h-7 w-7 p-0"
+                className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
                 disabled={deletingId === variant.id}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -319,7 +353,7 @@ function VariantRow({
   )
 }
 
-// ── Template card (with expandable variants) ──────────────────────────────────
+// ── Template card ─────────────────────────────────────────────────────────────
 
 function TemplateCard({ template }: { template: ResumeTemplate }) {
   const [expanded, setExpanded] = useState(false)
@@ -333,10 +367,11 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
   return (
     <>
       <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-3">
+        <CardHeader className="pb-3 pt-4">
+          <div className="flex items-center gap-3">
+            {/* Expand toggle + name/notes */}
             <button
-              className="flex min-w-0 flex-1 items-center gap-3 text-left"
+              className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
               onClick={() => setExpanded(e => !e)}
             >
               {expanded ? (
@@ -345,16 +380,23 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
                 <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
               )}
               <div className="min-w-0">
-                <p className="truncate font-medium">{template.name}</p>
+                <p className="truncate font-medium leading-snug">{template.name}</p>
                 {template.notes && (
-                  <p className="text-muted-foreground mt-0.5 truncate text-sm">{template.notes}</p>
+                  <p className="text-muted-foreground mt-0.5 truncate text-xs">{template.notes}</p>
                 )}
               </div>
             </button>
-            <div className="flex shrink-0 items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
+
+            {/* Badges + actions */}
+            <div className="flex shrink-0 items-center gap-1.5">
+              <Badge variant="secondary" className="text-xs font-normal">
                 {template.variant_count} {template.variant_count === 1 ? 'variant' : 'variants'}
               </Badge>
+              {template.pdf_filename && (
+                <Badge className="border-emerald-200 bg-emerald-100 text-xs font-normal text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                  PDF
+                </Badge>
+              )}
               {template.pdf_url && (
                 <Button variant="ghost" size="sm" className="h-7 w-7 p-0" asChild>
                   <a href={template.pdf_url} target="_blank" rel="noopener noreferrer" title="View base PDF">
@@ -370,7 +412,7 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-destructive hover:text-destructive h-7 w-7 p-0"
+                    className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -396,38 +438,49 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
 
         {expanded && (
           <CardContent className="pt-0">
-            <div className="space-y-2">
-              {full ? (
-                <>
-                  {full.variants.length === 0 ? (
-                    <p className="text-muted-foreground py-2 text-sm">
-                      No variants yet. Create one below.
-                    </p>
-                  ) : (
-                    full.variants.map(v => (
-                      <VariantRow
-                        key={v.id}
-                        variant={v}
-                        templateId={template.id}
-                        deletingId={deletingVariantId}
-                        onDeletingId={setDeletingVariantId}
-                      />
-                    ))
-                  )}
+            {full ? (
+              <div className="space-y-2">
+                {/* Column headers — hidden on mobile */}
+                {full.variants.length > 0 && (
+                  <div className="hidden items-center gap-2 px-3 sm:flex">
+                    <span className="flex-1 text-xs font-medium text-muted-foreground">Notes</span>
+                    <span className="w-36 text-xs font-medium text-muted-foreground">Linked to</span>
+                    <span className="w-14 text-xs font-medium text-muted-foreground">File</span>
+                    <span className="w-20" />
+                  </div>
+                )}
+
+                {full.variants.length === 0 ? (
+                  <p className="text-muted-foreground py-2 text-sm">
+                    No variants yet — add one below.
+                  </p>
+                ) : (
+                  full.variants.map(v => (
+                    <VariantRow
+                      key={v.id}
+                      variant={v}
+                      templateId={template.id}
+                      deletingId={deletingVariantId}
+                      onDeletingId={setDeletingVariantId}
+                    />
+                  ))
+                )}
+
+                <div className="pt-1">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-1 w-full gap-1.5"
+                    className="gap-1.5"
                     onClick={() => setAddVariantOpen(true)}
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add variant
                   </Button>
-                </>
-              ) : (
-                <p className="text-muted-foreground py-2 text-sm">Loading…</p>
-              )}
-            </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-muted-foreground py-2 text-sm">Loading…</p>
+            )}
           </CardContent>
         )}
       </Card>
