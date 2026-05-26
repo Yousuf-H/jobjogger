@@ -57,6 +57,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
   private
 
   def set_template
+    return unless params[:resume_template_id]
     @template = current_user.resume_templates.find(params[:resume_template_id])
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Resume template not found" }, status: :not_found

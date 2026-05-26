@@ -21,7 +21,7 @@ import { useResumeVariantActions } from '@/hooks/useResumeVariantActions'
 import { useAllResumeVariants, useResumeVariant } from '@/hooks/useResumeVariants'
 import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import type { ResumeVariant } from '@/types/resume'
-import { ExternalLink, FileText, Link2, Link2Off, Pencil } from 'lucide-react'
+import { ExternalLink, FileText, Link2Off, Maximize2, Pencil } from 'lucide-react'
 import { useState } from 'react'
 
 function VariantPickerDialog({
@@ -120,6 +120,31 @@ function VariantPickerDialog({
   )
 }
 
+function PdfPreviewDialog({ pdfUrl, filename }: { pdfUrl: string; filename: string | null }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Maximize2 className="mr-1.5 h-3.5 w-3.5" />
+        Preview
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="h-[90vh] max-w-4xl p-0 gap-0">
+          <DialogHeader className="px-4 py-3 border-b shrink-0">
+            <DialogTitle className="text-sm font-medium">{filename ?? 'Resume PDF'}</DialogTitle>
+            <DialogDescription className="sr-only">PDF preview</DialogDescription>
+          </DialogHeader>
+          <iframe
+            src={pdfUrl}
+            className="w-full flex-1 h-full min-h-0"
+            title={filename ?? 'Resume PDF'}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
 interface ResumeTabProps {
   jobId: number
   status: JobStatus
@@ -204,17 +229,14 @@ export function ResumeTab({ jobId, status, resumeVariantId }: ResumeTabProps) {
           )}
 
           {variant.pdf_url && (
-            <div className="mt-3">
-              <a
-                href={variant.pdf_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm text-sky-600 hover:underline dark:text-sky-400"
-              >
-                <Link2 className="h-3.5 w-3.5" />
-                {variant.pdf_filename ?? 'View PDF'}
-                <ExternalLink className="h-3 w-3" />
-              </a>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <PdfPreviewDialog pdfUrl={variant.pdf_url} filename={variant.pdf_filename} />
+              <Button size="sm" variant="ghost" className="text-muted-foreground" asChild>
+                <a href={variant.pdf_url} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                  Open in new tab
+                </a>
+              </Button>
             </div>
           )}
         </div>
