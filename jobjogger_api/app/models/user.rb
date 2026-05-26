@@ -4,6 +4,8 @@ class User < ApplicationRecord
   has_many :organisations, dependent: :destroy
   has_many :contacts, dependent: :destroy
   has_many :interview_questions, dependent: :destroy
+  has_many :resume_templates, dependent: :destroy
+  has_many :resume_variants, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
