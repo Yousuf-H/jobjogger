@@ -84,15 +84,16 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
       updated_at:   template.updated_at
     }
 
-    json[:variants] = template.resume_variants.map { |v| variant_json(v) } if include_variants
+    json[:variants] = template.resume_variants.map { |v| variant_json(v, template_name: template.name) } if include_variants
 
     json
   end
 
-  def variant_json(variant)
+  def variant_json(variant, template_name: nil)
     {
       id:                 variant.id,
       resume_template_id: variant.resume_template_id,
+      template_name:      template_name || variant.resume_template.name,
       notes:              variant.notes,
       pdf_url:            pdf_url(variant),
       pdf_filename:       variant.pdf.attached? ? variant.pdf.filename.to_s : nil,

@@ -81,7 +81,7 @@ Rails.application.routes.draw do
       resources :resume_templates do
         resources :resume_variants, only: [:index, :create]
       end
-      resources :resume_variants, only: [:show, :update, :destroy]
+      resources :resume_variants, only: [:index, :show, :update, :destroy]
     end
   end
 

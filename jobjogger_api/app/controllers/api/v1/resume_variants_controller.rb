@@ -5,7 +5,12 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
   before_action :set_variant,  only: [:show, :update, :destroy]
 
   def index
-    render json: @template.resume_variants.map { |v| variant_json(v) }
+    if @template
+      render json: @template.resume_variants.map { |v| variant_json(v, template_name: @template.name) }
+    else
+      variants = current_user.resume_variants.includes(:resume_template)
+      render json: variants.map { |v| variant_json(v) }
+    end
   end
 
   def show
@@ -73,10 +78,11 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
       file.size <= 10.megabytes
   end
 
-  def variant_json(variant)
+  def variant_json(variant, template_name: nil)
     {
       id:                 variant.id,
       resume_template_id: variant.resume_template_id,
+      template_name:      template_name || variant.resume_template.name,
       notes:              variant.notes,
       pdf_url:            pdf_url(variant),
       pdf_filename:       variant.pdf.attached? ? variant.pdf.filename.to_s : nil,
