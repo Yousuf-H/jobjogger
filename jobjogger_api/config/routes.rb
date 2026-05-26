@@ -76,6 +76,12 @@ Rails.application.routes.draw do
 
       # Timeline entries (top-level for update/destroy)
       resources :timeline_entries, only: [:update, :destroy]
+
+      # Resume library
+      resources :resume_templates do
+        resources :resume_variants, only: [:index, :create]
+      end
+      resources :resume_variants, only: [:show, :update, :destroy]
     end
   end
 
