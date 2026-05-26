@@ -55,6 +55,19 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
         end
       end
 
+      raw = params.fetch(:job, {})
+      if raw.key?(:resume_variant_id) || raw.key?("resume_variant_id")
+        variant_id = raw[:resume_variant_id]
+        if variant_id.present?
+          unless current_user.resume_variants.exists?(variant_id)
+            return render json: { errors: ['Resume variant not found'] }, status: :not_found
+          end
+          updates[:resume_variant_id] = variant_id
+        else
+          updates[:resume_variant_id] = nil
+        end
+      end
+
       job_updated = @job.update(updates)
       raise ActiveRecord::Rollback unless job_updated
     end
