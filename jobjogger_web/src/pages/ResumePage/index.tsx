@@ -266,8 +266,8 @@ function VariantRow({
           )}
         </div>
 
-        {/* Job badges */}
-        <div className="hidden shrink-0 items-center gap-1 sm:flex">
+        {/* Job badges — w-36 matches header */}
+        <div className="hidden w-36 shrink-0 items-center gap-1 sm:flex">
           {variant.linked_jobs.length === 0 ? (
             <span className="text-muted-foreground/50 text-xs">Not linked</span>
           ) : (
@@ -284,8 +284,8 @@ function VariantRow({
           )}
         </div>
 
-        {/* PDF chip */}
-        <div className="shrink-0">
+        {/* PDF chip — w-14 matches header */}
+        <div className="hidden w-14 shrink-0 sm:block">
           {variant.pdf_filename ? (
             <Badge className="border-emerald-200 bg-emerald-100 text-xs font-normal text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
               PDF
@@ -297,8 +297,8 @@ function VariantRow({
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex shrink-0 items-center gap-0.5">
+        {/* Actions — w-20 matches header */}
+        <div className="flex w-20 shrink-0 items-center justify-end gap-0.5">
           {variant.pdf_url && (
             <Button variant="ghost" size="sm" className="h-7 w-7 p-0" asChild>
               <a href={variant.pdf_url} target="_blank" rel="noopener noreferrer" title="View PDF">
@@ -443,7 +443,7 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
                 {/* Column headers — hidden on mobile */}
                 {full.variants.length > 0 && (
                   <div className="hidden items-center gap-2 px-3 sm:flex">
-                    <span className="flex-1 text-xs font-medium text-muted-foreground">Notes</span>
+                    <span className="flex-1" />
                     <span className="w-36 text-xs font-medium text-muted-foreground">Linked to</span>
                     <span className="w-14 text-xs font-medium text-muted-foreground">File</span>
                     <span className="w-20" />
