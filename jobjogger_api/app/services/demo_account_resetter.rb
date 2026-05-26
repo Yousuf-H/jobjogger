@@ -24,6 +24,7 @@ class DemoAccountResetter
       demo_user.jobs.destroy_all
       demo_user.organisations.destroy_all
       demo_user.interview_questions.destroy_all
+      demo_user.resume_templates.destroy_all
 
       orgs_by_name = seed_organisations(demo_user)
       jobs_by_company = seed_jobs(demo_user, orgs_by_name)
@@ -31,6 +32,7 @@ class DemoAccountResetter
       seed_contacts(demo_user, orgs_by_name, jobs_by_company)
       seed_interviews(jobs_by_company)
       seed_interview_questions(demo_user, orgs_by_name, jobs_by_company)
+      seed_resume_templates(demo_user, jobs_by_company)
     end
   end
 
@@ -623,6 +625,64 @@ class DemoAccountResetter
         category: "technical",
         job_name: "Carsales" }
     ]
+  end
+
+  def seed_resume_templates(demo_user, jobs_by_company)
+    # Template 1 — Full Stack (Ruby + React) — broad base resume
+    fullstack = demo_user.resume_templates.create!(
+      name: "Full Stack Developer — Ruby & React",
+      notes: "General-purpose resume. Emphasises full-stack ownership, React frontend, Rails API, and collaborative delivery."
+    )
+
+    v_seek = fullstack.resume_variants.create!(
+      user: demo_user,
+      notes: "Tailored for Seek — highlighted pair-programming experience and large-scale Rails modernisation work."
+    )
+    v_safetyculture = fullstack.resume_variants.create!(
+      user: demo_user,
+      notes: "Tailored for SafetyCulture — emphasised TypeScript experience and openness to learning Go."
+    )
+    v_buildkite = fullstack.resume_variants.create!(
+      user: demo_user,
+      notes: "Tailored for Buildkite — foregrounded CI/CD pipeline work, DevTools mindset, and async remote experience."
+    )
+    v_canva = fullstack.resume_variants.create!(
+      user: demo_user,
+      notes: "Tailored for Canva — emphasised design-system work, component libraries, and high-scale frontend performance."
+    )
+
+    # Template 2 — Backend / Rails — for backend-heavy roles
+    backend = demo_user.resume_templates.create!(
+      name: "Backend Developer — Ruby & Rails",
+      notes: "Backend-focused resume. Leads with API design, PostgreSQL optimisation, and service architecture."
+    )
+
+    v_carsales = backend.resume_variants.create!(
+      user: demo_user,
+      notes: "Tailored for Carsales — led with high-traffic Rails API experience and PostgreSQL query optimisation."
+    )
+    v_rea = backend.resume_variants.create!(
+      user: demo_user,
+      notes: "Tailored for REA Group — highlighted Ruby on Rails depth, test-driven development, and property domain familiarity."
+    )
+    v_upbanking = backend.resume_variants.create!(
+      user: demo_user,
+      notes: "Tailored for Up Banking — emphasised fintech awareness, API security, and interest in Go."
+    )
+
+    # Link variants to their jobs
+    {
+      "Seek"          => v_seek,
+      "SafetyCulture" => v_safetyculture,
+      "Buildkite"     => v_buildkite,
+      "Canva"         => v_canva,
+      "Carsales"      => v_carsales,
+      "REA Group"     => v_rea,
+      "Up Banking"    => v_upbanking
+    }.each do |company, variant|
+      job = jobs_by_company[company]
+      job&.update_columns(resume_variant_id: variant.id)
+    end
   end
 
   def manual_entries
