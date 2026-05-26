@@ -85,6 +85,8 @@ Rails.application.routes.draw do
     end
   end
 
-  # Catch-all for unknown routes — silences bot probe noise
-  match '*unmatched', to: 'application#not_found', via: :all
+  # Catch-all for unknown routes — silences bot probe noise.
+  # Excludes /rails/ so Active Storage redirect URLs are not swallowed.
+  match '*unmatched', to: 'application#not_found', via: :all,
+    constraints: ->(req) { !req.path.start_with?('/rails/') }
 end
