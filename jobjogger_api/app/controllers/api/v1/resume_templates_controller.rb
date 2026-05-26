@@ -84,7 +84,7 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
       updated_at:   template.updated_at
     }
 
-    json[:variants] = template.resume_variants.map { |v| variant_json(v, template_name: template.name) } if include_variants
+    json[:variants] = template.resume_variants.includes(:jobs).map { |v| variant_json(v, template_name: template.name) } if include_variants
 
     json
   end
@@ -97,6 +97,7 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
       notes:              variant.notes,
       pdf_url:            pdf_url(variant),
       pdf_filename:       variant.pdf.attached? ? variant.pdf.filename.to_s : nil,
+      linked_jobs:        variant.jobs.map { |j| { id: j.id, company_name: j.company_name, job_title: j.job_title } },
       created_at:         variant.created_at,
       updated_at:         variant.updated_at
     }

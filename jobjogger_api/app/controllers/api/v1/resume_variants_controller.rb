@@ -6,9 +6,9 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
 
   def index
     if @template
-      render json: @template.resume_variants.map { |v| variant_json(v, template_name: @template.name) }
+      render json: @template.resume_variants.includes(:jobs).map { |v| variant_json(v, template_name: @template.name) }
     else
-      variants = current_user.resume_variants.includes(:resume_template)
+      variants = current_user.resume_variants.includes(:resume_template, :jobs)
       render json: variants.map { |v| variant_json(v) }
     end
   end
@@ -87,6 +87,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
       notes:              variant.notes,
       pdf_url:            pdf_url(variant),
       pdf_filename:       variant.pdf.attached? ? variant.pdf.filename.to_s : nil,
+      linked_jobs:        variant.jobs.map { |j| { id: j.id, company_name: j.company_name, job_title: j.job_title } },
       created_at:         variant.created_at,
       updated_at:         variant.updated_at
     }
