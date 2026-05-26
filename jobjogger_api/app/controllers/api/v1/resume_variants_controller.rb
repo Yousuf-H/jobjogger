@@ -70,7 +70,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
   end
 
   def variant_params
-    params.require(:resume_variant).permit(:notes)
+    params.fetch(:resume_variant, {}).permit(:notes)
   end
 
   def valid_pdf?(file)
