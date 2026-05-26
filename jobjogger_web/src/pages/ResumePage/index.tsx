@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { FileText, Plus, Pencil, Trash2, ChevronDown, ChevronRight, ExternalLink, Upload } from 'lucide-react'
+import { FileText, Plus, Pencil, Trash2, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -453,30 +453,36 @@ export default function ResumePage() {
   if (isError) return <PageError />
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-4">
-      <div className="flex items-center justify-between">
-        <TypographyH1>Resume Library</TypographyH1>
-        <Button onClick={() => setCreateOpen(true)} className="gap-1.5">
-          <Plus className="h-4 w-4" />
+    <div className="page-container space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <TypographyH1 className="text-2xl font-bold tracking-tight">Resume Library</TypographyH1>
+          <p className="text-muted-foreground text-sm">
+            Manage your base resumes and tailored variants for each application.
+          </p>
+        </div>
+        <Button
+          variant="success"
+          size="sm"
+          className="w-full min-w-36 sm:w-auto"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus className="mr-1.5 h-4 w-4" />
           New template
         </Button>
       </div>
 
       {templates && templates.length === 0 ? (
-        <Card className="border-dashed shadow-none">
-          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-            <Upload className="text-muted-foreground h-10 w-10" />
-            <div>
-              <p className="font-medium">No resume templates yet</p>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Create a template for your base resume, then add tailored variants for each
-                application.
-              </p>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+              <FileText className="h-6 w-6" />
             </div>
-            <Button onClick={() => setCreateOpen(true)} className="gap-1.5">
-              <Plus className="h-4 w-4" />
-              Create your first template
-            </Button>
+            <p className="font-semibold">No resume templates yet</p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Create a template for your base resume, then add tailored variants for each
+              application.
+            </p>
           </CardContent>
         </Card>
       ) : (
