@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -135,6 +135,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000002) do
     t.text "notes"
     t.bigint "organisation_id"
     t.string "priority"
+    t.bigint "resume_variant_id"
     t.string "salary_range"
     t.string "source"
     t.string "source_other"
@@ -147,6 +148,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000002) do
     t.index ["follow_up_date"], name: "index_jobs_on_follow_up_date"
     t.index ["job_title"], name: "index_jobs_on_job_title"
     t.index ["organisation_id"], name: "index_jobs_on_organisation_id"
+    t.index ["resume_variant_id"], name: "index_jobs_on_resume_variant_id"
     t.index ["status", "follow_up_date"], name: "index_jobs_on_status_and_follow_up_date"
     t.index ["status"], name: "index_jobs_on_status"
     t.index ["tags"], name: "index_jobs_on_tags", using: :gin
@@ -245,6 +247,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000002) do
   add_foreign_key "job_interview_questions", "interview_questions"
   add_foreign_key "job_interview_questions", "jobs"
   add_foreign_key "jobs", "organisations"
+  add_foreign_key "jobs", "resume_variants"
   add_foreign_key "jobs", "users"
   add_foreign_key "oauth_exchanges", "users"
   add_foreign_key "organisations", "users"
