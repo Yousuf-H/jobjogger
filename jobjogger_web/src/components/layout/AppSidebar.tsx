@@ -19,7 +19,7 @@ import {
   IconLogout,
   IconSettings,
 } from '@tabler/icons-react'
-import { BookOpen, Building2, Users } from 'lucide-react'
+import { BookOpen, Building2, FileText, Users } from 'lucide-react'
 import { FaPhoenixFramework } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
 
@@ -32,6 +32,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: 'Organisations', url: '/organisations', icon: Building2 },
     { title: 'Contacts', url: '/contacts', icon: Users },
     { title: 'Interview Prep', url: '/interview-prep', icon: BookOpen },
+    { title: 'Resume Library', url: '/resume', icon: FileText },
   ]
 
   const navSecondary = [{ title: 'Settings', url: '/settings', icon: IconSettings }]

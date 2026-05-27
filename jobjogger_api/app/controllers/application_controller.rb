@@ -29,4 +29,10 @@ class ApplicationController < ActionController::API
 
     Rails.application.routes.url_helpers.rails_blob_url(user.avatar)
   end
+
+  def pdf_url(record)
+    return nil unless record.pdf.attached?
+
+    Rails.application.routes.url_helpers.rails_blob_url(record.pdf, disposition: "inline")
+  end
 end

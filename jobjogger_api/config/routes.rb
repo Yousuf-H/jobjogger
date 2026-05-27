@@ -76,9 +76,17 @@ Rails.application.routes.draw do
 
       # Timeline entries (top-level for update/destroy)
       resources :timeline_entries, only: [:update, :destroy]
+
+      # Resume library
+      resources :resume_templates do
+        resources :resume_variants, only: [:index, :create]
+      end
+      resources :resume_variants, only: [:index, :show, :update, :destroy]
     end
   end
 
-  # Catch-all for unknown routes — silences bot probe noise
-  match '*unmatched', to: 'application#not_found', via: :all
+  # Catch-all for unknown routes — silences bot probe noise.
+  # Excludes /rails/ so Active Storage redirect URLs are not swallowed.
+  match '*unmatched', to: 'application#not_found', via: :all,
+    constraints: ->(req) { !req.path.start_with?('/rails/') }
 end

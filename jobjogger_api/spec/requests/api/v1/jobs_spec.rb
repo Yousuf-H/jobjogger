@@ -516,6 +516,45 @@ RSpec.describe "Jobs API", type: :request do
 
   # ── PATCH /api/v1/jobs/:id/unarchive ──────────────────────────────────────────
 
+  # ── PATCH /api/v1/jobs/:id — resume_variant_id linking ───────────────────────
+
+  describe "PATCH /api/v1/jobs/:id (resume_variant_id)" do
+    let(:job)     { create(:job, user: user) }
+    let(:variant) { create(:resume_variant, resume_template: create(:resume_template, user: user), user: user) }
+
+    def patch_job(params)
+      patch "/api/v1/jobs/#{job.id}", params: { job: params }.to_json, headers: headers
+    end
+
+    it "links an existing variant and returns 200" do
+      patch_job(resume_variant_id: variant.id)
+      expect(response).to have_http_status(:ok)
+      expect(job.reload.resume_variant_id).to eq(variant.id)
+    end
+
+    it "clears the variant when nil is sent" do
+      job.update!(resume_variant_id: variant.id)
+      patch_job(resume_variant_id: nil)
+      expect(response).to have_http_status(:ok)
+      expect(job.reload.resume_variant_id).to be_nil
+    end
+
+    it "returns 404 when the variant belongs to another user" do
+      other_variant = create(:resume_variant,
+                             resume_template: create(:resume_template, user: create(:user)),
+                             user: create(:user))
+      patch_job(resume_variant_id: other_variant.id)
+      expect(response).to have_http_status(:not_found)
+      expect(job.reload.resume_variant_id).to be_nil
+    end
+
+    it "does not touch resume_variant_id when the key is omitted" do
+      job.update!(resume_variant_id: variant.id)
+      patch_job(notes: "updated")
+      expect(job.reload.resume_variant_id).to eq(variant.id)
+    end
+  end
+
   describe "PATCH /api/v1/jobs/:id/unarchive" do
     let(:job) { create(:job, :archived, user: user) }
 

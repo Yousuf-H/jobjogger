@@ -59,6 +59,7 @@ export interface Job {
   date_applied?: string
   archived_at?: string
   organisation_id?: number | null
+  resume_variant_id?: number | null
   next_interview_at?: string | null
   created_at: string
   updated_at: string

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_23_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -135,6 +135,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_000001) do
     t.text "notes"
     t.bigint "organisation_id"
     t.string "priority"
+    t.bigint "resume_variant_id"
     t.string "salary_range"
     t.string "source"
     t.string "source_other"
@@ -147,6 +148,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_000001) do
     t.index ["follow_up_date"], name: "index_jobs_on_follow_up_date"
     t.index ["job_title"], name: "index_jobs_on_job_title"
     t.index ["organisation_id"], name: "index_jobs_on_organisation_id"
+    t.index ["resume_variant_id"], name: "index_jobs_on_resume_variant_id"
     t.index ["status", "follow_up_date"], name: "index_jobs_on_status_and_follow_up_date"
     t.index ["status"], name: "index_jobs_on_status"
     t.index ["tags"], name: "index_jobs_on_tags", using: :gin
@@ -181,6 +183,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_000001) do
     t.string "website"
     t.index "user_id, lower((name)::text)", name: "index_organisations_on_user_id_and_lower_name", unique: true
     t.index ["user_id"], name: "index_organisations_on_user_id"
+  end
+
+  create_table "resume_templates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.text "notes"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_resume_templates_on_user_id"
+  end
+
+  create_table "resume_variants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "notes"
+    t.bigint "resume_template_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["resume_template_id"], name: "index_resume_variants_on_resume_template_id"
+    t.index ["user_id"], name: "index_resume_variants_on_user_id"
   end
 
   create_table "timeline_entries", force: :cascade do |t|
@@ -226,8 +247,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_000001) do
   add_foreign_key "job_interview_questions", "interview_questions"
   add_foreign_key "job_interview_questions", "jobs"
   add_foreign_key "jobs", "organisations"
+  add_foreign_key "jobs", "resume_variants"
   add_foreign_key "jobs", "users"
   add_foreign_key "oauth_exchanges", "users"
   add_foreign_key "organisations", "users"
+  add_foreign_key "resume_templates", "users"
+  add_foreign_key "resume_variants", "resume_templates"
+  add_foreign_key "resume_variants", "users"
   add_foreign_key "timeline_entries", "jobs"
 end

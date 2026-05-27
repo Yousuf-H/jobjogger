@@ -1,5 +1,6 @@
 import { JobContactsTab } from '@/components/job/JobContactsTab'
 import { InterviewsTab } from '@/components/job/InterviewsTab'
+import { ResumeTab } from '@/components/job/ResumeTab'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useJobContacts } from '@/hooks/useContacts'
@@ -72,6 +73,12 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
                 )}
               </TabsTrigger>
             )}
+            <TabsTrigger
+              value="resume"
+              className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Resume
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -100,6 +107,10 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
               <InterviewsTab jobId={job.id} status={job.status} organisationId={job.organisation_id ?? null} />
             </TabsContent>
           )}
+
+          <TabsContent value="resume" className="mt-0">
+            <ResumeTab jobId={job.id} status={job.status} resumeVariantId={job.resume_variant_id} />
+          </TabsContent>
         </div>
       </Tabs>
     </Card>
