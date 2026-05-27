@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
-  before_action :set_template, only: [:index, :create]
-  before_action :set_variant,  only: [:show, :update, :destroy]
+  before_action :set_template, only: [ :index, :create ]
+  before_action :set_variant,  only: [ :show, :update, :destroy ]
 
   def index
     if @template
@@ -19,7 +19,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
 
   def create
     if params[:pdf].present? && !valid_pdf?(params[:pdf])
-      return render json: { errors: ["PDF must be a PDF file under 10MB."] }, status: :unprocessable_content
+      return render json: { errors: [ "PDF must be a PDF file under 10MB." ] }, status: :unprocessable_content
     end
 
     variant = @template.resume_variants.build(variant_params.merge(user: current_user))
@@ -34,7 +34,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
 
   def update
     if params[:pdf].present? && !valid_pdf?(params[:pdf])
-      return render json: { errors: ["PDF must be a PDF file under 10MB."] }, status: :unprocessable_content
+      return render json: { errors: [ "PDF must be a PDF file under 10MB." ] }, status: :unprocessable_content
     end
 
     if @variant.update(variant_params)

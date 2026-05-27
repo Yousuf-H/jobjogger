@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
-  before_action :set_template, only: [:show, :update, :destroy]
+  before_action :set_template, only: [ :show, :update, :destroy ]
 
   def index
     templates = current_user.resume_templates
@@ -19,7 +19,7 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
 
   def create
     if params[:pdf].present? && !valid_pdf?(params[:pdf])
-      return render json: { errors: ["PDF must be a PDF file under 10MB."] }, status: :unprocessable_content
+      return render json: { errors: [ "PDF must be a PDF file under 10MB." ] }, status: :unprocessable_content
     end
 
     template = current_user.resume_templates.build(template_params)
@@ -34,7 +34,7 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
 
   def update
     if params[:pdf].present? && !valid_pdf?(params[:pdf])
-      return render json: { errors: ["PDF must be a PDF file under 10MB."] }, status: :unprocessable_content
+      return render json: { errors: [ "PDF must be a PDF file under 10MB." ] }, status: :unprocessable_content
     end
 
     if @template.update(template_params)

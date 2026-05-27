@@ -30,7 +30,7 @@ RSpec.describe "Resume Templates API", type: :request do
       it "returns only the current user's templates" do
         create(:resume_template, user: create(:user))
         get "/api/v1/resume_templates", headers: headers
-        expect(json_response.map { |t| t["id"] }).to match_array([t1.id, t2.id])
+        expect(json_response.map { |t| t["id"] }).to match_array([ t1.id, t2.id ])
       end
 
       it "returns templates sorted alphabetically" do

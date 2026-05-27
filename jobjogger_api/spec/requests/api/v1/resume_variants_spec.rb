@@ -27,7 +27,7 @@ RSpec.describe "Resume Variants API", type: :request do
       create(:resume_variant, resume_template: other_template, user: user)
 
       get "/api/v1/resume_templates/#{template.id}/resume_variants", headers: headers
-      expect(json_response.map { |v| v["id"] }).to match_array([v1.id, v2.id])
+      expect(json_response.map { |v| v["id"] }).to match_array([ v1.id, v2.id ])
     end
 
     it "returns 404 when the template belongs to another user" do
