@@ -129,14 +129,14 @@ function PdfPreviewDialog({ pdfUrl, filename }: { pdfUrl: string; filename: stri
         Preview
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="h-[90vh] max-w-4xl p-0 gap-0">
-          <DialogHeader className="px-4 py-3 border-b shrink-0">
+        <DialogContent className="flex h-[90vh] max-w-4xl flex-col gap-0 p-0">
+          <DialogHeader className="shrink-0 border-b px-4 py-3">
             <DialogTitle className="text-sm font-medium">{filename ?? 'Resume PDF'}</DialogTitle>
             <DialogDescription className="sr-only">PDF preview</DialogDescription>
           </DialogHeader>
           <iframe
             src={pdfUrl}
-            className="w-full flex-1 h-full min-h-0"
+            className="min-h-0 w-full flex-1"
             title={filename ?? 'Resume PDF'}
           />
         </DialogContent>

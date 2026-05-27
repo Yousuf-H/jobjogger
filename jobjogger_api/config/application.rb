@@ -15,5 +15,9 @@ module JobjoggerApi
     config.middleware.use ActionDispatch::Session::CookieStore
     config.middleware.use Rack::Attack
     config.api_only = true
+
+    # X-Frame-Options is clickjacking protection for HTML pages — not relevant for an API.
+    # Removing it allows Active Storage blob URLs to be embedded in iframes on the frontend.
+    config.action_dispatch.default_headers.delete('X-Frame-Options')
   end
 end
