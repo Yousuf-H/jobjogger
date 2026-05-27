@@ -69,7 +69,7 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
 
     if (isEditing) {
       updateMutation.mutate(
-        { id: template.id, data: { name: name.trim(), notes: notes.trim() || undefined, pdf } },
+        { id: template.id, data: { name: name.trim(), notes: notes.trim(), pdf } },
         { onSuccess: () => handleOpenChange(false) }
       )
     } else {
@@ -172,7 +172,7 @@ function VariantFormDialog({ open, onOpenChange, templateId, variant }: VariantF
     e.preventDefault()
     if (isEditing) {
       updateMutation.mutate(
-        { id: variant.id, data: { notes: notes.trim() || undefined, pdf } },
+        { id: variant.id, data: { notes: notes.trim(), pdf } },
         { onSuccess: () => handleOpenChange(false) }
       )
     } else {
