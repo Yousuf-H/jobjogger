@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_30_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_30_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -204,6 +204,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_000001) do
     t.index ["user_id"], name: "index_resume_variants_on_user_id"
   end
 
+  create_table "sign_in_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["created_at"], name: "index_sign_in_events_on_created_at"
+    t.index ["user_id"], name: "index_sign_in_events_on_user_id"
+  end
+
   create_table "timeline_entries", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description", null: false
@@ -256,5 +263,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_000001) do
   add_foreign_key "resume_templates", "users"
   add_foreign_key "resume_variants", "resume_templates"
   add_foreign_key "resume_variants", "users"
+  add_foreign_key "sign_in_events", "users"
   add_foreign_key "timeline_entries", "jobs"
 end

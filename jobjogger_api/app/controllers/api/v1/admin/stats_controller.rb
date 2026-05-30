@@ -64,9 +64,11 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
   end
 
   def sessions_over_time
-    expr = Arel.sql("date_trunc('#{trunc_unit}', last_sign_in_at)")
-    rows = real_users
-           .where("last_sign_in_at >= ?", window_start)
+    expr = Arel.sql("date_trunc('#{trunc_unit}', sign_in_events.created_at)")
+    rows = SignInEvent
+           .joins(:user)
+           .where(users: { demo: false })
+           .where("sign_in_events.created_at >= ?", window_start)
            .group(expr)
            .order(expr)
            .count

@@ -22,6 +22,7 @@ class Api::V1::Auth::CallbackController < ApplicationController
     end
 
     exchange.user.update_column(:last_sign_in_at, Time.current)
+    SignInEvent.create!(user: exchange.user, created_at: Time.current)
     set_jwt_cookie(generate_jwt(exchange.user))
     render json: { user: user_payload(exchange.user) }, status: :ok
   end
