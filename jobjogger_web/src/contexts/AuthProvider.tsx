@@ -1,8 +1,13 @@
 import { AuthContext } from '@/contexts/AuthContext'
+import { posthog } from '@/lib/posthog'
 import { apiClient } from '@/services/api/client'
 import { acceptTermsApi, demoSigninApi } from '@/services/api/user'
 import { type User } from '@/types/user'
 import { type ReactNode, useState } from 'react'
+
+function identifyUser(user: User) {
+  posthog.identify(String(user.id), { email: user.email, name: user.name, demo: user.demo })
+}
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -24,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.status.user) {
         setUser(data.status.user)
         localStorage.setItem('user', JSON.stringify(data.status.user))
+        identifyUser(data.status.user)
       } else {
         throw new Error('Invalid email or password.')
       }
@@ -50,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.user) {
         setUser(data.user)
         localStorage.setItem('user', JSON.stringify(data.user))
+        identifyUser(data.user)
       } else {
         throw new Error('Signup failed. Please try again.')
       }
@@ -69,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     setUser(null)
     localStorage.removeItem('user')
+    posthog.reset()
     setIsLoading(false)
   }
 
@@ -94,6 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.status.user) {
         setUser(data.status.user)
         localStorage.setItem('user', JSON.stringify(data.status.user))
+        identifyUser(data.status.user)
       }
     } catch (err: unknown) {
       throw new Error((err as Error).message || 'Demo signin failed')

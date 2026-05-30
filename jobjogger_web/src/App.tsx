@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AdminRoute } from '@/components/auth/AdminRoute'
+import { PostHogPageView } from '@/components/PostHogPageView'
 import Layout from '@/components/layout/Layout'
 import AdminPage from '@/pages/AdminPage'
 import AnalyticsPage from '@/pages/AnalyticsPage'
@@ -24,6 +25,7 @@ import TermsPage from '@/pages/TermsPage'
 function App() {
   return (
     <BrowserRouter>
+      <PostHogPageView />
       <Routes>
         {/* Public routes */}
         <Route path="/signin" element={<SigninPage />} />
