@@ -1,5 +1,6 @@
 import StatisticsCard from '@/components/ui/statistics-card'
 import type { AdminTotals, StatPeriod, TimeSeriesPoint } from '@/types/admin'
+import { isAfter, parseISO, subDays, subMonths, subWeeks } from 'date-fns'
 import { Activity, Briefcase, Users, Zap } from 'lucide-react'
 
 interface AdminStatCardsProps {
@@ -9,8 +10,18 @@ interface AdminStatCardsProps {
   activeUsers: TimeSeriesPoint[]
 }
 
-function sumRecent(series: TimeSeriesPoint[], n: number): number {
-  return series.slice(-n).reduce((acc, p) => acc + p.count, 0)
+function windowCutoff(period: StatPeriod): Date {
+  const now = new Date()
+  if (period === 'daily') return subDays(now, 7)
+  if (period === 'weekly') return subWeeks(now, 4)
+  return subMonths(now, 3)
+}
+
+function sumRecent(series: TimeSeriesPoint[], period: StatPeriod): number {
+  const cutoff = windowCutoff(period)
+  return series
+    .filter(p => isAfter(parseISO(p.date), cutoff))
+    .reduce((acc, p) => acc + p.count, 0)
 }
 
 function periodLabel(period: StatPeriod): string {
@@ -19,14 +30,7 @@ function periodLabel(period: StatPeriod): string {
   return 'last 3 months'
 }
 
-function recentN(period: StatPeriod): number {
-  if (period === 'daily') return 7
-  if (period === 'weekly') return 4
-  return 3
-}
-
 export function AdminStatCards({ totals, period, sessions, activeUsers }: AdminStatCardsProps) {
-  const n = recentN(period)
   const label = periodLabel(period)
 
   const cards = [
@@ -50,7 +54,7 @@ export function AdminStatCards({ totals, period, sessions, activeUsers }: AdminS
     },
     {
       label: 'Sessions',
-      value: String(sumRecent(sessions, n)),
+      value: String(sumRecent(sessions, period)),
       icon: <Zap className="h-4 w-4 lg:h-5 lg:w-5" />,
       subtitle: `Sign-ins, ${label}`,
       cardClassName: 'bg-pink-100 border border-pink-200/50 dark:bg-pink-950/30 dark:border-pink-800/30',
@@ -59,7 +63,7 @@ export function AdminStatCards({ totals, period, sessions, activeUsers }: AdminS
     },
     {
       label: 'Active users',
-      value: String(sumRecent(activeUsers, n)),
+      value: String(sumRecent(activeUsers, period)),
       icon: <Activity className="h-4 w-4 lg:h-5 lg:w-5" />,
       subtitle: `Job activity, ${label}`,
       cardClassName: 'bg-violet-100 border border-violet-200/50 dark:bg-violet-950/30 dark:border-violet-800/30',
