@@ -53,32 +53,34 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
   end
 
   def time_series(scope, timestamp_col)
+    expr = Arel.sql("date_trunc('#{trunc_unit}', #{timestamp_col})")
     rows = scope
            .where("#{timestamp_col} >= ?", window_start)
-           .group("date_trunc('#{trunc_unit}', #{timestamp_col})")
-           .order("date_trunc('#{trunc_unit}', #{timestamp_col})")
+           .group(expr)
+           .order(expr)
            .count
 
     rows.map { |date, count| { date: date.to_date.iso8601, count: count } }
   end
 
   def sessions_over_time
+    expr = Arel.sql("date_trunc('#{trunc_unit}', last_sign_in_at)")
     rows = real_users
            .where("last_sign_in_at >= ?", window_start)
-           .group("date_trunc('#{trunc_unit}', last_sign_in_at)")
-           .order("date_trunc('#{trunc_unit}', last_sign_in_at)")
+           .group(expr)
+           .order(expr)
            .count
 
     rows.map { |date, count| { date: date.to_date.iso8601, count: count } }
   end
 
   def active_users_over_time
-    trunc_expr = "date_trunc('#{trunc_unit}', GREATEST(jobs.created_at, jobs.updated_at))"
+    expr = Arel.sql("date_trunc('#{trunc_unit}', GREATEST(jobs.created_at, jobs.updated_at))")
 
     counts = real_jobs
              .where("jobs.created_at >= ? OR jobs.updated_at >= ?", window_start, window_start)
-             .group(trunc_expr)
-             .order(trunc_expr)
+             .group(expr)
+             .order(expr)
              .count("DISTINCT jobs.user_id")
 
     counts.map { |date, count| { date: date.to_date.iso8601, count: count } }
