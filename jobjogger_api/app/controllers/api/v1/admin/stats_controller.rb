@@ -7,10 +7,10 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
     render json: {
       period: period,
       totals: totals,
-      signups_over_time: time_series(real_users, :created_at),
+      signups_over_time: time_series(real_users, "users.created_at"),
       sessions_over_time: sessions_over_time,
       active_users_over_time: active_users_over_time,
-      jobs_over_time: time_series(real_jobs, :created_at),
+      jobs_over_time: time_series(real_jobs, "jobs.created_at"),
       demo: demo_stats
     }
   end
