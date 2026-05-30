@@ -52,8 +52,13 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
     }
   end
 
+  def trunc_expr(col)
+    tz = Time.zone.tzinfo.name
+    Arel.sql("date_trunc('#{trunc_unit}', #{col} AT TIME ZONE 'UTC' AT TIME ZONE '#{tz}')")
+  end
+
   def time_series(scope, timestamp_col)
-    expr = Arel.sql("date_trunc('#{trunc_unit}', #{timestamp_col})")
+    expr = trunc_expr(timestamp_col)
     rows = scope
            .where("#{timestamp_col} >= ?", window_start)
            .group(expr)
@@ -64,7 +69,7 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
   end
 
   def sessions_over_time
-    expr = Arel.sql("date_trunc('#{trunc_unit}', sign_in_events.created_at)")
+    expr = trunc_expr("sign_in_events.created_at")
     rows = SignInEvent
            .joins(:user)
            .where(users: { demo: false })
@@ -77,7 +82,7 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
   end
 
   def active_users_over_time
-    expr = Arel.sql("date_trunc('#{trunc_unit}', GREATEST(jobs.created_at, jobs.updated_at))")
+    expr = trunc_expr("GREATEST(jobs.created_at, jobs.updated_at)")
 
     counts = real_jobs
              .where("jobs.created_at >= ? OR jobs.updated_at >= ?", window_start, window_start)
