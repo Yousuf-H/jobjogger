@@ -18,6 +18,7 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
   private
 
   def respond_with(current_user, _opts = {})
+    current_user.update_column(:last_sign_in_at, Time.current)
     set_jwt_cookie(generate_jwt(current_user))
 
     render json: {
