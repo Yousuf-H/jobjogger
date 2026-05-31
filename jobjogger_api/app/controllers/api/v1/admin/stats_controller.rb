@@ -95,7 +95,7 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
 
   def demo_stats
     demo_user = User.find_by(demo: true)
-    return { last_sign_in_at: nil } unless demo_user
+    return { last_sign_in_at: nil, total_jobs: 0 } unless demo_user
 
     {
       last_sign_in_at: demo_user.last_sign_in_at&.iso8601,
