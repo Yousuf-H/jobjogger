@@ -1,7 +1,7 @@
 import { AuthContext } from '@/contexts/AuthContext'
 import { posthog } from '@/lib/posthog'
 import { apiClient } from '@/services/api/client'
-import { acceptTermsApi, demoSigninApi } from '@/services/api/user'
+import { acceptTermsApi, demoSigninApi, fetchMe } from '@/services/api/user'
 import { type User } from '@/types/user'
 import { type ReactNode, useState } from 'react'
 
@@ -85,6 +85,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser))
   }
 
+  const refreshUser = async () => {
+    try {
+      const fresh = await fetchMe()
+      setUser(fresh)
+      localStorage.setItem('user', JSON.stringify(fresh))
+    } catch {
+      // ignore — if the request fails the existing state stands
+    }
+  }
+
   const acceptTerms = async () => {
     const data = await acceptTermsApi()
     if (data.user) {
@@ -119,6 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signup,
         signout,
         updateUser,
+        refreshUser,
         demoSignin,
         acceptTerms,
         isLoading,
