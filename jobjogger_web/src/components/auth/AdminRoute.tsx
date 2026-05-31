@@ -5,16 +5,15 @@ import { Navigate } from 'react-router-dom'
 
 export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading, refreshUser } = useAuth()
-  const [refreshed, setRefreshed] = useState(false)
+
+  // If the user is already confirmed admin (or absent), no refresh is needed.
+  // Otherwise we need to fetch /users/me once before deciding to redirect,
+  // in case the cached value is stale (promoted after sign-in, or pre-dates the field).
+  const [refreshed, setRefreshed] = useState(() => !user || !!user.admin)
 
   useEffect(() => {
-    // If there's a user in state but admin is falsy, the cached value may be
-    // stale (promoted after sign-in, or pre-dates the admin field). Fetch once
-    // to get the current server value before deciding to redirect.
-    if (user && !user.admin) {
+    if (!refreshed) {
       refreshUser().finally(() => setRefreshed(true))
-    } else {
-      setRefreshed(true)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
