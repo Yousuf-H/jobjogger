@@ -213,6 +213,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       name: user.name,
       avatar_url: avatar_url,
       demo: user.demo?,
+      admin: user.admin?,
       terms_agreed_at: user.terms_agreed_at,
       created_at: user.created_at,
       google_linked: user.google_uid.present?,
