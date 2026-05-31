@@ -205,15 +205,30 @@ RSpec.describe "Admin Stats API", type: :request do
   # ── Active users over time ──────────────────────────────────────────────────
 
   describe "active_users_over_time" do
-    it "counts distinct users who had job activity within the window" do
+    it "counts distinct users who created jobs within the window" do
       other_real_user = create(:user)
-      create(:job, user: admin, created_at: 1.day.ago)
-      create(:job, user: admin, created_at: 1.day.ago)        # same user, same day
-      create(:job, user: other_real_user, created_at: 1.day.ago)
+      # Pin updated_at so creation and update events land in the same bucket
+      create(:job, user: admin,          created_at: 1.day.ago, updated_at: 1.day.ago)
+      create(:job, user: admin,          created_at: 1.day.ago, updated_at: 1.day.ago)
+      create(:job, user: other_real_user, created_at: 1.day.ago, updated_at: 1.day.ago)
 
       get_stats
-      total = json_response["active_users_over_time"].sum { |p| p["count"] }
-      expect(total).to eq(2)
+      bucket = json_response["active_users_over_time"].find { |p| Date.parse(p["date"]) == 1.day.ago.to_date }
+      expect(bucket&.dig("count")).to eq(2)
+    end
+
+    it "counts a user in their creation bucket even when the job is later updated" do
+      old_job = create(:job, user: admin, created_at: 20.days.ago)
+      old_job.update_columns(updated_at: 1.day.ago)
+
+      get_stats(period: "daily")
+
+      buckets = json_response["active_users_over_time"]
+      creation_bucket = buckets.find { |p| Date.parse(p["date"]) == 20.days.ago.to_date }
+      update_bucket   = buckets.find { |p| Date.parse(p["date"]) == 1.day.ago.to_date }
+
+      expect(creation_bucket&.dig("count")).to eq(1)
+      expect(update_bucket&.dig("count")).to eq(1)
     end
 
     it "excludes demo user from active user counts" do

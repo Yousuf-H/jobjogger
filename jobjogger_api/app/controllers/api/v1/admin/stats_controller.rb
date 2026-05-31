@@ -82,15 +82,29 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
   end
 
   def active_users_over_time
-    expr = trunc_expr("GREATEST(jobs.created_at, jobs.updated_at)")
+    tz = Time.zone.tzinfo.name
+    trunc = "date_trunc('#{trunc_unit}', ts AT TIME ZONE 'UTC' AT TIME ZONE '#{tz}')"
 
-    counts = real_jobs
-             .where("jobs.created_at >= ? OR jobs.updated_at >= ?", window_start, window_start)
-             .group(expr)
-             .order(expr)
-             .count("DISTINCT jobs.user_id")
+    created_sql = real_jobs
+                    .where("jobs.created_at >= ?", window_start)
+                    .select("jobs.user_id, jobs.created_at AS ts")
+                    .to_sql
 
-    counts.map { |date, count| { date: date.to_date.iso8601, count: count } }
+    updated_sql = real_jobs
+                    .where("jobs.updated_at >= ?", window_start)
+                    .select("jobs.user_id, jobs.updated_at AS ts")
+                    .to_sql
+
+    sql = <<~SQL
+      SELECT #{trunc} AS period, COUNT(DISTINCT user_id) AS count
+      FROM (#{created_sql} UNION ALL #{updated_sql}) AS events
+      GROUP BY #{trunc}
+      ORDER BY #{trunc}
+    SQL
+
+    ApplicationRecord.connection.execute(sql).map do |row|
+      { date: row["period"].to_date.iso8601, count: row["count"].to_i }
+    end
   end
 
   def demo_stats
