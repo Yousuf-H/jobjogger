@@ -12,7 +12,10 @@ function identifyUser(user: User) {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('user')
-    return storedUser ? JSON.parse(storedUser) : null
+    if (!storedUser) return null
+    const parsed = JSON.parse(storedUser) as User
+    identifyUser(parsed)
+    return parsed
   })
 
   const [isLoading, setIsLoading] = useState(false)
