@@ -30,7 +30,7 @@ export default function AdminPage() {
         <PageLoading />
       ) : (
         <>
-          <AdminStatCards totals={data.totals} period={period} sessions={data.sessions_over_time} activeUsers={data.active_users_over_time} />
+          <AdminStatCards totals={data.totals} period={period} sessions={data.sessions_over_time} activeUsersInWindow={data.active_users_in_window} />
           <AdminCharts
             period={period}
             signups={data.signups_over_time}

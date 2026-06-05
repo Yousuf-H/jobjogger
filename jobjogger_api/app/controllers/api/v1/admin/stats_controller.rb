@@ -7,6 +7,7 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
     render json: {
       period: period,
       totals: totals,
+      active_users_in_window: active_users_in_window,
       signups_over_time: time_series(real_users, "users.created_at"),
       sessions_over_time: sessions_over_time,
       active_users_over_time: active_users_over_time,
@@ -79,6 +80,25 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
            .count
 
     rows.map { |date, count| { date: date.to_date.iso8601, count: count } }
+  end
+
+  def active_users_in_window
+    created_sql = real_jobs
+                    .where("jobs.created_at >= ?", window_start)
+                    .select("jobs.user_id")
+                    .to_sql
+
+    updated_sql = real_jobs
+                    .where("jobs.updated_at >= ?", window_start)
+                    .select("jobs.user_id")
+                    .to_sql
+
+    sql = <<~SQL
+      SELECT COUNT(DISTINCT user_id) AS count
+      FROM (#{created_sql} UNION ALL #{updated_sql}) AS events
+    SQL
+
+    ApplicationRecord.connection.execute(sql).first["count"].to_i
   end
 
   def active_users_over_time

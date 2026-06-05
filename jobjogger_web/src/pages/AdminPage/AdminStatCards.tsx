@@ -7,7 +7,7 @@ interface AdminStatCardsProps {
   totals: AdminTotals
   period: StatPeriod
   sessions: TimeSeriesPoint[]
-  activeUsers: TimeSeriesPoint[]
+  activeUsersInWindow: number
 }
 
 function windowCutoff(period: StatPeriod): Date {
@@ -30,7 +30,7 @@ function periodLabel(period: StatPeriod): string {
   return 'last 3 months'
 }
 
-export function AdminStatCards({ totals, period, sessions, activeUsers }: AdminStatCardsProps) {
+export function AdminStatCards({ totals, period, sessions, activeUsersInWindow }: AdminStatCardsProps) {
   const label = periodLabel(period)
 
   const cards = [
@@ -63,7 +63,7 @@ export function AdminStatCards({ totals, period, sessions, activeUsers }: AdminS
     },
     {
       label: 'Active users',
-      value: String(sumRecent(activeUsers, period)),
+      value: String(activeUsersInWindow),
       icon: <Activity className="h-4 w-4 lg:h-5 lg:w-5" />,
       subtitle: `Job activity, ${label}`,
       cardClassName: 'bg-violet-100 border border-violet-200/50 dark:bg-violet-950/30 dark:border-violet-800/30',
