@@ -57,7 +57,7 @@ RSpec.describe "Admin Stats API", type: :request do
     it "returns all expected top-level keys" do
       get_stats
       expect(json_response.keys).to match_array(
-        %w[period totals signups_over_time sessions_over_time active_users_over_time jobs_over_time demo]
+        %w[period totals active_users_in_window signups_over_time sessions_over_time active_users_over_time jobs_over_time demo]
       )
     end
 
