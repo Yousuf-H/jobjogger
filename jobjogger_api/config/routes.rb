@@ -33,6 +33,11 @@ Rails.application.routes.draw do
         delete 'users/google', to: 'users/registrations#unlink_google'
       end
 
+      # Admin
+      namespace :admin do
+        get "stats", to: "stats#index"
+      end
+
       # Analytics
       resources :analytics, only: [:index]
 

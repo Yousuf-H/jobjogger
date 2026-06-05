@@ -18,6 +18,7 @@ import {
   IconListDetails,
   IconLogout,
   IconSettings,
+  IconShield,
 } from '@tabler/icons-react'
 import { BookOpen, Building2, FileText, Users } from 'lucide-react'
 import { FaPhoenixFramework } from 'react-icons/fa6'
@@ -35,7 +36,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: 'Resume Library', url: '/resume', icon: FileText },
   ]
 
-  const navSecondary = [{ title: 'Settings', url: '/settings', icon: IconSettings }]
+  const navSecondary = [
+    { title: 'Settings', url: '/settings', icon: IconSettings },
+    ...(user?.admin ? [{ title: 'Admin', url: '/admin', icon: IconShield }] : []),
+  ]
 
   const handleSignout = async () => {
     await signout()

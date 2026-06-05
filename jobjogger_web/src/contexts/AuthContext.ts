@@ -7,6 +7,7 @@ export interface AuthContextType {
   signup: (email: string, password: string, name: string, agreedToTerms: boolean) => Promise<void>
   signout: () => Promise<void>
   updateUser: (user: User) => void
+  refreshUser: () => Promise<void>
   demoSignin: () => Promise<void>
   acceptTerms: () => Promise<void>
   isLoading: boolean

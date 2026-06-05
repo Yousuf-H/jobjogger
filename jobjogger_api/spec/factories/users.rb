@@ -18,6 +18,10 @@ FactoryBot.define do
       demo { true }
     end
 
+    trait :admin do
+      admin { true }
+    end
+
     trait :google do
       google_uid { SecureRandom.hex(16) }
     end

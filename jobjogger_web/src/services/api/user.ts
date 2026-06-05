@@ -48,6 +48,11 @@ export async function deleteAvatar() {
   return response.data
 }
 
+export async function fetchMe() {
+  const response = await apiClient.get('/users/me')
+  return response.data.user
+}
+
 export async function acceptTermsApi() {
   const response = await apiClient.patch('/users/me/accept_terms')
   return response.data
