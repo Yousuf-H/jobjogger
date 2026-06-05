@@ -15,6 +15,8 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     yield resource if block_given?
 
     if resource.persisted?
+      resource.update_column(:last_sign_in_at, Time.current)
+      SignInEvent.create!(user: resource, created_at: Time.current)
       set_jwt_cookie(generate_jwt(resource))
 
       render json: {
