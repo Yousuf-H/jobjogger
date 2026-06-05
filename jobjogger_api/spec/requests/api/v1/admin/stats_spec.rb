@@ -202,6 +202,39 @@ RSpec.describe "Admin Stats API", type: :request do
     end
   end
 
+  # ── Active users in window (stat card) ─────────────────────────────────────
+
+  describe "active_users_in_window" do
+    it "counts distinct users with job activity inside the card window" do
+      create(:job, user: admin, created_at: 2.days.ago, updated_at: 2.days.ago)
+
+      get_stats(period: "daily")
+      expect(json_response["active_users_in_window"]).to eq(1)
+    end
+
+    it "excludes users whose only activity falls outside the card window (daily = 7 days)" do
+      old_job = create(:job, user: admin, created_at: 20.days.ago)
+      old_job.update_columns(updated_at: 20.days.ago)
+
+      get_stats(period: "daily")
+      expect(json_response["active_users_in_window"]).to eq(0)
+    end
+
+    it "does not double-count a user active on multiple days in the window" do
+      create(:job, user: admin, created_at: 3.days.ago, updated_at: 1.day.ago)
+
+      get_stats(period: "daily")
+      expect(json_response["active_users_in_window"]).to eq(1)
+    end
+
+    it "excludes demo user activity" do
+      create(:job, user: demo_user, created_at: 1.day.ago, updated_at: 1.day.ago)
+
+      get_stats(period: "daily")
+      expect(json_response["active_users_in_window"]).to eq(0)
+    end
+  end
+
   # ── Active users over time ──────────────────────────────────────────────────
 
   describe "active_users_over_time" do

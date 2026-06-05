@@ -56,6 +56,21 @@ RSpec.describe "Authentication", type: :request do
         user_keys = json_response.dig("user")&.keys || []
         expect(user_keys).not_to include("password", "encrypted_password")
       end
+
+      it "creates a SignInEvent for the new user" do
+        expect {
+          post "/api/v1/users", params: valid_params.to_json,
+               headers: { "Content-Type" => "application/json" }
+        }.to change(SignInEvent, :count).by(1)
+      end
+
+      it "sets last_sign_in_at on the new user" do
+        post "/api/v1/users", params: valid_params.to_json,
+             headers: { "Content-Type" => "application/json" }
+
+        created_user = User.find_by(email: valid_params[:user][:email])
+        expect(created_user.last_sign_in_at).to be_within(2.seconds).of(Time.current)
+      end
     end
 
     context "with invalid parameters" do

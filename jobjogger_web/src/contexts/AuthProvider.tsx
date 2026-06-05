@@ -6,7 +6,7 @@ import { type User } from '@/types/user'
 import { type ReactNode, useState } from 'react'
 
 function identifyUser(user: User) {
-  posthog.identify(String(user.id), { email: user.email, name: user.name, demo: user.demo })
+  posthog.identify(String(user.id), { email: user.email, name: user.name, demo: user.demo, admin: user.admin })
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -105,6 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data.user) {
       setUser(data.user)
       localStorage.setItem('user', JSON.stringify(data.user))
+      identifyUser(data.user)
     }
   }
 

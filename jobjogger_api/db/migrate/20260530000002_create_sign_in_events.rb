@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateSignInEvents < ActiveRecord::Migration[8.1]
   def change
     create_table :sign_in_events do |t|

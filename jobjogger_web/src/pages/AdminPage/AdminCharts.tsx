@@ -22,7 +22,6 @@ function toChartData(series: TimeSeriesPoint[], period: StatPeriod) {
   return series.map((p) => ({ label: formatDate(p.date, period), count: p.count }))
 }
 
-const CHART_CONFIG = { count: { label: 'Count', color: 'var(--chart-1)' } }
 
 interface TimeSeriesChartProps {
   title: string
@@ -83,4 +82,3 @@ export function AdminCharts({ period, signups, jobs, sessions, activeUsers }: Ad
   )
 }
 
-export { CHART_CONFIG }
