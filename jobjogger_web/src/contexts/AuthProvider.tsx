@@ -83,6 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser)
     localStorage.setItem('user', JSON.stringify(updatedUser))
+    identifyUser(updatedUser)
   }
 
   const refreshUser = async () => {
@@ -90,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const fresh = await fetchMe()
       setUser(fresh)
       localStorage.setItem('user', JSON.stringify(fresh))
+      identifyUser(fresh)
     } catch {
       // ignore — if the request fails the existing state stands
     }
