@@ -1,6 +1,6 @@
 import StatisticsCard from '@/components/ui/statistics-card'
 import type { AdminTotals, StatPeriod, TimeSeriesPoint } from '@/types/admin'
-import { isAfter, parseISO, subDays, subMonths, subWeeks } from 'date-fns'
+import { isBefore, parseISO, startOfDay, startOfISOWeek, startOfMonth, subDays, subMonths, subWeeks } from 'date-fns'
 import { Activity, Briefcase, Users, Zap } from 'lucide-react'
 
 interface AdminStatCardsProps {
@@ -12,15 +12,15 @@ interface AdminStatCardsProps {
 
 function windowCutoff(period: StatPeriod): Date {
   const now = new Date()
-  if (period === 'daily') return subDays(now, 7)
-  if (period === 'weekly') return subWeeks(now, 4)
-  return subMonths(now, 3)
+  if (period === 'daily') return startOfDay(subDays(now, 7))
+  if (period === 'weekly') return startOfISOWeek(subWeeks(now, 4))
+  return startOfMonth(subMonths(now, 3))
 }
 
 function sumRecent(series: TimeSeriesPoint[], period: StatPeriod): number {
   const cutoff = windowCutoff(period)
   return series
-    .filter(p => isAfter(parseISO(p.date), cutoff))
+    .filter(p => !isBefore(parseISO(p.date), cutoff))
     .reduce((acc, p) => acc + p.count, 0)
 }
 
