@@ -38,6 +38,14 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
     end
   end
 
+  def card_window_start
+    case period
+    when "weekly"  then 4.weeks.ago
+    when "monthly" then 3.months.ago
+    else                7.days.ago
+    end
+  end
+
   def real_users
     User.where(demo: false)
   end
@@ -84,12 +92,12 @@ class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
 
   def active_users_in_window
     created_sql = real_jobs
-                    .where("jobs.created_at >= ?", window_start)
+                    .where("jobs.created_at >= ?", card_window_start)
                     .select("jobs.user_id")
                     .to_sql
 
     updated_sql = real_jobs
-                    .where("jobs.updated_at >= ?", window_start)
+                    .where("jobs.updated_at >= ?", card_window_start)
                     .select("jobs.user_id")
                     .to_sql
 
