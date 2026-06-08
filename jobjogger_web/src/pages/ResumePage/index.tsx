@@ -247,6 +247,7 @@ function VariantRow({
 }) {
   const { deleteMutation } = useResumeVariantActions(templateId)
   const [editOpen, setEditOpen] = useState(false)
+  const [notesExpanded, setNotesExpanded] = useState(false)
 
   const MAX_JOB_BADGES = 2
   const visibleJobs = variant.linked_jobs.slice(0, MAX_JOB_BADGES)
@@ -254,13 +255,25 @@ function VariantRow({
 
   return (
     <>
-      <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2.5 text-sm">
+      <div className="flex items-start gap-2 rounded-md border bg-background px-3 py-2.5 text-sm">
         {/* Notes — takes remaining space */}
         <div className="min-w-0 flex-1">
           {variant.notes ? (
-            <p className="truncate text-sm">{variant.notes}</p>
+            <div>
+              <p className={notesExpanded ? 'text-sm' : 'line-clamp-2 text-sm sm:line-clamp-none'}>
+                {variant.notes}
+              </p>
+              {variant.notes.length > 80 && (
+                <button
+                  className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
+                  onClick={() => setNotesExpanded(v => !v)}
+                >
+                  {notesExpanded ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
           ) : variant.pdf_filename ? (
-            <p className="text-muted-foreground truncate text-sm">{variant.pdf_filename}</p>
+            <p className="text-muted-foreground text-sm">{variant.pdf_filename}</p>
           ) : (
             <p className="text-muted-foreground/50 text-xs italic">No notes</p>
           )}
@@ -357,6 +370,7 @@ function VariantRow({
 
 function TemplateCard({ template }: { template: ResumeTemplate }) {
   const [expanded, setExpanded] = useState(false)
+  const [notesExpanded, setNotesExpanded] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [addVariantOpen, setAddVariantOpen] = useState(false)
   const [deletingVariantId, setDeletingVariantId] = useState<number | null>(null)
@@ -368,8 +382,8 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
     <>
       <Card className="shadow-sm">
         <CardHeader className="pb-3 pt-4">
-          <div className="flex items-center gap-3">
-            {/* Expand toggle + name/notes */}
+          <div className="flex min-w-0 items-center gap-3">
+            {/* Expand toggle — chevron + name only */}
             <button
               className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
               onClick={() => setExpanded(e => !e)}
@@ -379,12 +393,7 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
               ) : (
                 <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
               )}
-              <div className="min-w-0">
-                <p className="truncate font-medium leading-snug">{template.name}</p>
-                {template.notes && (
-                  <p className="text-muted-foreground mt-0.5 truncate text-xs">{template.notes}</p>
-                )}
-              </div>
+              <p className="truncate font-medium leading-snug">{template.name}</p>
             </button>
 
             {/* Badges + actions */}
@@ -434,6 +443,23 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
               </AlertDialog>
             </div>
           </div>
+
+          {/* Notes — separate row so "Show more" can be a proper button */}
+          {template.notes && (
+            <div className="pl-6">
+              <p className={notesExpanded ? 'text-muted-foreground text-xs' : 'text-muted-foreground line-clamp-2 text-xs sm:line-clamp-none'}>
+                {template.notes}
+              </p>
+              {template.notes.length > 80 && (
+                <button
+                  className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
+                  onClick={() => setNotesExpanded(v => !v)}
+                >
+                  {notesExpanded ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
+          )}
         </CardHeader>
 
         {expanded && (
