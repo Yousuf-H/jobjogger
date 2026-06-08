@@ -273,7 +273,7 @@ function VariantRow({
               )}
             </div>
           ) : variant.pdf_filename ? (
-            <p className="text-muted-foreground text-sm">{variant.pdf_filename}</p>
+            <p className="text-muted-foreground truncate text-sm">{variant.pdf_filename}</p>
           ) : (
             <p className="text-muted-foreground/50 text-xs italic">No notes</p>
           )}
