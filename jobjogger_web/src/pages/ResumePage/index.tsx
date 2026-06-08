@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { FileText, Plus, Pencil, Trash2, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -248,6 +248,14 @@ function VariantRow({
   const { deleteMutation } = useResumeVariantActions(templateId)
   const [editOpen, setEditOpen] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
+  const [isClamped, setIsClamped] = useState(false)
+  const notesRef = useRef<HTMLParagraphElement>(null)
+
+  useEffect(() => {
+    const el = notesRef.current
+    if (!el || notesExpanded) return
+    setIsClamped(el.scrollHeight > el.clientHeight)
+  }, [notesExpanded])
 
   const MAX_JOB_BADGES = 2
   const visibleJobs = variant.linked_jobs.slice(0, MAX_JOB_BADGES)
@@ -260,10 +268,13 @@ function VariantRow({
         <div className="min-w-0 flex-1">
           {variant.notes ? (
             <div>
-              <p className={notesExpanded ? 'text-sm' : 'line-clamp-2 text-sm sm:line-clamp-none'}>
+              <p
+                ref={notesRef}
+                className={notesExpanded ? 'text-sm' : 'line-clamp-2 text-sm sm:line-clamp-none'}
+              >
                 {variant.notes}
               </p>
-              {variant.notes.length > 80 && (
+              {isClamped && (
                 <button
                   className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
                   onClick={() => setNotesExpanded(v => !v)}
@@ -371,7 +382,15 @@ function VariantRow({
 function TemplateCard({ template }: { template: ResumeTemplate }) {
   const [expanded, setExpanded] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
+  const [isClamped, setIsClamped] = useState(false)
+  const notesRef = useRef<HTMLParagraphElement>(null)
   const [editOpen, setEditOpen] = useState(false)
+
+  useEffect(() => {
+    const el = notesRef.current
+    if (!el || notesExpanded) return
+    setIsClamped(el.scrollHeight > el.clientHeight)
+  }, [notesExpanded])
   const [addVariantOpen, setAddVariantOpen] = useState(false)
   const [deletingVariantId, setDeletingVariantId] = useState<number | null>(null)
   const { deleteMutation } = useResumeTemplateActions()
@@ -447,10 +466,13 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
           {/* Notes — separate row so "Show more" can be a proper button */}
           {template.notes && (
             <div className="pl-6">
-              <p className={notesExpanded ? 'text-muted-foreground text-xs' : 'text-muted-foreground line-clamp-2 text-xs sm:line-clamp-none'}>
+              <p
+                ref={notesRef}
+                className={notesExpanded ? 'text-muted-foreground text-xs' : 'text-muted-foreground line-clamp-2 text-xs sm:line-clamp-none'}
+              >
                 {template.notes}
               </p>
-              {template.notes.length > 80 && (
+              {isClamped && (
                 <button
                   className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
                   onClick={() => setNotesExpanded(v => !v)}
