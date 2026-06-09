@@ -1,6 +1,7 @@
 import { AppSidebar } from '@/components/layout/AppSidebar'
 import DemoBanner from '@/components/layout/DemoBanner'
 import TermsAcceptanceModal from '@/components/layout/TermsAcceptanceModal'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
@@ -32,6 +33,7 @@ function LayoutContent() {
             className="mr-2 data-[orientation=vertical]:h-4"
           />
         </div>
+        <NotificationBell />
       </header>
       <main className="flex-1 sm:p-4">
         <Outlet />
