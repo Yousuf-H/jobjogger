@@ -254,7 +254,11 @@ function VariantRow({
   useEffect(() => {
     const el = notesRef.current
     if (!el || notesExpanded) return
-    setIsClamped(el.scrollHeight > el.clientHeight)
+    const measure = () => setIsClamped(el.scrollHeight > el.clientHeight)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [notesExpanded, variant.notes])
 
   const MAX_JOB_BADGES = 2
@@ -389,7 +393,11 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
   useEffect(() => {
     const el = notesRef.current
     if (!el || notesExpanded) return
-    setIsClamped(el.scrollHeight > el.clientHeight)
+    const measure = () => setIsClamped(el.scrollHeight > el.clientHeight)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [notesExpanded, template.notes])
   const [addVariantOpen, setAddVariantOpen] = useState(false)
   const [deletingVariantId, setDeletingVariantId] = useState<number | null>(null)
