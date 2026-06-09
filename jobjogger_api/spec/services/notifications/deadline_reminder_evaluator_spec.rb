@@ -48,6 +48,16 @@ RSpec.describe Notifications::DeadlineReminderEvaluator do
       end
     end
 
+    context "when a job is archived" do
+      let!(:archived_job) do
+        create(:job, :applied, :archived, user: user, application_deadline: Date.current + 1)
+      end
+
+      it "does not create a notification" do
+        expect { evaluator.call }.not_to change { Notification.count }
+      end
+    end
+
     context "deduplication" do
       let!(:urgent_job) do
         create(:job, :applied, user: user, application_deadline: Date.current + 1)
