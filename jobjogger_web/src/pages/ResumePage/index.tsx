@@ -255,7 +255,7 @@ function VariantRow({
     const el = notesRef.current
     if (!el || notesExpanded) return
     setIsClamped(el.scrollHeight > el.clientHeight)
-  }, [notesExpanded])
+  }, [notesExpanded, variant.notes])
 
   const MAX_JOB_BADGES = 2
   const visibleJobs = variant.linked_jobs.slice(0, MAX_JOB_BADGES)
@@ -390,7 +390,7 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
     const el = notesRef.current
     if (!el || notesExpanded) return
     setIsClamped(el.scrollHeight > el.clientHeight)
-  }, [notesExpanded])
+  }, [notesExpanded, template.notes])
   const [addVariantOpen, setAddVariantOpen] = useState(false)
   const [deletingVariantId, setDeletingVariantId] = useState<number | null>(null)
   const { deleteMutation } = useResumeTemplateActions()
