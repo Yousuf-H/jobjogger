@@ -82,6 +82,16 @@ Rails.application.routes.draw do
       # Timeline entries (top-level for update/destroy)
       resources :timeline_entries, only: [:update, :destroy]
 
+      # Notifications
+      resources :notifications, only: [ :index ] do
+        member do
+          patch :read
+        end
+        collection do
+          patch :read_all
+        end
+      end
+
       # Resume library
       resources :resume_templates do
         resources :resume_variants, only: [:index, :create]
