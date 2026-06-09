@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react'
-import { FileText, Plus, Pencil, Trash2, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { FileText, Plus, Pencil, Trash2, ChevronRight, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -247,6 +247,19 @@ function VariantRow({
 }) {
   const { deleteMutation } = useResumeVariantActions(templateId)
   const [editOpen, setEditOpen] = useState(false)
+  const [notesExpanded, setNotesExpanded] = useState(false)
+  const [isClamped, setIsClamped] = useState(false)
+  const notesRef = useRef<HTMLParagraphElement>(null)
+
+  useEffect(() => {
+    const el = notesRef.current
+    if (!el || notesExpanded) return
+    const measure = () => setIsClamped(el.scrollHeight > el.clientHeight)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [notesExpanded, variant.notes])
 
   const MAX_JOB_BADGES = 2
   const visibleJobs = variant.linked_jobs.slice(0, MAX_JOB_BADGES)
@@ -254,11 +267,26 @@ function VariantRow({
 
   return (
     <>
-      <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2.5 text-sm">
+      <div className="flex items-start gap-2 rounded-md border bg-background px-3 py-2.5 text-sm">
         {/* Notes — takes remaining space */}
         <div className="min-w-0 flex-1">
           {variant.notes ? (
-            <p className="truncate text-sm">{variant.notes}</p>
+            <div>
+              <p
+                ref={notesRef}
+                className={notesExpanded ? 'break-words text-sm' : 'line-clamp-2 break-words text-sm sm:line-clamp-none'}
+              >
+                {variant.notes}
+              </p>
+              {isClamped && (
+                <button
+                  className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
+                  onClick={() => setNotesExpanded(v => !v)}
+                >
+                  {notesExpanded ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
           ) : variant.pdf_filename ? (
             <p className="text-muted-foreground truncate text-sm">{variant.pdf_filename}</p>
           ) : (
@@ -357,7 +385,20 @@ function VariantRow({
 
 function TemplateCard({ template }: { template: ResumeTemplate }) {
   const [expanded, setExpanded] = useState(false)
+  const [notesExpanded, setNotesExpanded] = useState(false)
+  const [isClamped, setIsClamped] = useState(false)
+  const notesRef = useRef<HTMLParagraphElement>(null)
   const [editOpen, setEditOpen] = useState(false)
+
+  useEffect(() => {
+    const el = notesRef.current
+    if (!el || notesExpanded) return
+    const measure = () => setIsClamped(el.scrollHeight > el.clientHeight)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [notesExpanded, template.notes])
   const [addVariantOpen, setAddVariantOpen] = useState(false)
   const [deletingVariantId, setDeletingVariantId] = useState<number | null>(null)
   const { deleteMutation } = useResumeTemplateActions()
@@ -368,23 +409,16 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
     <>
       <Card className="shadow-sm">
         <CardHeader className="pb-3 pt-4">
-          <div className="flex items-center gap-3">
-            {/* Expand toggle + name/notes */}
+          <div className="flex min-w-0 items-center gap-3">
+            {/* Expand toggle — chevron + name only */}
             <button
               className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
               onClick={() => setExpanded(e => !e)}
             >
-              {expanded ? (
-                <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0" />
-              ) : (
-                <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
-              )}
-              <div className="min-w-0">
-                <p className="truncate font-medium leading-snug">{template.name}</p>
-                {template.notes && (
-                  <p className="text-muted-foreground mt-0.5 truncate text-xs">{template.notes}</p>
-                )}
-              </div>
+              <ChevronRight
+                className={`text-muted-foreground h-4 w-4 shrink-0 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
+              />
+              <p className="truncate font-medium leading-snug">{template.name}</p>
             </button>
 
             {/* Badges + actions */}
@@ -434,9 +468,30 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
               </AlertDialog>
             </div>
           </div>
+
+          {/* Notes — separate row so "Show more" can be a proper button */}
+          {template.notes && (
+            <div className="pl-6">
+              <p
+                ref={notesRef}
+                className={notesExpanded ? 'break-words text-muted-foreground text-xs' : 'line-clamp-2 break-words text-muted-foreground text-xs sm:line-clamp-none'}
+              >
+                {template.notes}
+              </p>
+              {isClamped && (
+                <button
+                  className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
+                  onClick={() => setNotesExpanded(v => !v)}
+                >
+                  {notesExpanded ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
+          )}
         </CardHeader>
 
-        {expanded && (
+        <div className={`grid transition-all duration-200 ease-in-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+          <div className="min-h-0 overflow-hidden">
           <CardContent className="pt-0">
             {full ? (
               <div className="space-y-2">
@@ -482,7 +537,8 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
               <p className="text-muted-foreground py-2 text-sm">Loading…</p>
             )}
           </CardContent>
-        )}
+          </div>
+        </div>
       </Card>
 
       <TemplateFormDialog open={editOpen} onOpenChange={setEditOpen} template={template} />
