@@ -103,6 +103,7 @@ export function JobForm({
       tags: defaultValues?.tags ?? '',
       date_applied: defaultValues?.date_applied ?? '',
       follow_up_date: defaultValues?.follow_up_date ?? '',
+      application_deadline: defaultValues?.application_deadline ?? '',
     },
   })
 
@@ -278,7 +279,7 @@ export function JobForm({
           />
         </div>
 
-        {/* Row 5: Source + Follow-up Date */}
+        {/* Row 5: Source + Application Deadline */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -304,6 +305,23 @@ export function JobForm({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="application_deadline"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Application Deadline</FormLabel>
+                <FormControl>
+                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Row 6: Follow-up Date */}
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="follow_up_date"
