@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { FileText, Plus, Pencil, Trash2, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
+import { FileText, Plus, Pencil, Trash2, ChevronRight, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -407,11 +407,9 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
               className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
               onClick={() => setExpanded(e => !e)}
             >
-              {expanded ? (
-                <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0" />
-              ) : (
-                <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
-              )}
+              <ChevronRight
+                className={`text-muted-foreground h-4 w-4 shrink-0 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
+              />
               <p className="truncate font-medium leading-snug">{template.name}</p>
             </button>
 
@@ -484,7 +482,8 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
           )}
         </CardHeader>
 
-        {expanded && (
+        <div className={`grid transition-all duration-200 ease-in-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+          <div className="min-h-0 overflow-hidden">
           <CardContent className="pt-0">
             {full ? (
               <div className="space-y-2">
@@ -530,7 +529,8 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
               <p className="text-muted-foreground py-2 text-sm">Loading…</p>
             )}
           </CardContent>
-        )}
+          </div>
+        </div>
       </Card>
 
       <TemplateFormDialog open={editOpen} onOpenChange={setEditOpen} template={template} />
