@@ -270,7 +270,7 @@ function VariantRow({
             <div>
               <p
                 ref={notesRef}
-                className={notesExpanded ? 'text-sm' : 'line-clamp-2 text-sm sm:line-clamp-none'}
+                className={notesExpanded ? 'break-words text-sm' : 'line-clamp-2 break-words text-sm sm:line-clamp-none'}
               >
                 {variant.notes}
               </p>
@@ -468,7 +468,7 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
             <div className="pl-6">
               <p
                 ref={notesRef}
-                className={notesExpanded ? 'text-muted-foreground text-xs' : 'text-muted-foreground line-clamp-2 text-xs sm:line-clamp-none'}
+                className={notesExpanded ? 'break-words text-muted-foreground text-xs' : 'line-clamp-2 break-words text-muted-foreground text-xs sm:line-clamp-none'}
               >
                 {template.notes}
               </p>
