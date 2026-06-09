@@ -18,13 +18,22 @@ module Notifications
     private
 
     def upcoming_jobs
-      cutoff = LOOKAHEAD_HOURS.hours.from_now
+      # Compute both bounds in Ruby using the app timezone so no SQL timezone
+      # conversion is needed. application_deadline is a date column — comparing
+      # date-to-date in SQL avoids the UTC-vs-app-zone mismatch that arises when
+      # casting a date to timestamp (PostgreSQL treats it as midnight UTC).
+      #
+      # upper_date: the latest deadline date whose end_of_day (in Time.zone) falls
+      # within the lookahead window. Derived by: end_of_day(D) <= cutoff
+      # ↔ D + 86399s <= cutoff ↔ D <= (cutoff - 86399s).in_time_zone.to_date
+      cutoff     = LOOKAHEAD_HOURS.hours.from_now
+      upper_date = (cutoff - 86399.seconds).in_time_zone.to_date
+
       @user.jobs
            .where(archived_at: nil)
            .where(status: [ :wishlist, :applied ])
            .where.not(application_deadline: nil)
-           .where("application_deadline >= ?", Date.current)
-           .where("application_deadline::timestamp + interval '23 hours 59 minutes 59 seconds' <= ?", cutoff)
+           .where(application_deadline: Date.current..upper_date)
     end
 
     def hours_until_deadline(job)
