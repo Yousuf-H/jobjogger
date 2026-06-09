@@ -3,6 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Notifications::DeadlineReminderEvaluator do
+  include ActiveSupport::Testing::TimeHelpers
   let(:user) { create(:user) }
   subject(:evaluator) { described_class.new(user) }
 
@@ -27,6 +28,18 @@ RSpec.describe Notifications::DeadlineReminderEvaluator do
 
       it "does not create a notification" do
         expect { evaluator.call }.not_to change { Notification.count }
+      end
+    end
+
+    context "when deadline is 2 calendar days out but end-of-day is > 48 hours away" do
+      let!(:job_two_days_out) do
+        create(:job, :applied, user: user, application_deadline: Date.current + 2)
+      end
+
+      it "does not create a notification when evaluator runs in the morning" do
+        travel_to Time.current.beginning_of_day + 8.hours do
+          expect { described_class.new(user).call }.not_to change { Notification.count }
+        end
       end
     end
 

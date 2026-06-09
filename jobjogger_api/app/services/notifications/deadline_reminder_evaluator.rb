@@ -18,11 +18,13 @@ module Notifications
     private
 
     def upcoming_jobs
+      cutoff = LOOKAHEAD_HOURS.hours.from_now
       @user.jobs
            .where(archived_at: nil)
            .where(status: [ :wishlist, :applied ])
            .where.not(application_deadline: nil)
-           .where(application_deadline: Date.current..LOOKAHEAD_HOURS.hours.from_now.to_date)
+           .where("application_deadline >= ?", Date.current)
+           .where("application_deadline::timestamp + interval '23 hours 59 minutes 59 seconds' <= ?", cutoff)
     end
 
     def hours_until_deadline(job)
