@@ -6,7 +6,7 @@ module Notifications
 
     def call
       stalled_jobs.each do |job|
-        days = days_since_update(job)
+        days = days_since_status_change(job)
         create_notification!(
           job,
           :stage_stall,
@@ -17,12 +17,25 @@ module Notifications
 
     private
 
+    # Subquery returns the most recent status_change timeline entry's occurred_at.
+    # COALESCE falls back to created_at for wishlist jobs that have no timeline entries.
+    LAST_STATUS_CHANGE_SQL = <<~SQL.squish
+      COALESCE(
+        (SELECT MAX(occurred_at) FROM timeline_entries
+         WHERE job_id = jobs.id AND entry_type = 'status_change'),
+        jobs.created_at
+      )
+    SQL
+
     def stalled_jobs
-      @user.jobs.active.where("updated_at <= ?", STALL_DAYS.days.ago)
+      @user.jobs
+           .active
+           .select("jobs.*, (#{LAST_STATUS_CHANGE_SQL}) AS last_status_change_at")
+           .where("(#{LAST_STATUS_CHANGE_SQL}) <= ?", STALL_DAYS.days.ago)
     end
 
-    def days_since_update(job)
-      ((Time.current - job.updated_at) / 1.day).floor
+    def days_since_status_change(job)
+      ((Time.current - job.last_status_change_at.to_time) / 1.day).floor
     end
   end
 end
