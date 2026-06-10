@@ -58,6 +58,7 @@ export interface Job {
   tags: string[]
   date_applied?: string
   archived_at?: string
+  application_deadline?: string | null
   organisation_id?: number | null
   resume_variant_id?: number | null
   next_interview_at?: string | null

@@ -29,6 +29,7 @@ export const createJobSchema = z
     tags: z.string().optional().or(z.literal('')),
     follow_up_date: z.string().optional().or(z.literal('')),
     date_applied: z.string().optional().or(z.literal('')),
+    application_deadline: z.string().optional().or(z.literal('')),
   })
   .refine(
     (data) => {

@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_many :jobs, dependent: :destroy
+  has_many :notifications, dependent: :destroy
   has_many :sign_in_events, dependent: :destroy
   has_one_attached :avatar
   has_many :organisations, dependent: :destroy

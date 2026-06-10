@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_30_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_09_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -121,6 +121,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_000002) do
   end
 
   create_table "jobs", force: :cascade do |t|
+    t.date "application_deadline"
     t.datetime "archived_at"
     t.string "company_name", null: false
     t.datetime "created_at", null: false
@@ -154,6 +155,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_000002) do
     t.index ["tags"], name: "index_jobs_on_tags", using: :gin
     t.index ["user_id", "job_url"], name: "index_jobs_on_user_id_and_job_url", unique: true, where: "(job_url IS NOT NULL)"
     t.index ["user_id"], name: "index_jobs_on_user_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.string "body", null: false
+    t.datetime "created_at", null: false
+    t.bigint "job_id"
+    t.integer "kind", null: false
+    t.datetime "read_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["job_id", "kind", "created_at"], name: "index_notifications_on_job_id_and_kind_and_created_at"
+    t.index ["job_id"], name: "index_notifications_on_job_id"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "oauth_exchanges", force: :cascade do |t|
@@ -258,6 +273,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_000002) do
   add_foreign_key "jobs", "organisations"
   add_foreign_key "jobs", "resume_variants"
   add_foreign_key "jobs", "users"
+  add_foreign_key "notifications", "jobs"
+  add_foreign_key "notifications", "users"
   add_foreign_key "oauth_exchanges", "users"
   add_foreign_key "organisations", "users"
   add_foreign_key "resume_templates", "users"

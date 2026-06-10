@@ -155,3 +155,38 @@ so unassigned records pass through the guard undetected.
 **Seen in:** interview_questions controller org re-scope guard (feature/interview PR #38).
 `jobs.organisation_id` is nullable by design — any SQL comparison against it must
 handle NULL explicitly.
+
+---
+
+## 7. Don't cast date columns to timestamp in SQL — compute time bounds in Ruby
+
+**The pattern:** Using `col::timestamp + interval '...'` in a `.where` clause to derive an
+end-of-day or similar time boundary from a date column.
+
+**Why it matters:** PostgreSQL treats a bare `date::timestamp` cast as midnight in the
+*database session timezone* (almost always UTC). The app is configured for
+`config.time_zone = "Sydney"` (UTC+10/11), so `application_deadline::timestamp + '23:59:59'`
+gives `2026-06-11 23:59:59 UTC`, not `2026-06-11 23:59:59 AEST`. For a cutoff of
+`48.hours.from_now` (which Rails passes as UTC), jobs that are genuinely within the window
+can be excluded — or jobs outside it included — by up to the UTC offset (10–11 hours).
+
+**The rule:** Compute the date boundary in Ruby using `.in_time_zone` (which respects
+`Time.zone`), then compare date-to-date in SQL. A `date` column compared against another
+`Date` value has no timezone ambiguity.
+
+```ruby
+# Bad — end-of-day computed in DB timezone (UTC), not app timezone
+.where("application_deadline::timestamp + interval '23 hours 59 minutes 59 seconds' <= ?",
+       48.hours.from_now)
+
+# Good — upper bound derived in Ruby using the app timezone; SQL sees only dates
+cutoff     = 48.hours.from_now
+upper_date = (cutoff - 86399.seconds).in_time_zone.to_date
+.where(application_deadline: Date.current..upper_date)
+```
+
+The formula `(cutoff - 86399.seconds).in_time_zone.to_date` gives the latest calendar date
+whose end_of_day (23:59:59 in `Time.zone`) falls at or before the cutoff. `Date.current`
+uses `Time.zone.today` and is already app-timezone-aware.
+
+**Seen in:** `DeadlineReminderEvaluator` (feature/notifications).
