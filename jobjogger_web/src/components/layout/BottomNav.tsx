@@ -23,7 +23,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useSidebar } from '@/hooks/useSidebar'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 const overflowNav = [
@@ -40,10 +40,6 @@ export default function BottomNav() {
   const { user, signout } = useAuth()
   const { isMobile } = useSidebar()
   const [moreOpen, setMoreOpen] = useState(false)
-
-  useEffect(() => {
-    if (!isMobile) setMoreOpen(false)
-  }, [isMobile])
 
   function isActive(url: string, exact = false) {
     return exact ? location.pathname === url : location.pathname.startsWith(url)
@@ -98,7 +94,7 @@ export default function BottomNav() {
 
       </nav>
 
-      <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+      <Sheet open={moreOpen && isMobile} onOpenChange={setMoreOpen}>
         <SheetContent
           side="bottom"
           className="max-h-[85vh] overflow-y-auto rounded-t-[16px] px-0 pb-10"
