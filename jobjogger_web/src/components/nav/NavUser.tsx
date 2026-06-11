@@ -41,16 +41,16 @@ export function NavUser({ user, signout }: NavUserProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="rounded-[7px] hover:bg-[#F9FAFB] data-[state=open]:bg-[#F9FAFB]"
+              className="rounded-[7px] hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-[13px] font-semibold text-[#2563EB]">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[13px] font-semibold text-blue-600 dark:bg-blue-900/50 dark:text-blue-300">
                 {getInitials(user.name)}
               </div>
               <div className="grid flex-1 text-left leading-tight">
-                <span className="truncate text-[13px] font-medium text-[#111827]">
+                <span className="truncate text-[13px] font-medium text-sidebar-foreground">
                   {user.name}
                 </span>
-                <span className="text-[11px] text-[#9CA3AF]">Settings</span>
+                <span className="text-[11px] text-sidebar-foreground/60">Settings</span>
               </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -62,7 +62,7 @@ export function NavUser({ user, signout }: NavUserProps) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-2 py-2">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-[13px] font-semibold text-[#2563EB]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[13px] font-semibold text-blue-600 dark:bg-blue-900/50 dark:text-blue-300">
                   {getInitials(user.name)}
                 </div>
                 <div className="grid flex-1 text-left leading-tight">

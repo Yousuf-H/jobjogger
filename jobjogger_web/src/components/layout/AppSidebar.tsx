@@ -40,7 +40,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="h-14 justify-center border-b border-[#E5E7EB]">
+      <SidebarHeader className="h-14 justify-center border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="h-auto p-0 hover:bg-transparent active:bg-transparent">
@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#2563EB]">
                   <span className="text-[11px] font-bold tracking-tight text-white">JJ</span>
                 </div>
-                <span className="text-[15px] font-semibold text-[#111827]">JobJogger</span>
+                <span className="text-[15px] font-semibold text-sidebar-foreground">JobJogger</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -60,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain title="PREP" items={navPrep} />
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-[#E5E7EB]">
+      <SidebarFooter className="border-t border-sidebar-border">
         {user ? (
           <NavUser user={user} signout={handleSignout} />
         ) : (

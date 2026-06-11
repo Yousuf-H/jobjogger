@@ -10,6 +10,7 @@ import { useJobs } from '@/hooks/useJobs'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { calculateStatusBreakdown } from '@/lib/statsHelpers'
 import { StatusBadge } from '@/components/job/StatusBadge'
+import { cn } from '@/lib/utils'
 import type { SummaryStats } from '@/types/analytics'
 import type { Job } from '@/types/job'
 import { Clock, MailOpen, Mic, Plus, Send } from 'lucide-react'
@@ -36,27 +37,23 @@ interface StatCardProps {
   value: string
   subLabel: string
   icon: React.ElementType
-  iconBg: string
-  iconBorder: string
+  iconContainerClass: string
   iconColor: string
 }
 
-function StatCard({ label, value, subLabel, icon: Icon, iconBg, iconBorder, iconColor }: StatCardProps) {
+function StatCard({ label, value, subLabel, icon: Icon, iconContainerClass, iconColor }: StatCardProps) {
   return (
-    <div className="rounded-[10px] border border-[#E5E7EB] bg-white" style={{ padding: '14px 16px' }}>
+    <div className="rounded-[10px] border border-border bg-card" style={{ padding: '14px 16px' }}>
       <div className="flex items-center justify-between">
-        <span className="text-[12px] text-[#6B7280]">{label}</span>
-        <div
-          className="flex items-center justify-center rounded-full"
-          style={{ width: 40, height: 40, backgroundColor: iconBg, border: `1.5px solid ${iconBorder}` }}
-        >
-          <Icon className={`h-[18px] w-[18px] ${iconColor}`} />
+        <span className="text-[12px] text-muted-foreground">{label}</span>
+        <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', iconContainerClass)}>
+          <Icon className={cn('h-[18px] w-[18px]', iconColor)} />
         </div>
       </div>
-      <p className="mt-2 text-[26px] font-semibold leading-none tracking-tight text-[#111827]">
+      <p className="mt-2 text-[26px] font-semibold leading-none tracking-tight text-foreground">
         {value}
       </p>
-      <p className="mt-1 text-[11px] text-[#9CA3AF]">{subLabel}</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">{subLabel}</p>
     </div>
   )
 }
@@ -68,36 +65,32 @@ function DashboardStatCards({ data }: { data: SummaryStats }) {
       value: String(data.total_applied),
       subLabel: 'Applications sent',
       icon: Send,
-      iconBg: '#EFF6FF',
-      iconBorder: '#BFDBFE',
-      iconColor: 'text-[#2563EB]',
+      iconContainerClass: 'bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800',
+      iconColor: 'text-blue-600 dark:text-blue-400',
     },
     {
       label: 'Response rate',
       value: `${data.response_rate}%`,
       subLabel: 'Got a reply back',
       icon: MailOpen,
-      iconBg: '#F0FDF4',
-      iconBorder: '#BBF7D0',
-      iconColor: 'text-[#16A34A]',
+      iconContainerClass: 'bg-green-50 border border-green-200 dark:bg-green-950/40 dark:border-green-800',
+      iconColor: 'text-green-600 dark:text-green-400',
     },
     {
       label: 'Interview rate',
       value: `${data.interview_rate}%`,
       subLabel: 'Made it to interview',
       icon: Mic,
-      iconBg: '#FFFBEB',
-      iconBorder: '#FDE68A',
-      iconColor: 'text-[#D97706]',
+      iconContainerClass: 'bg-amber-50 border border-amber-200 dark:bg-amber-950/40 dark:border-amber-800',
+      iconColor: 'text-amber-600 dark:text-amber-400',
     },
     {
       label: 'Avg. days to reply',
       value: data.avg_days_to_respond !== null ? String(data.avg_days_to_respond) : '—',
       subLabel: 'Time to first reply',
       icon: Clock,
-      iconBg: '#F5F3FF',
-      iconBorder: '#DDD6FE',
-      iconColor: 'text-[#7C3AED]',
+      iconContainerClass: 'bg-purple-50 border border-purple-200 dark:bg-purple-950/40 dark:border-purple-800',
+      iconColor: 'text-purple-600 dark:text-purple-400',
     },
   ]
 
@@ -123,7 +116,7 @@ const dashboardColumns: ColumnDef<Job>[] = [
     accessorKey: 'company_name',
     header: 'Company',
     cell: ({ row }) => (
-      <span className="text-[12px] font-semibold text-[#111827]">
+      <span className="text-[12px] font-semibold text-foreground">
         {row.getValue('company_name')}
       </span>
     ),
@@ -132,7 +125,7 @@ const dashboardColumns: ColumnDef<Job>[] = [
     accessorKey: 'job_title',
     header: 'Role',
     cell: ({ row }) => (
-      <span className="text-[12px] text-[#374151]">{row.getValue('job_title')}</span>
+      <span className="text-[12px] text-foreground/80">{row.getValue('job_title')}</span>
     ),
   },
   {
@@ -148,7 +141,7 @@ const dashboardColumns: ColumnDef<Job>[] = [
     accessorKey: 'location',
     header: 'Location',
     cell: ({ row }) => (
-      <span className="text-[12px] text-[#374151]">{row.getValue('location') || '—'}</span>
+      <span className="text-[12px] text-foreground/80">{row.getValue('location') || '—'}</span>
     ),
   },
   {
@@ -156,16 +149,16 @@ const dashboardColumns: ColumnDef<Job>[] = [
     header: 'Priority',
     cell: ({ row }) => {
       const priority = row.getValue('priority') as string
-      if (!priority) return <span className="text-[12px] text-[#9CA3AF]">—</span>
+      if (!priority) return <span className="text-[12px] text-muted-foreground">—</span>
       const classes: Record<string, string> = {
-        high: 'bg-red-50 text-[#B91C1C]',
-        medium: 'bg-amber-50 text-[#B45309]',
-        low: 'bg-gray-100 text-[#6B7280]',
+        high: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400',
+        medium: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
+        low: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
       }
       const labels: Record<string, string> = { high: 'High', medium: 'Med', low: 'Low' }
       return (
         <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${classes[priority] ?? 'text-[#9CA3AF]'}`}
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${classes[priority] ?? 'text-muted-foreground'}`}
         >
           {labels[priority] ?? priority}
         </span>
@@ -176,7 +169,7 @@ const dashboardColumns: ColumnDef<Job>[] = [
     accessorKey: 'follow_up_date',
     header: 'Follow-up',
     cell: ({ row }) => (
-      <span className="text-[12px] text-[#374151]">
+      <span className="text-[12px] text-foreground/80">
         {formatFollowUp(row.getValue('follow_up_date'))}
       </span>
     ),
@@ -197,11 +190,11 @@ function RecentJobsTable({ jobs, onRowClick }: { jobs: Job[]; onRowClick: (id: n
     <Table>
       <TableHeader>
         {table.getHeaderGroups().map((hg) => (
-          <TableRow key={hg.id} className="border-b border-[#E5E7EB] hover:bg-transparent">
+          <TableRow key={hg.id} className="border-b border-border hover:bg-transparent">
             {hg.headers.map((header) => (
               <TableHead
                 key={header.id}
-                className="text-[11px] font-medium text-[#9CA3AF] h-9"
+                className="text-[11px] font-medium text-muted-foreground h-9"
               >
                 {header.isPlaceholder
                   ? null
@@ -216,7 +209,7 @@ function RecentJobsTable({ jobs, onRowClick }: { jobs: Job[]; onRowClick: (id: n
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className="cursor-pointer border-b border-[#F3F4F6] hover:bg-[#F9FAFB] last:border-0"
+              className="cursor-pointer border-b border-border/60 hover:bg-muted/50 last:border-0"
               onClick={() => onRowClick((row.original as Job).id)}
             >
               {row.getVisibleCells().map((cell) => (
@@ -228,7 +221,7 @@ function RecentJobsTable({ jobs, onRowClick }: { jobs: Job[]; onRowClick: (id: n
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={dashboardColumns.length} className="h-24 text-center text-[13px] text-[#9CA3AF]">
+            <TableCell colSpan={dashboardColumns.length} className="h-24 text-center text-[13px] text-muted-foreground">
               No jobs yet.
             </TableCell>
           </TableRow>
@@ -261,10 +254,10 @@ export default function DashboardPage() {
       {/* Top bar */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[18px] font-semibold tracking-tight text-[#111827]">
+          <h1 className="text-[18px] font-semibold tracking-tight text-foreground">
             Welcome back, {firstName}
           </h1>
-          <p className="mt-0.5 text-[13px] text-[#6B7280]">
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
             Here's how your job search is looking today.
           </p>
         </div>
@@ -288,11 +281,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent jobs */}
-      <div className="rounded-[10px] border border-[#E5E7EB] bg-white">
+      <div className="rounded-[10px] border border-border bg-card">
         <div className="flex items-start justify-between px-5 py-4">
           <div>
-            <h2 className="text-[14px] font-semibold text-[#111827]">Recent jobs</h2>
-            <p className="mt-0.5 text-[12px] text-[#6B7280]">
+            <h2 className="text-[14px] font-semibold text-foreground">Recent jobs</h2>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
               Your latest applications and progress
             </p>
           </div>

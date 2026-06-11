@@ -28,7 +28,7 @@ function LayoutContent() {
   return (
     <SidebarInset>
       <DemoBanner />
-      <header className="flex h-14 items-center justify-between gap-2 border-b border-[#E5E7EB] bg-white px-4">
+      <header className="flex h-14 items-center justify-between gap-2 border-b border-sidebar-border bg-sidebar px-4">
         {/* Desktop: sidebar toggle. Mobile: app logo */}
         <div className="flex items-center gap-2">
           <div className="hidden md:flex items-center gap-2">
@@ -38,7 +38,7 @@ function LayoutContent() {
             <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#2563EB]">
               <span className="text-[10px] font-bold tracking-tight text-white">JJ</span>
             </div>
-            <span className="text-[15px] font-semibold text-[#111827]">JobJogger</span>
+            <span className="text-[15px] font-semibold text-foreground">JobJogger</span>
           </Link>
         </div>
         <NotificationBell />

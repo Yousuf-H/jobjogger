@@ -38,11 +38,11 @@ export function RecentActivity() {
   const entries = data?.entries
 
   return (
-    <div className="flex flex-col rounded-[10px] border border-[#E5E7EB] bg-white p-5">
+    <div className="flex flex-col rounded-[10px] border border-border bg-card p-5">
       <div className="mb-4 flex items-start justify-between">
         <div>
-          <h2 className="text-[14px] font-semibold text-[#111827]">Recent activity</h2>
-          <p className="mt-0.5 text-[12px] text-[#6B7280]">
+          <h2 className="text-[14px] font-semibold text-foreground">Recent activity</h2>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">
             Latest updates across your applications
           </p>
         </div>
@@ -55,16 +55,16 @@ export function RecentActivity() {
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex items-start gap-3 py-2.5">
-              <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#E5E7EB]" />
+              <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-muted" />
               <div className="flex flex-1 flex-col gap-1.5">
-                <div className="h-3 w-3/4 rounded bg-[#F3F4F6]" />
-                <div className="h-2.5 w-1/4 rounded bg-[#F3F4F6]" />
+                <div className="h-3 w-3/4 rounded bg-muted" />
+                <div className="h-2.5 w-1/4 rounded bg-muted/60" />
               </div>
             </div>
           ))}
         </div>
       ) : !entries?.length ? (
-        <p className="py-6 text-center text-[13px] text-[#9CA3AF]">No activity yet</p>
+        <p className="py-6 text-center text-[13px] text-muted-foreground">No activity yet</p>
       ) : (
         <ul>
           {entries.map((entry, i) => {
@@ -77,17 +77,17 @@ export function RecentActivity() {
             return (
               <li
                 key={entry.id}
-                className={`flex items-start gap-3 py-3 ${isLast ? '' : 'border-b border-[#F3F4F6]'}`}
+                className={`flex items-start gap-3 py-3 ${isLast ? '' : 'border-b border-border/60'}`}
               >
                 <div
                   className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
                   style={{ backgroundColor: config.color }}
                 />
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[13px] text-[#374151]">
+                  <span className="text-[13px] text-foreground/80">
                     {prefix}{bold ? <> <span className="font-semibold">{bold}</span> </> : ' '}{suffix}
                   </span>
-                  <span className="text-[11px] text-[#9CA3AF]">
+                  <span className="text-[11px] text-muted-foreground">
                     {formatDistanceToNow(new Date(entry.occurred_at), { addSuffix: true })}
                   </span>
                 </div>

@@ -15,16 +15,16 @@ export function StatusChart({ data }: StatusChartProps) {
   const total = chartData.reduce((sum, item) => sum + item.count, 0)
 
   return (
-    <div className="flex flex-col gap-4 rounded-[10px] border border-[#E5E7EB] bg-white p-5">
+    <div className="flex flex-col gap-4 rounded-[10px] border border-border bg-card p-5">
       <div>
-        <h2 className="text-[14px] font-semibold text-[#111827]">Application pipeline</h2>
-        <p className="mt-0.5 text-[12px] text-[#6B7280]">
+        <h2 className="text-[14px] font-semibold text-foreground">Application pipeline</h2>
+        <p className="mt-0.5 text-[12px] text-muted-foreground">
           Where your applications stand right now
         </p>
       </div>
 
       {chartData.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-[#9CA3AF]">No applications to display</p>
+        <p className="py-6 text-center text-[13px] text-muted-foreground">No applications to display</p>
       ) : (
         <>
           <div
@@ -50,15 +50,15 @@ export function StatusChart({ data }: StatusChartProps) {
               return (
                 <div
                   key={item.status}
-                  className={`flex items-center gap-3 py-2.5 ${isLast ? '' : 'border-b border-[#F3F4F6]'}`}
+                  className={`flex items-center gap-3 py-2.5 ${isLast ? '' : 'border-b border-border/60'}`}
                 >
                   <div
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: item.fill }}
                   />
-                  <span className="flex-1 text-[12px] text-[#374151]">{label}</span>
-                  <span className="text-[12px] font-medium text-[#111827]">{item.count}</span>
-                  <span className="w-9 text-right text-[11px] text-[#9CA3AF]">{pct}%</span>
+                  <span className="flex-1 text-[12px] text-foreground/80">{label}</span>
+                  <span className="text-[12px] font-medium text-foreground">{item.count}</span>
+                  <span className="w-9 text-right text-[11px] text-muted-foreground">{pct}%</span>
                 </div>
               )
             })}
