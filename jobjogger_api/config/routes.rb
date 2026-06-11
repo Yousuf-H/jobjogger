@@ -41,6 +41,9 @@ Rails.application.routes.draw do
       # Analytics
       resources :analytics, only: [:index]
 
+      # Activity feed
+      get 'activity', to: 'activity#index'
+
 
       # Organisations
       resources :organisations, only: [:index, :show, :create, :update, :destroy] do

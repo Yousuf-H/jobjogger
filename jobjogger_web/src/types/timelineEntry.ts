@@ -16,3 +16,8 @@ export interface TimelineEntry {
   created_at: string
   updated_at: string
 }
+
+export interface ActivityEntry extends TimelineEntry {
+  company_name: string
+  job_title: string
+}
