@@ -32,6 +32,7 @@ export default function CreateJobDialog({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       toast.success('Job created successfully!')
       setOpen(false)
     },
