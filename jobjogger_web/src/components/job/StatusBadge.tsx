@@ -45,6 +45,7 @@ export function StatusBadge({ job }: StatusBadgeProps) {
     onSuccess: (_, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       toast.success('Status updated!')
       if (newStatus !== job.status && INTERVIEW_TRIGGER_STATUSES.includes(newStatus)) {
         setPromptOpen(true)
