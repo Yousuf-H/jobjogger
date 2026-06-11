@@ -20,15 +20,16 @@ RSpec.describe "Activity API", type: :request do
         job.update!(status: "phone_screen")
       end
 
-      it "returns 200 with an array" do
+      it "returns 200 with entries and meta" do
         get "/api/v1/activity", headers: headers
         expect(response).to have_http_status(:ok)
-        expect(json_response).to be_an(Array)
+        expect(json_response).to include("entries", "meta")
+        expect(json_response["entries"]).to be_an(Array)
       end
 
       it "includes company_name and job_title on each entry" do
         get "/api/v1/activity", headers: headers
-        entry = json_response.first
+        entry = json_response["entries"].first
         expect(entry).to include("company_name", "job_title", "entry_type", "occurred_at", "metadata")
         expect(entry["company_name"]).to eq(job.company_name)
         expect(entry["job_title"]).to eq(job.job_title)
@@ -36,8 +37,21 @@ RSpec.describe "Activity API", type: :request do
 
       it "returns entries ordered newest first" do
         get "/api/v1/activity", headers: headers
-        times = json_response.map { |e| Time.parse(e["occurred_at"]) }
+        times = json_response["entries"].map { |e| Time.parse(e["occurred_at"]) }
         expect(times).to eq(times.sort.reverse)
+      end
+
+      it "returns correct meta pagination fields" do
+        get "/api/v1/activity", headers: headers
+        meta = json_response["meta"]
+        expect(meta).to include("total", "page", "per_page", "total_pages")
+        expect(meta["page"]).to eq(1)
+      end
+
+      it "respects page and per_page params" do
+        get "/api/v1/activity", headers: headers, params: { per_page: 1, page: 1 }
+        expect(json_response["entries"].size).to eq(1)
+        expect(json_response["meta"]["total_pages"]).to eq(2)
       end
 
       it "does not return entries from another user's jobs" do
@@ -45,7 +59,7 @@ RSpec.describe "Activity API", type: :request do
         other_job.update!(status: "applied")
 
         get "/api/v1/activity", headers: headers
-        returned_job_ids = json_response.map { |e| e["job_id"] }.uniq
+        returned_job_ids = json_response["entries"].map { |e| e["job_id"] }.uniq
         expect(returned_job_ids).to all(eq(job.id))
       end
     end

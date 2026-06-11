@@ -7,6 +7,20 @@ import type { ActivityEntry } from '@/types/timelineEntry'
 import type { JobStatus } from '@/types/job'
 import { formatDistanceToNow, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+
+function buildPageItems(current: number, total: number): (number | '…')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+
+  const items: (number | '…')[] = [1]
+  if (current > 3) items.push('…')
+  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) items.push(p)
+  if (current < total - 2) items.push('…')
+  items.push(total)
+  return items
+}
 
 function dateGroup(dateStr: string): string {
   const d = new Date(dateStr)
@@ -57,15 +71,20 @@ function activityPhrase(entry: ActivityEntry): { prefix: string; bold: string; s
   }
 }
 
+const PER_PAGE = 25
+
 export default function ActivityPage() {
   usePageTitle('Activity')
   const navigate = useNavigate()
-  const { data: entries, isLoading, error } = useActivity(100)
+  const [page, setPage] = useState(1)
+  const { data, isLoading, error } = useActivity(page, PER_PAGE)
 
   if (isLoading) return <PageLoading />
   if (error) return <PageError message={error.message} />
 
-  const groups = groupEntries(entries ?? [])
+  const entries = data?.entries ?? []
+  const meta = data?.meta
+  const groups = groupEntries(entries)
 
   return (
     <div className="space-y-4">
@@ -77,7 +96,7 @@ export default function ActivityPage() {
       </div>
 
       <div className="rounded-[10px] border border-[#E5E7EB] bg-white">
-        {!entries?.length ? (
+        {!entries.length ? (
           <p className="py-16 text-center text-[13px] text-[#9CA3AF]">No activity yet</p>
         ) : (
           groups.map((group) => (
@@ -120,6 +139,51 @@ export default function ActivityPage() {
           ))
         )}
       </div>
+
+      {meta && meta.total_pages > 1 && (
+        <div className="flex items-center justify-between">
+          <span className="text-[12px] text-[#9CA3AF]">
+            {meta.total} entries
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {buildPageItems(page, meta.total_pages).map((item, i) =>
+              item === '…' ? (
+                <span key={`ellipsis-${i}`} className="px-1 text-[13px] text-[#9CA3AF]">…</span>
+              ) : (
+                <Button
+                  key={item}
+                  variant={item === page ? 'default' : 'outline'}
+                  size="icon"
+                  className="h-8 w-8 text-[13px]"
+                  onClick={() => setPage(item)}
+                >
+                  {item}
+                </Button>
+              )
+            )}
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= meta.total_pages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

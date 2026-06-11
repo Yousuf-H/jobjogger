@@ -1,7 +1,7 @@
-import type { ActivityEntry } from '@/types/timelineEntry'
+import type { ActivityResponse } from '@/types/timelineEntry'
 import { apiClient } from './client'
 
-export async function fetchActivity(limit?: number): Promise<ActivityEntry[]> {
-  const response = await apiClient.get('/activity', { params: limit ? { limit } : undefined })
+export async function fetchActivity(page = 1, perPage = 5): Promise<ActivityResponse> {
+  const response = await apiClient.get('/activity', { params: { page, per_page: perPage } })
   return response.data
 }

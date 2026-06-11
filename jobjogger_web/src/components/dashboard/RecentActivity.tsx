@@ -34,7 +34,8 @@ function activityPhrase(entry: ActivityEntry): { prefix: string; bold: string; s
 }
 
 export function RecentActivity() {
-  const { data: entries, isLoading } = useActivity()
+  const { data, isLoading } = useActivity()
+  const entries = data?.entries
 
   return (
     <div className="flex flex-col rounded-[10px] border border-[#E5E7EB] bg-white p-5">
