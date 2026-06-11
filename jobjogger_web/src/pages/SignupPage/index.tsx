@@ -62,7 +62,7 @@ export default function SignupPage() {
       <div className="relative flex flex-col items-center justify-center px-6 py-12 lg:col-span-3">
         <div className="mb-8 flex items-center gap-2 lg:hidden">
           <div className="bg-primary flex size-8 items-center justify-center rounded-lg">
-            <Briefcase className="text-primary-foreground h-4 w-4" />
+            <span className="text-[11px] font-bold tracking-tight text-white">JJ</span>
           </div>
           <span className="text-lg font-semibold">JobJogger</span>
         </div>
