@@ -89,20 +89,20 @@ export default function ActivityPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-[18px] font-semibold tracking-tight text-[#111827]">Activity</h1>
-        <p className="mt-0.5 text-[13px] text-[#6B7280]">
+        <h1 className="text-[18px] font-semibold tracking-tight text-foreground">Activity</h1>
+        <p className="mt-0.5 text-[13px] text-muted-foreground">
           A full history of changes across your job applications.
         </p>
       </div>
 
-      <div className="rounded-[10px] border border-[#E5E7EB] bg-white">
+      <div className="rounded-[10px] border border-border bg-card">
         {!entries.length ? (
-          <p className="py-16 text-center text-[13px] text-[#9CA3AF]">No activity yet</p>
+          <p className="py-16 text-center text-[13px] text-muted-foreground">No activity yet</p>
         ) : (
           groups.map((group) => (
             <div key={group.group}>
-              <div className="border-b border-[#F3F4F6] px-5 py-2.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
+              <div className="border-b border-border/60 px-5 py-2.5">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {group.group}
                 </span>
               </div>
@@ -117,17 +117,17 @@ export default function ActivityPage() {
                     <li
                       key={entry.id}
                       onClick={() => navigate(`/jobs/${entry.job_id}`)}
-                      className={`flex cursor-pointer items-start gap-4 px-5 py-3.5 hover:bg-[#F9FAFB] ${isLast ? '' : 'border-b border-[#F3F4F6]'}`}
+                      className={`flex cursor-pointer items-start gap-4 px-5 py-3.5 hover:bg-muted/50 ${isLast ? '' : 'border-b border-border/60'}`}
                     >
                       <div
                         className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
                         style={{ backgroundColor: config.color }}
                       />
                       <div className="flex flex-1 flex-col gap-0.5">
-                        <span className="text-[13px] text-[#374151]">
+                        <span className="text-[13px] text-foreground/80">
                           {prefix}{bold ? <> <span className="font-semibold">{bold}</span> </> : ' '}{suffix}
                         </span>
-                        <span className="text-[11px] text-[#9CA3AF]">
+                        <span className="text-[11px] text-muted-foreground">
                           {formatDistanceToNow(new Date(entry.occurred_at), { addSuffix: true })}
                         </span>
                       </div>
@@ -142,7 +142,7 @@ export default function ActivityPage() {
 
       {meta && meta.total_pages > 1 && (
         <div className="flex items-center justify-between">
-          <span className="text-[12px] text-[#9CA3AF]">
+          <span className="text-[12px] text-muted-foreground">
             {meta.total} entries
           </span>
           <div className="flex items-center gap-1">
@@ -158,7 +158,7 @@ export default function ActivityPage() {
 
             {buildPageItems(page, meta.total_pages).map((item, i) =>
               item === '…' ? (
-                <span key={`ellipsis-${i}`} className="px-1 text-[13px] text-[#9CA3AF]">…</span>
+                <span key={`ellipsis-${i}`} className="px-1 text-[13px] text-muted-foreground">…</span>
               ) : (
                 <Button
                   key={item}
