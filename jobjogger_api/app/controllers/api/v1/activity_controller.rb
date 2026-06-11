@@ -17,8 +17,8 @@ class Api::V1::ActivityController < Api::V1::AuthenticatedController
     render json: {
       entries: entries.map { |entry|
         entry.as_json.merge(
-          'company_name' => entry.job.company_name,
-          'job_title'    => entry.job.job_title
+          "company_name" => entry.job.company_name,
+          "job_title"    => entry.job.job_title
         )
       },
       meta: {
