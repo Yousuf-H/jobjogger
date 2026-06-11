@@ -1,5 +1,4 @@
 import { NavMain } from '@/components/nav/NavMain'
-import { NavSecondary } from '@/components/nav/NavSecondary'
 import { NavUser } from '@/components/nav/NavUser'
 import {
   Sidebar,
@@ -9,36 +8,30 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
-import {
-  IconChartBar,
-  IconDashboard,
-  IconListDetails,
-  IconLogout,
-  IconSettings,
-  IconShield,
-} from '@tabler/icons-react'
-import { BookOpen, Building2, FileText, Users } from 'lucide-react'
-import { FaPhoenixFramework } from 'react-icons/fa6'
+import { useJobs } from '@/hooks/useJobs'
+import { BarChart2, Brain, FolderKanban, IdCard, Landmark, LayoutDashboard, LogOut, Shield, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, signout } = useAuth()
+  const { data: jobs } = useJobs()
+
   const navMain = [
-    { title: 'Dashboard', url: '/', icon: IconDashboard },
-    { title: 'Jobs', url: '/jobs', icon: IconListDetails },
-    { title: 'Analytics', url: '/analytics', icon: IconChartBar },
-    { title: 'Organisations', url: '/organisations', icon: Building2 },
+    { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+    { title: 'Jobs', url: '/jobs', icon: FolderKanban, badge: jobs?.length },
+    { title: 'Analytics', url: '/analytics', icon: BarChart2 },
+    { title: 'Organisations', url: '/organisations', icon: Landmark },
     { title: 'Contacts', url: '/contacts', icon: Users },
-    { title: 'Interview Prep', url: '/interview-prep', icon: BookOpen },
-    { title: 'Resume Library', url: '/resume', icon: FileText },
+    ...(user?.admin
+      ? [{ title: 'Admin', url: '/admin', icon: Shield }]
+      : []),
   ]
 
-  const navSecondary = [
-    { title: 'Settings', url: '/settings', icon: IconSettings },
-    ...(user?.admin ? [{ title: 'Admin', url: '/admin', icon: IconShield }] : []),
+  const navPrep = [
+    { title: 'Interviews', url: '/interview-prep', icon: Brain },
+    { title: 'Resumes', url: '/resume', icon: IdCard },
   ]
 
   const handleSignout = async () => {
@@ -47,34 +40,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="h-14 justify-center border-b border-[#E5E7EB]">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-            >
-              <Link to="/" className="flex items-center gap-2">
-                <FaPhoenixFramework className="size-5!" />
-                <span className="text-base font-semibold">JobJogger</span>
+            <SidebarMenuButton asChild className="h-auto p-0 hover:bg-transparent active:bg-transparent">
+              <Link to="/" className="flex items-center gap-2.5 px-1">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#2563EB]">
+                  <span className="text-[11px] font-bold tracking-tight text-white">JJ</span>
+                </div>
+                <span className="text-[15px] font-semibold text-[#111827]">JobJogger</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
-        <NavMain items={navMain} />
-        <NavSecondary items={navSecondary} className="mt-auto" />
+        <NavMain title="MAIN" items={navMain} />
+        <NavMain title="PREP" items={navPrep} />
       </SidebarContent>
-      <SidebarRail />
-      <SidebarFooter>
+
+      <SidebarFooter className="border-t border-[#E5E7EB]">
         {user ? (
           <NavUser user={user} signout={handleSignout} />
         ) : (
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton onClick={handleSignout}>
-                <IconLogout className="size-4" />
+                <LogOut className="size-4" />
                 <span>Sign out</span>
               </SidebarMenuButton>
             </SidebarMenuItem>

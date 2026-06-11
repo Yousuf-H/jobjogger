@@ -1,8 +1,8 @@
 import { AppSidebar } from '@/components/layout/AppSidebar'
+import BottomNav from '@/components/layout/BottomNav'
 import DemoBanner from '@/components/layout/DemoBanner'
 import TermsAcceptanceModal from '@/components/layout/TermsAcceptanceModal'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
-import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
   SidebarProvider,
@@ -10,13 +10,16 @@ import {
 } from '@/components/ui/sidebar'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 
 function LayoutContent() {
   const location = useLocation()
   const { setOpenMobile, isMobile } = useSidebar()
 
   useEffect(() => {
+    // Reset scroll position on every page navigation
+    window.scrollTo(0, 0)
+
     if (isMobile) {
       setOpenMobile(false)
     }
@@ -25,19 +28,25 @@ function LayoutContent() {
   return (
     <SidebarInset>
       <DemoBanner />
-      <header className="flex h-14 items-center justify-between gap-2 border-b px-4">
+      <header className="flex h-14 items-center justify-between gap-2 border-b border-[#E5E7EB] bg-white px-4">
+        {/* Desktop: sidebar toggle. Mobile: app logo */}
         <div className="flex items-center gap-2">
-          <SidebarTrigger />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
+          <div className="hidden md:flex items-center gap-2">
+            <SidebarTrigger />
+          </div>
+          <Link to="/" className="flex items-center gap-2 md:hidden">
+            <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#2563EB]">
+              <span className="text-[10px] font-bold tracking-tight text-white">JJ</span>
+            </div>
+            <span className="text-[15px] font-semibold text-[#111827]">JobJogger</span>
+          </Link>
         </div>
         <NotificationBell />
       </header>
-      <main className="flex-1 sm:p-4">
+      <main className="flex-1 p-4 pb-20 md:pb-4">
         <Outlet />
       </main>
+      <BottomNav />
     </SidebarInset>
   )
 }
@@ -47,12 +56,12 @@ export default function Layout() {
     <SidebarProvider
       style={
         {
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--sidebar-width': '220px',
           '--header-height': 'calc(var(--spacing) * 12)',
         } as React.CSSProperties
       }
     >
-      <AppSidebar collapsible="offcanvas" variant="floating" />
+      <AppSidebar collapsible="offcanvas" variant="sidebar" />
       <LayoutContent />
       <TermsAcceptanceModal />
     </SidebarProvider>

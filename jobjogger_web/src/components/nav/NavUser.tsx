@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,11 +14,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useSidebar } from '@/hooks/useSidebar'
 import { type User } from '@/types/user'
-import {
-  IconDotsVertical,
-  IconLogout,
-  IconUserCircle,
-} from '@tabler/icons-react'
+import { LogOut, Settings, UserCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 interface NavUserProps {
@@ -27,14 +22,17 @@ interface NavUserProps {
   signout: () => Promise<void>
 }
 
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
 export function NavUser({ user, signout }: NavUserProps) {
   const { isMobile } = useSidebar()
-
-  const getInitials = (name: string) => {
-    const names = name.split(' ')
-    const initials = names.map((n) => n[0]).join('')
-    return initials.toUpperCase()
-  }
 
   return (
     <SidebarMenu>
@@ -43,42 +41,33 @@ export function NavUser({ user, signout }: NavUserProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="rounded-[7px] hover:bg-[#F9FAFB] data-[state=open]:bg-[#F9FAFB]"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar_url || ''} alt={user.name} />
-                <AvatarFallback className="rounded-lg">
-                  {getInitials(user.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
-                </span>
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-[13px] font-semibold text-[#2563EB]">
+                {getInitials(user.name)}
               </div>
-              <IconDotsVertical className="ml-auto size-4" />
+              <div className="grid flex-1 text-left leading-tight">
+                <span className="truncate text-[13px] font-medium text-[#111827]">
+                  {user.name}
+                </span>
+                <span className="text-[11px] text-[#9CA3AF]">Settings</span>
+              </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-52 rounded-lg"
             side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar_url || ''} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {user.email}
-                  </span>
+              <div className="flex items-center gap-2 px-2 py-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-[13px] font-semibold text-[#2563EB]">
+                  {getInitials(user.name)}
+                </div>
+                <div className="grid flex-1 text-left leading-tight">
+                  <span className="truncate text-sm font-medium">{user.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -86,14 +75,20 @@ export function NavUser({ user, signout }: NavUserProps) {
             <DropdownMenuGroup>
               <Link to="/profile">
                 <DropdownMenuItem className="cursor-pointer">
-                  <IconUserCircle />
-                  Account
+                  <UserCircle className="mr-1 size-4" />
+                  Profile
+                </DropdownMenuItem>
+              </Link>
+              <Link to="/settings">
+                <DropdownMenuItem className="cursor-pointer">
+                  <Settings className="mr-1 size-4" />
+                  Settings
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer" onClick={signout}>
-              <IconLogout />
+              <LogOut className="mr-1 size-4" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
