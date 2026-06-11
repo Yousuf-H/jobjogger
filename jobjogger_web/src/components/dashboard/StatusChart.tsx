@@ -1,10 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart'
-import { Cell, Pie, PieChart } from 'recharts'
+import { getStatusConfig } from '@/lib/statusConfig'
 
 interface StatusData {
   status: string
@@ -17,110 +11,60 @@ interface StatusChartProps {
 }
 
 export function StatusChart({ data }: StatusChartProps) {
-  const total = data.reduce((sum, item) => sum + item.count, 0)
   const chartData = data.filter((item) => item.count > 0)
-
-  if (chartData.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Pipeline Overview</CardTitle>
-          <p className="text-muted-foreground text-sm">
-            Distribution of applications across stages
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="flex h-[250px] items-center justify-center">
-            <p className="text-muted-foreground text-sm">
-              No applications to display
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const chartConfig = Object.fromEntries(
-    chartData.map((item) => [
-      item.status,
-      {
-        label: item.status.replaceAll('_', ' '),
-        color: item.fill,
-      },
-    ])
-  )
+  const total = chartData.reduce((sum, item) => sum + item.count, 0)
 
   return (
-    <Card className="border-border/70 shadow-sm overflow-hidden">
-      <CardHeader>
-        <CardTitle>Pipeline Overview</CardTitle>
-        <p className="text-muted-foreground text-sm">
-          Distribution of applications across stages
+    <div className="flex flex-col gap-4 rounded-[10px] border border-[#E5E7EB] bg-white p-5">
+      <div>
+        <h2 className="text-[14px] font-semibold text-[#111827]">Application pipeline</h2>
+        <p className="mt-0.5 text-[12px] text-[#6B7280]">
+          Where your applications stand right now
         </p>
-      </CardHeader>
+      </div>
 
-      <CardContent>
-        <div className="grid items-center gap-8 md:grid-cols-2">
-          <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[200px]">
-            <PieChart>
-              <Pie
-                data={chartData}
-                dataKey="count"
-                nameKey="status"
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
-                paddingAngle={2}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    formatter={(value, name) => (
-                      <div className="flex items-center gap-2">
-                        <span className="capitalize">
-                          {String(name).replaceAll('_', ' ')}
-                        </span>
-                        <span className="font-bold">{value}</span>
-                      </div>
-                    )}
-                  />
-                }
-              />
-            </PieChart>
-          </ChartContainer>
-
-          <div className="space-y-3 rounded-md border p-4">
+      {chartData.length === 0 ? (
+        <p className="py-6 text-center text-[13px] text-[#9CA3AF]">No applications to display</p>
+      ) : (
+        <>
+          <div
+            className="overflow-hidden rounded-[8px]"
+            style={{ display: 'flex', height: 8 }}
+          >
             {chartData.map((item) => (
               <div
                 key={item.status}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="h-3 w-3 flex-shrink-0 rounded-full"
-                    style={{ backgroundColor: item.fill }}
-                  />
-                  <span className="text-sm capitalize">
-                    {item.status.replaceAll('_', ' ')}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 ">
-                  <span className="text-sm font-semibold">{item.count}</span>
-                  <span className="text-muted-foreground text-xs">
-                    ({Math.round((item.count / total) * 100)}%)
-                  </span>
-                </div>
-              </div>
+                style={{
+                  width: `${(item.count / total) * 100}%`,
+                  backgroundColor: item.fill,
+                }}
+              />
             ))}
           </div>
-        </div>
-      </CardContent>
-    </Card>
+
+          <div className="flex flex-col">
+            {chartData.map((item, i) => {
+              const label = getStatusConfig(item.status).label
+              const pct = Math.round((item.count / total) * 100)
+              const isLast = i === chartData.length - 1
+              return (
+                <div
+                  key={item.status}
+                  className={`flex items-center gap-3 py-2.5 ${isLast ? '' : 'border-b border-[#F3F4F6]'}`}
+                >
+                  <div
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: item.fill }}
+                  />
+                  <span className="flex-1 text-[12px] text-[#374151]">{label}</span>
+                  <span className="text-[12px] font-medium text-[#111827]">{item.count}</span>
+                  <span className="w-9 text-right text-[11px] text-[#9CA3AF]">{pct}%</span>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
+    </div>
   )
 }
