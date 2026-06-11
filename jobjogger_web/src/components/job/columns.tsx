@@ -1,5 +1,6 @@
 import ActionsCell from '@/components/job/ActionsCell'
-import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
+import { StatusBadge } from '@/components/job/StatusBadge'
+import { getPriorityConfig } from '@/lib/statusConfig'
 import type { Job } from '@/types/job'
 import type { ColumnDef } from '@tanstack/react-table'
 import { formatDistanceToNow, isFuture } from 'date-fns'
@@ -21,16 +22,11 @@ export const columns = (
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => {
-      const config = getStatusConfig(row.getValue('status'))
-      return (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.badgeClass}`}
-        >
-          {config.label}
-        </span>
-      )
-    },
+    cell: ({ row }) => (
+      <div onClick={(e) => e.stopPropagation()}>
+        <StatusBadge job={row.original} />
+      </div>
+    ),
   },
   {
     accessorKey: 'location',
