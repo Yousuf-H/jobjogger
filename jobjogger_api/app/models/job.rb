@@ -103,7 +103,10 @@ class Job < ApplicationRecord
   end
 
   def normalise_job_url
-    return if job_url.blank?
+    if job_url.blank?
+      self.job_url = nil
+      return
+    end
     return if job_url.start_with?('http://', 'https://')
 
     self.job_url = "https://#{job_url}"
