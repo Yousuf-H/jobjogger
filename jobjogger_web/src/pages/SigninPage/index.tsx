@@ -2,7 +2,7 @@ import Footer from '@/components/layout/Footer'
 import { TypographyH2 } from '@/components/ui/typography'
 import SigninForm from '@/components/user/SigninForm'
 import { usePageTitle } from '@/hooks/usePageTitle'
-import { Award, BarChart3, Briefcase, TrendingUp } from 'lucide-react'
+import { Award, BarChart3, TrendingUp } from 'lucide-react'
 
 export default function SigninPage() {
   usePageTitle('Sign in')
@@ -15,7 +15,7 @@ export default function SigninPage() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-white/20">
-              <Briefcase className="text-primary-foreground h-4 w-4" />
+              <span className="text-[11px] font-bold tracking-tight text-white">JJ</span>
             </div>
             <span className="text-primary-foreground text-lg font-semibold">
               JobJogger
@@ -88,7 +88,7 @@ export default function SigninPage() {
       <div className="relative flex flex-col items-center justify-center px-6 py-12 lg:col-span-3">
         <div className="mb-8 flex items-center gap-2 lg:hidden">
           <div className="bg-primary flex size-8 items-center justify-center rounded-lg">
-            <Briefcase className="text-primary-foreground h-4 w-4" />
+            <span className="text-[11px] font-bold tracking-tight text-white">JJ</span>
           </div>
           <span className="text-lg font-semibold">JobJogger</span>
         </div>

@@ -1,3 +1,4 @@
+import type React from 'react'
 import { JobForm } from '@/components/job/JobForm'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +17,13 @@ import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-export default function CreateJobDialog({ className }: { className?: string }) {
+export default function CreateJobDialog({
+  className,
+  trigger,
+}: {
+  className?: string
+  trigger?: React.ReactNode
+}) {
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
 
@@ -24,6 +31,8 @@ export default function CreateJobDialog({ className }: { className?: string }) {
     mutationFn: createJob,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       toast.success('Job created successfully!')
       setOpen(false)
     },
@@ -49,10 +58,12 @@ export default function CreateJobDialog({ className }: { className?: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="success" className={`min-w-36 ${className ?? ''}`}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          New Job
-        </Button>
+        {trigger ?? (
+          <Button size="sm" variant="success" className={`min-w-36 ${className ?? ''}`}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Job
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-h-[95vh] overflow-y-auto">

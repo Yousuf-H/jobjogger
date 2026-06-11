@@ -11,7 +11,7 @@ import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Job, JobFilters } from '@/types/job'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 export default function JobsPage() {
   usePageTitle('Jobs')
@@ -24,6 +24,16 @@ export default function JobsPage() {
   const { data, isLoading, error } = useJobs(filters)
   const { handleView, archiveMutation, unarchiveMutation, deleteMutation } =
     useJobActions()
+
+  const tableColumns = useMemo(
+    () => createColumns(
+      handleView,
+      archiveMutation.mutate,
+      unarchiveMutation.mutate,
+      deleteMutation.mutate,
+    ),
+    [handleView, archiveMutation.mutate, unarchiveMutation.mutate, deleteMutation.mutate],
+  )
 
   return (
     <div className="page-container space-y-4">
@@ -53,12 +63,7 @@ export default function JobsPage() {
           <PageError message={error.message} />
         ) : (
           <DataTable
-            columns={createColumns(
-              handleView,
-              archiveMutation.mutate,
-              unarchiveMutation.mutate,
-              deleteMutation.mutate
-            )}
+            columns={tableColumns}
             data={data || []}
             onRowClick={(row) => handleView((row as Job).id)}
           />

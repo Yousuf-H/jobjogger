@@ -1,6 +1,7 @@
 import { archiveJob, deleteJob, unarchiveJob } from '@/services/api/jobs'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -64,7 +65,7 @@ export function useJobActions(options?: UseJobActionsOptions) {
     },
   })
 
-  const handleView = (id: number) => navigate(`/jobs/${id}`)
+  const handleView = useCallback((id: number) => navigate(`/jobs/${id}`), [navigate])
 
   return {
     handleView,

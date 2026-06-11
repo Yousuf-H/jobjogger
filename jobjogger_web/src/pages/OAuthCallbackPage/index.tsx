@@ -32,7 +32,7 @@ export default function OAuthCallbackPage() {
       .catch(() => {
         navigate('/signin?oauth_error=true', { replace: true })
       })
-  }, [])
+  }, [jti, redirectTo, navigate, updateUser])
 
   return <PageLoading />
 }

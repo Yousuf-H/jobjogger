@@ -44,6 +44,8 @@ export function StatusBadge({ job }: StatusBadgeProps) {
       updateJob(job.id, { status: newStatus }),
     onSuccess: (_, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       toast.success('Status updated!')
       if (newStatus !== job.status && INTERVIEW_TRIGGER_STATUSES.includes(newStatus)) {
         setPromptOpen(true)
@@ -73,7 +75,7 @@ export function StatusBadge({ job }: StatusBadgeProps) {
         <button
           type="button"
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-opacity hover:opacity-80',
+            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition-opacity hover:opacity-80',
             'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             'disabled:pointer-events-none disabled:opacity-50',
             config.badgeClass
@@ -82,7 +84,7 @@ export function StatusBadge({ job }: StatusBadgeProps) {
           aria-label={`Change status. Current status: ${config.label}`}
         >
           {config.label}
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-3 w-3" />
         </button>
       </DropdownMenuTrigger>
 

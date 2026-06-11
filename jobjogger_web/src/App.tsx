@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AdminRoute } from '@/components/auth/AdminRoute'
 import { PostHogPageView } from '@/components/PostHogPageView'
 import Layout from '@/components/layout/Layout'
+import ActivityPage from '@/pages/ActivityPage'
 import AdminPage from '@/pages/AdminPage'
 import AnalyticsPage from '@/pages/AnalyticsPage'
 import ContactDetailPage from '@/pages/ContactDetailPage'
@@ -43,6 +44,7 @@ function App() {
           }
         >
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/activity" element={<ActivityPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:id" element={<JobDetailPage />} />

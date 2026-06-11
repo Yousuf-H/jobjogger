@@ -16,3 +16,20 @@ export interface TimelineEntry {
   created_at: string
   updated_at: string
 }
+
+export interface ActivityEntry extends TimelineEntry {
+  company_name: string
+  job_title: string
+}
+
+export interface ActivityMeta {
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
+}
+
+export interface ActivityResponse {
+  entries: ActivityEntry[]
+  meta: ActivityMeta
+}

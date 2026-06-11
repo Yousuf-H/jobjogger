@@ -554,7 +554,7 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ResumePage() {
-  usePageTitle('Resume Library')
+  usePageTitle('Resumes')
   const { data: templates, isLoading, isError } = useResumeTemplates()
   const [createOpen, setCreateOpen] = useState(false)
 
@@ -565,7 +565,7 @@ export default function ResumePage() {
     <div className="page-container space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <TypographyH1 className="text-2xl font-bold tracking-tight">Resume Library</TypographyH1>
+          <TypographyH1 className="text-2xl font-bold tracking-tight">Resumes</TypographyH1>
           <p className="text-muted-foreground text-sm">
             Manage your base resumes and tailored variants for each application.
           </p>

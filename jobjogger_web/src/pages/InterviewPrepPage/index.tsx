@@ -330,7 +330,7 @@ function QuestionCard({
 type ScopeTab = 'personal' | 'org' | 'job'
 
 export default function InterviewPrepPage() {
-  usePageTitle('Interview Prep')
+  usePageTitle('Interviews')
 
   const [scopeTab, setScopeTab] = useState<ScopeTab>('personal')
   const [categoryFilter, setCategoryFilter] = useState<
@@ -412,7 +412,7 @@ export default function InterviewPrepPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <TypographyH1 className="text-2xl font-bold tracking-tight">
-            Interview Prep
+            Interviews
           </TypographyH1>
           <p className="text-muted-foreground text-sm">
             Build your question bank across jobs, organisations, and personal
