@@ -28,7 +28,7 @@ function LayoutContent() {
   return (
     <SidebarInset>
       <DemoBanner />
-      <header className="flex h-14 items-center justify-between gap-2 border-b border-border bg-background px-4">
+      <header className="flex h-14 items-center justify-between gap-2 border-b border-sidebar-border bg-sidebar px-4">
         {/* Desktop: sidebar toggle. Mobile: app logo */}
         <div className="flex items-center gap-2">
           <div className="hidden md:flex items-center gap-2">
