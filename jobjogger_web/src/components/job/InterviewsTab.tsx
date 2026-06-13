@@ -1,4 +1,3 @@
-import EmptyTabState from '@/components/job/EmptyTabState'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -49,7 +48,6 @@ import {
 import {
   INTERVIEW_FORMAT_LABELS,
   INTERVIEW_FORMATS,
-  INTERVIEW_OUTCOME_LABELS,
   INTERVIEW_OUTCOMES,
   INTERVIEW_TYPE_LABELS,
   INTERVIEW_TYPES,
@@ -403,20 +401,17 @@ function InterviewCard({
 
   // Optimistic outcome: null means use server value
   const [optimisticOutcome, setOptimisticOutcome] = useState<InterviewOutcome | null>(null)
-  const displayOutcome = optimisticOutcome ?? interview.outcome
-  const outcomeConfig = OUTCOME_CONFIG[displayOutcome]
 
   const isPastInterview = isPast(new Date(interview.scheduled_at))
   const scheduledDate = new Date(interview.scheduled_at)
 
-  // Clear optimistic outcome only once the server value has caught up — avoids
-  // flickering caused by setOptimisticOutcome(null) firing before the invalidated
-  // query refetch updates the interview prop.
-  useEffect(() => {
-    if (optimisticOutcome !== null && interview.outcome === optimisticOutcome) {
-      setOptimisticOutcome(null)
-    }
-  }, [interview.outcome, optimisticOutcome])
+  // Show the optimistic value only while it still differs from the server value.
+  // Once interview.outcome catches up, displayOutcome resolves to it naturally —
+  // no setState-in-effect needed, and no flicker between optimistic and server state.
+  const displayOutcome = (optimisticOutcome !== null && interview.outcome !== optimisticOutcome)
+    ? optimisticOutcome
+    : interview.outcome
+  const outcomeConfig = OUTCOME_CONFIG[displayOutcome]
 
   const handleOutcome = (outcome: InterviewOutcome) => {
     if (readOnly || updateMutation.isPending) return
