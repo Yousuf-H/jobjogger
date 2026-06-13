@@ -206,3 +206,7 @@
     @apply text-foreground mb-6 text-2xl font-bold;
   }
 }
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
