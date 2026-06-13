@@ -35,6 +35,7 @@ import {
   Briefcase,
   Building2,
   Calendar,
+  CircleDollarSign,
   ExternalLink,
   Link2Off,
   MapPin,
@@ -246,6 +247,12 @@ export default function JobDetailPage() {
       value: formatDateDisplay(job.follow_up_date),
       valueClass: job.follow_up_date ? 'text-[#D97706] dark:text-amber-400' : undefined,
       show: Boolean(job.follow_up_date),
+    },
+    {
+      icon: CircleDollarSign,
+      label: 'Salary',
+      value: job.salary_range,
+      show: Boolean(job.salary_range),
     },
   ]
 
