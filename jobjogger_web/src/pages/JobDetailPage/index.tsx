@@ -14,6 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useOrganisations } from '@/hooks/useOrganisations'
@@ -87,12 +94,48 @@ function OrgRow({ jobId, organisationId }: { jobId: number; organisationId?: num
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       toast.success('Organisation detached.')
     },
-    onError: () => {
-      toast.error('Failed to detach organisation')
-    },
+    onError: () => toast.error('Failed to detach organisation'),
   })
 
-  if (!org) return null
+  const linkMutation = useMutation({
+    mutationFn: (orgId: number) => updateJob(jobId, { organisation_id: orgId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      toast.success('Organisation linked.')
+    },
+    onError: () => toast.error('Failed to link organisation'),
+  })
+
+  if (!org) {
+    // No orgs exist yet — nothing to link
+    if (!organisations || organisations.length === 0) return null
+
+    return (
+      <div className="rounded-[10px] border border-border bg-card p-[11px_16px]">
+        <div className="flex items-center gap-[12px]">
+          <div className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-[7px] bg-muted border border-border">
+            <Building2 className="h-[15px] w-[15px] text-muted-foreground" />
+          </div>
+          <Select
+            value=""
+            onValueChange={(v) => linkMutation.mutate(Number(v))}
+            disabled={linkMutation.isPending}
+          >
+            <SelectTrigger className="rounded-[7px] text-[12px] h-auto px-[10px] py-[7px] text-muted-foreground">
+              <SelectValue placeholder="Link an organisation…" />
+            </SelectTrigger>
+            <SelectContent>
+              {organisations.map((o) => (
+                <SelectItem key={o.id} value={String(o.id)}>
+                  {o.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -277,7 +320,7 @@ export default function JobDetailPage() {
         </div>
 
         {/* Metadata strip */}
-        {visibleMeta.length > 0 && (
+        {(visibleMeta.length > 0 || job.job_url) && (
           <div className="mt-[14px] pt-[14px] border-t border-border/60 flex flex-wrap items-center gap-y-[10px]">
             {visibleMeta.map((m, i) => (
               <MetaItem key={i} icon={m.icon} label={m.label} value={m.value} valueClass={m.valueClass} />
@@ -304,10 +347,8 @@ export default function JobDetailPage() {
         )}
       </div>
 
-      {/* Org row — only when linked */}
-      {job.organisation_id && (
-        <OrgRow jobId={job.id} organisationId={job.organisation_id} />
-      )}
+      {/* Org row — shows linked org or a selector to attach one */}
+      <OrgRow jobId={job.id} organisationId={job.organisation_id} />
 
       {/* Tabs */}
       <JobTabs job={job} timelineEntries={timeline_entries || []} />
