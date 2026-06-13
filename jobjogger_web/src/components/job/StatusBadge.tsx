@@ -4,7 +4,7 @@ import { Check, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { getStatusConfig } from '@/lib/statusConfig'
+import { STATUS_CONFIG, getStatusConfig } from '@/lib/statusConfig'
 import { cn } from '@/lib/utils'
 import { updateJob } from '@/services/api/jobs'
 
@@ -70,53 +70,58 @@ export function StatusBadge({ job }: StatusBadgeProps) {
         onOpenChange={setPromptOpen}
         jobId={job.id}
       />
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition-opacity hover:opacity-80',
-            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-            'disabled:pointer-events-none disabled:opacity-50',
-            config.badgeClass
-          )}
-          disabled={mutation.isPending}
-          aria-label={`Change status. Current status: ${config.label}`}
-        >
-          {config.label}
-          <ChevronDown className="h-3 w-3" />
-        </button>
-      </DropdownMenuTrigger>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className={cn(
+              'inline-flex items-center gap-[5px] rounded-full px-[9px] py-[3px] text-[11px] font-medium transition-opacity hover:opacity-80',
+              'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+              'disabled:pointer-events-none disabled:opacity-50',
+              config.badgeClass
+            )}
+            disabled={mutation.isPending}
+            aria-label={`Change status. Current status: ${config.label}`}
+          >
+            <span
+              className="h-[6px] w-[6px] rounded-full shrink-0"
+              style={{ backgroundColor: config.color }}
+            />
+            {config.label}
+            <ChevronDown className="h-[10px] w-[10px]" />
+          </button>
+        </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="w-38">
-        {(job.status === 'wishlist' ? STATUS_OPTIONS.filter(o => !TERMINAL_STATUSES.includes(o.value)) : STATUS_OPTIONS).map((option) => {
-          const optionConfig = getStatusConfig(option.value)
-          return (
-            <DropdownMenuItem
-              key={option.value}
-              onClick={() => handleStatusChange(option.value)}
-              disabled={mutation.isPending}
-              className="cursor-pointer"
-            >
-              <div className="flex w-full items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={cn(
-                      'h-2.5 w-2.5 rounded-full',
-                      optionConfig.badgeClass
-                    )}
-                  />
-                  <span>{option.label}</span>
+        <DropdownMenuContent align="start" className="w-40">
+          {(job.status === 'wishlist'
+            ? STATUS_OPTIONS.filter((o) => !TERMINAL_STATUSES.includes(o.value))
+            : STATUS_OPTIONS
+          ).map((option) => {
+            const optionConfig = STATUS_CONFIG[option.value]
+            return (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => handleStatusChange(option.value)}
+                disabled={mutation.isPending}
+                className="cursor-pointer"
+              >
+                <div className="flex w-full items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 rounded-full shrink-0"
+                      style={{ backgroundColor: optionConfig.color }}
+                    />
+                    <span>{option.label}</span>
+                  </div>
+                  {job.status === option.value && (
+                    <Check className="text-primary h-4 w-4" />
+                  )}
                 </div>
-                {job.status === option.value && (
-                  <Check className="text-primary h-4 w-4" />
-                )}
-              </div>
-            </DropdownMenuItem>
-          )
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+              </DropdownMenuItem>
+            )
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   )
 }
