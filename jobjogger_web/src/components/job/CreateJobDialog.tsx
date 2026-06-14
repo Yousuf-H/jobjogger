@@ -59,7 +59,7 @@ export default function CreateJobDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button size="sm" variant="success" className={`min-w-36 ${className ?? ''}`}>
+          <Button size="sm" variant="default" className={`min-w-36 ${className ?? ''}`}>
             <Plus className="mr-1.5 h-4 w-4" />
             New Job
           </Button>

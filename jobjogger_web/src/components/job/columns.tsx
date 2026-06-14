@@ -1,97 +1,80 @@
 import ActionsCell from '@/components/job/ActionsCell'
 import { StatusBadge } from '@/components/job/StatusBadge'
-import { getPriorityConfig } from '@/lib/statusConfig'
 import type { Job } from '@/types/job'
 import type { ColumnDef } from '@tanstack/react-table'
-import { formatDistanceToNow, isFuture } from 'date-fns'
+import { format, formatDistanceToNow, isFuture, parseISO } from 'date-fns'
 
 export const columns = (
   onView: (id: number) => void,
   onArchive: (id: number) => void,
   onUnarchive: (id: number) => void,
-  onDelete: (id: number) => void
-): ColumnDef<Job>[] => [
-  {
-    accessorKey: 'company_name',
-    header: 'Company Name',
-  },
-  {
-    accessorKey: 'job_title',
-    header: 'Job Title',
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => (
-      <div onClick={(e) => e.stopPropagation()}>
-        <StatusBadge job={row.original} />
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'location',
-    header: 'Location',
-  },
-  {
-    accessorKey: 'priority',
-    header: 'Priority',
-    cell: ({ row }) => {
-      const priority = row.getValue('priority') as string
-      if (!priority) return null
-      const config = getPriorityConfig(priority)
-      if (!config) return null
-      return (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.badgeClass}`}
-        >
-          {config.label}
-        </span>
-      )
+  onDelete: (id: number) => void,
+  hasFollowUp = false,
+  hasNextInterview = false,
+): ColumnDef<Job>[] => {
+  const cols: ColumnDef<Job>[] = [
+    {
+      accessorKey: 'company_name',
+      header: 'Company',
     },
-  },
-  {
-    accessorKey: 'follow_up_date',
-    header: 'Follow Up Date',
-    cell: ({ row }) => {
-      const date = row.getValue('follow_up_date') as string
-      if (!date) return null
-      const formatted = new Date(date).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const [year, month, day] = date.split('-').map(Number)
-      const followUpDay = new Date(year, month - 1, day)
-      const isOverdue = followUpDay < today
-      return (
-        <span className={isOverdue ? 'text-destructive font-medium' : ''}>
-          {formatted}
-        </span>
-      )
+    {
+      accessorKey: 'job_title',
+      header: 'Role',
     },
-  },
-  {
-    accessorKey: 'next_interview_at',
-    header: 'Next Interview',
-    cell: ({ row }) => {
-      const job = row.original as import('@/types/job').Job
-      if (!job.next_interview_at) return null
-      const date = new Date(job.next_interview_at)
-      if (!isFuture(date)) return null
-      return (
-        <span className="text-violet-600 dark:text-violet-400 font-medium text-xs">
-          {formatDistanceToNow(date, { addSuffix: true })}
-        </span>
-      )
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <StatusBadge job={row.original} />
+        </div>
+      ),
     },
-  },
-  {
+  ]
+
+  if (hasFollowUp) {
+    cols.push({
+      accessorKey: 'follow_up_date',
+      header: 'Follow-up',
+      cell: ({ row }) => {
+        const date = row.getValue('follow_up_date') as string
+        if (!date) return null
+        const [year, month, day] = date.split('T')[0].split('-').map(Number)
+        const followUpDay = new Date(year, month - 1, day)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const isOverdue = followUpDay < today
+        return (
+          <span className={isOverdue ? 'text-destructive font-medium' : 'text-foreground/80'}>
+            {format(parseISO(date.split('T')[0]), 'd MMM yyyy')}
+          </span>
+        )
+      },
+    })
+  }
+
+  if (hasNextInterview) {
+    cols.push({
+      accessorKey: 'next_interview_at',
+      header: 'Next Interview',
+      cell: ({ row }) => {
+        const job = row.original
+        if (!job.next_interview_at) return null
+        const date = new Date(job.next_interview_at)
+        if (!isFuture(date)) return null
+        return (
+          <span className="text-violet-600 dark:text-violet-400 font-medium text-xs">
+            {formatDistanceToNow(date, { addSuffix: true })}
+          </span>
+        )
+      },
+    })
+  }
+
+  cols.push({
     id: 'actions',
     cell: ({ row }) => {
       const job = row.original
-
       return (
         <div onClick={(e) => e.stopPropagation()}>
           <ActionsCell
@@ -105,5 +88,7 @@ export const columns = (
         </div>
       )
     },
-  },
-]
+  })
+
+  return cols
+}

@@ -1,6 +1,3 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { Check, PlusCircle } from 'lucide-react'
 import { useState } from 'react'
@@ -25,6 +22,7 @@ export function FacetedFilter({
   onSelectionChange,
 }: FacetedFilterProps) {
   const [open, setOpen] = useState(false)
+  const isActive = selected.size > 0
 
   const toggleOption = (value: string) => {
     const next = new Set(selected)
@@ -37,27 +35,25 @@ export function FacetedFilter({
   }
 
   return (
-    <div className="relative">
-      <Button
-        variant="outline"
-        size="sm"
-        className="h-8 border-dashed text-xs"
+    <div className="relative shrink-0">
+      <button
+        type="button"
         onClick={() => setOpen(!open)}
-      >
-        <PlusCircle className="mr-2 h-3.5 w-3.5" />
-        {title}
-        {selected.size > 0 && (
-          <>
-            <Separator orientation="vertical" className="mx-2 h-4" />
-            <Badge
-              variant="secondary"
-              className="rounded-sm px-1 font-normal text-xs"
-            >
-              {selected.size}
-            </Badge>
-          </>
+        className={cn(
+          'inline-flex items-center gap-1.5 h-8 rounded-full border px-3 text-xs font-normal whitespace-nowrap transition-colors cursor-pointer',
+          isActive
+            ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800'
+            : 'bg-background text-muted-foreground border-dashed border-border hover:text-foreground hover:bg-muted/60'
         )}
-      </Button>
+      >
+        <PlusCircle className="h-3.5 w-3.5 shrink-0" />
+        {title}
+        {isActive && (
+          <span className="ml-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-[5px] py-px text-[10px] font-medium leading-none">
+            {selected.size}
+          </span>
+        )}
+      </button>
 
       {open && (
         <>
@@ -102,9 +98,9 @@ export function FacetedFilter({
               })}
             </div>
 
-            {selected.size > 0 && (
+            {isActive && (
               <>
-                <Separator className="my-1" />
+                <div className="my-1 h-px bg-border" />
                 <button
                   type='button'
                   onClick={() => onSelectionChange(new Set())}

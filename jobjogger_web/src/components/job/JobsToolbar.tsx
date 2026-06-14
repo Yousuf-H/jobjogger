@@ -1,10 +1,9 @@
 import { FacetedFilter } from '@/components/job/FacetedFilter'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import { useDebounce } from '@/hooks/useDebounce'
+import { cn } from '@/lib/utils'
 import type { JobFilters, JobStatus } from '@/types/job'
 import { AlertTriangle, Archive, CalendarClock, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -38,6 +37,10 @@ const SOURCE_OPTIONS: { label: string; value: JobSource }[] = [
   { label: 'Other', value: 'other' },
 ]
 
+const PILL_BASE = 'inline-flex items-center gap-1.5 h-8 rounded-full border px-3 text-xs font-normal whitespace-nowrap transition-colors cursor-pointer shrink-0'
+const PILL_INACTIVE = 'bg-background text-muted-foreground border-border hover:text-foreground hover:bg-muted/60'
+const PILL_ACTIVE = 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800'
+
 interface JobsToolbarProps {
   onFiltersChange: (filters: JobFilters) => void
   resultCount: number
@@ -48,12 +51,8 @@ export function JobsToolbar({
   resultCount,
 }: JobsToolbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedStatuses, setSelectedStatuses] = useState<Set<string>>(
-    new Set()
-  )
-  const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(
-    new Set()
-  )
+  const [selectedStatuses, setSelectedStatuses] = useState<Set<string>>(new Set())
+  const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(new Set())
   const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set())
   const [dueThisWeek, setDueThisWeek] = useState(false)
   const [overdue, setOverdue] = useState(false)
@@ -77,15 +76,7 @@ export function JobsToolbar({
       ...(overdue && { overdue: true }),
       archived: showArchived,
     }),
-    [
-      selectedStatuses,
-      selectedPriorities,
-      selectedSources,
-      debouncedSearch,
-      dueThisWeek,
-      overdue,
-      showArchived,
-    ]
+    [selectedStatuses, selectedPriorities, selectedSources, debouncedSearch, dueThisWeek, overdue, showArchived]
   )
 
   useEffect(() => {
@@ -176,76 +167,70 @@ export function JobsToolbar({
   return (
     <Card className="border-0 shadow-sm">
       <CardContent className="space-y-3 p-4">
-        {/* Search + filters row */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Search + filter pills */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Input
             placeholder="Search jobs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-8 w-full text-sm sm:w-[200px] lg:w-[280px]"
+            className="h-8 w-full shrink-0 text-sm sm:w-[200px] lg:w-[260px]"
           />
 
-          <FacetedFilter
-            title="Status"
-            options={STATUS_OPTIONS}
-            selected={selectedStatuses}
-            onSelectionChange={setSelectedStatuses}
-          />
+          {/* Scrollable pills row */}
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-1.5 min-w-max">
+              <FacetedFilter
+                title="Status"
+                options={STATUS_OPTIONS}
+                selected={selectedStatuses}
+                onSelectionChange={setSelectedStatuses}
+              />
+              <FacetedFilter
+                title="Priority"
+                options={PRIORITY_OPTIONS}
+                selected={selectedPriorities}
+                onSelectionChange={setSelectedPriorities}
+              />
+              <FacetedFilter
+                title="Source"
+                options={SOURCE_OPTIONS}
+                selected={selectedSources}
+                onSelectionChange={setSelectedSources}
+              />
 
-          <FacetedFilter
-            title="Priority"
-            options={PRIORITY_OPTIONS}
-            selected={selectedPriorities}
-            onSelectionChange={setSelectedPriorities}
-          />
+              <div className="h-4 w-px bg-border mx-1 shrink-0" />
 
-          <FacetedFilter
-            title="Source"
-            options={SOURCE_OPTIONS}
-            selected={selectedSources}
-            onSelectionChange={setSelectedSources}
-          />
+              <button
+                type="button"
+                onClick={() => setDueThisWeek(!dueThisWeek)}
+                className={cn(PILL_BASE, dueThisWeek ? PILL_ACTIVE : PILL_INACTIVE)}
+              >
+                <CalendarClock className="h-3.5 w-3.5 shrink-0" />
+                Due this week
+              </button>
 
-          <Separator orientation="vertical" className="hidden h-5 sm:block" />
+              <button
+                type="button"
+                onClick={() => setOverdue(!overdue)}
+                className={cn(PILL_BASE, overdue ? PILL_ACTIVE : PILL_INACTIVE)}
+              >
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                Overdue
+              </button>
 
-          <Button
-            type="button"
-            variant={dueThisWeek ? 'default' : 'outline'}
-            size="sm"
-            className="h-8 text-xs"
-            onClick={() => setDueThisWeek(!dueThisWeek)}
-          >
-            <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
-            Due this week
-          </Button>
-
-          <Button
-            type="button"
-            variant={overdue ? 'destructive' : 'outline'}
-            size="sm"
-            className="h-8 text-xs"
-            onClick={() => setOverdue(!overdue)}
-          >
-            <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
-            Overdue
-          </Button>
-
-          <Button
-            type="button"
-            variant={showArchived ? 'default' : 'outline'}
-            size="sm"
-            className="h-8 text-xs"
-            onClick={() => setShowArchived(!showArchived)}
-          >
-            <Archive className="mr-1.5 h-3.5 w-3.5" />
-            Archived
-          </Button>
-
-          <div className="sm:ml-auto">
+              <button
+                type="button"
+                onClick={() => setShowArchived(!showArchived)}
+                className={cn(PILL_BASE, showArchived ? PILL_ACTIVE : PILL_INACTIVE)}
+              >
+                <Archive className="h-3.5 w-3.5 shrink-0" />
+                Archived
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Active filter chips + result count */}
+        {/* Result count + active chips */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-muted-foreground text-xs font-medium">
             {resultCount} {resultCount === 1 ? 'job' : 'jobs'}
@@ -253,7 +238,7 @@ export function JobsToolbar({
 
           {activeChips.length > 0 && (
             <>
-              <Separator orientation="vertical" className="h-4" />
+              <div className="h-4 w-px bg-border" />
 
               {activeChips.map((chip) => (
                 <Badge
