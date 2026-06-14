@@ -301,7 +301,7 @@ export default function JobDetailPage() {
 
       {/* Header card */}
       <div className="rounded-[10px] border border-border bg-card p-[18px_20px]">
-        {/* Badges row */}
+        {/* Row 1 — status/priority/source + updated timestamp */}
         <div className="mb-[12px] flex flex-wrap items-center gap-[8px]">
           <StatusBadge job={job} />
 
@@ -318,17 +318,7 @@ export default function JobDetailPage() {
             </span>
           )}
 
-          {job.tags?.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-[4px] rounded-full border border-border bg-muted px-[9px] py-[3px] text-[11px] font-medium text-muted-foreground"
-            >
-              <Tag className="h-[10px] w-[10px]" />
-              {tag}
-            </span>
-          ))}
-
-          <span className="text-[11px] text-muted-foreground ml-auto">
+          <span className="text-[11px] text-muted-foreground w-full sm:w-auto sm:ml-auto">
             Updated {formatDistanceToNow(new Date(job.updated_at), { addSuffix: true })}
           </span>
         </div>
@@ -345,6 +335,26 @@ export default function JobDetailPage() {
           </div>
           <span className="text-[13px] font-medium text-foreground/80">{job.company_name}</span>
         </div>
+
+        {/* Tags row — below title/company, above metadata strip */}
+        {job.tags?.length > 0 && (
+          <div className="mt-[12px] mb-[4px]">
+            <span className="block mb-[6px] text-[10px] font-medium uppercase tracking-[0.5px] text-[#9CA3AF]">
+              Tags
+            </span>
+            <div className="flex flex-wrap gap-[6px]">
+              {job.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-[4px] rounded-full border-[0.5px] border-[#E5E7EB] bg-transparent px-[9px] py-[2px] text-[11px] font-normal text-[#6B7280] dark:border-border dark:text-muted-foreground"
+                >
+                  <Tag className="h-[10px] w-[10px] text-[#9CA3AF] dark:text-muted-foreground" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Metadata strip */}
         {(visibleMeta.length > 0 || job.job_url) && (
