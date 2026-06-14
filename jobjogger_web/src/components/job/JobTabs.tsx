@@ -1,12 +1,12 @@
 import { JobContactsTab } from '@/components/job/JobContactsTab'
 import { InterviewsTab } from '@/components/job/InterviewsTab'
 import { ResumeTab } from '@/components/job/ResumeTab'
-import { Card } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 import { useJobContacts } from '@/hooks/useContacts'
 import { useInterviews } from '@/hooks/useInterviews'
 import type { Job } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
+import { useState } from 'react'
 
 import { JobInfoTab } from './JobInfoTab'
 import { NotesTab } from './NotesTab'
@@ -17,102 +17,71 @@ interface JobTabsProps {
   timelineEntries: TimelineEntry[]
 }
 
+type TabKey = 'description' | 'notes' | 'timeline' | 'contacts' | 'interviews' | 'resume'
+
 export function JobTabs({ job, timelineEntries }: JobTabsProps) {
   const { data: jobContacts = [] } = useJobContacts(job.id)
   const { data: interviews = [] } = useInterviews(job.id)
   const showInterviews = job.status !== 'wishlist' || interviews.length > 0
+  const [activeTab, setActiveTab] = useState<TabKey>('description')
+
+  const tabs: { key: TabKey; label: string; count?: number; show?: boolean }[] = [
+    { key: 'description', label: 'Description' },
+    { key: 'notes', label: 'Notes' },
+    { key: 'timeline', label: 'Timeline', count: timelineEntries.length },
+    { key: 'contacts', label: 'Contacts', count: jobContacts.length },
+    { key: 'interviews', label: 'Interviews', count: interviews.length, show: showInterviews },
+    { key: 'resume', label: 'Resume' },
+  ]
+
   return (
-    <Card className="overflow-hidden border-0 shadow-sm">
-      <Tabs defaultValue="description" className="w-full">
-        <div className="overflow-x-auto px-6 pt-2">
-          <TabsList className="h-auto w-max min-w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
-            <TabsTrigger
-              value="description"
-              className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Description
-            </TabsTrigger>
-            <TabsTrigger
-              value="notes"
-              className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Notes
-            </TabsTrigger>
-            <TabsTrigger
-              value="timeline"
-              className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Timeline
-              {timelineEntries.length > 0 && (
-                <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
-                  {timelineEntries.length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger
-              value="contacts"
-              className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Contacts
-              {jobContacts.length > 0 && (
-                <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
-                  {jobContacts.length}
-                </span>
-              )}
-            </TabsTrigger>
-            {showInterviews && (
-              <TabsTrigger
-                value="interviews"
-                className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+    <div className="rounded-[10px] border border-border bg-card overflow-hidden">
+      {/* Tab bar */}
+      <div className="overflow-x-auto border-b border-border px-[16px] flex scrollbar-hide">
+        {tabs
+          .filter((t) => t.show !== false)
+          .map((tab) => {
+            const isActive = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'flex shrink-0 items-center gap-[5px] whitespace-nowrap border-b-2 -mb-px px-[12px] py-[11px] text-[12px] cursor-pointer transition-colors',
+                  isActive
+                    ? 'border-[#2563EB] text-[#2563EB] font-medium dark:text-blue-400 dark:border-blue-400'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                )}
               >
-                Interviews
-                {interviews.length > 0 && (
-                  <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
-                    {interviews.length}
+                {tab.label}
+                {tab.count != null && tab.count > 0 && (
+                  <span
+                    className={cn(
+                      'rounded-full px-[5px] py-[1px] text-[10px] leading-tight',
+                      isActive
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300'
+                        : 'bg-muted text-muted-foreground'
+                    )}
+                  >
+                    {tab.count}
                   </span>
                 )}
-              </TabsTrigger>
-            )}
-            <TabsTrigger
-              value="resume"
-              className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Resume
-            </TabsTrigger>
-          </TabsList>
-        </div>
+              </button>
+            )
+          })}
+      </div>
 
-        <div className="p-6">
-          <TabsContent value="description" className="mt-0">
-            <JobInfoTab job={job} />
-          </TabsContent>
-
-          <TabsContent value="notes" className="mt-0">
-            <NotesTab job={job} />
-          </TabsContent>
-
-          <TabsContent value="timeline" className="mt-0">
-            <TimelineTab timelineEntries={timelineEntries} job={job} />
-          </TabsContent>
-
-          <TabsContent value="contacts" className="mt-0">
-            <JobContactsTab
-              jobId={job.id}
-              organisationId={job.organisation_id}
-            />
-          </TabsContent>
-
-          {showInterviews && (
-            <TabsContent value="interviews" className="mt-0">
-              <InterviewsTab jobId={job.id} status={job.status} organisationId={job.organisation_id ?? null} />
-            </TabsContent>
-          )}
-
-          <TabsContent value="resume" className="mt-0">
-            <ResumeTab jobId={job.id} status={job.status} resumeVariantId={job.resume_variant_id} />
-          </TabsContent>
-        </div>
-      </Tabs>
-    </Card>
+      {/* Tab content */}
+      <div className="p-[16px_20px] md:p-[16px_20px]">
+        {activeTab === 'description' && <JobInfoTab job={job} />}
+        {activeTab === 'notes' && <NotesTab job={job} />}
+        {activeTab === 'timeline' && <TimelineTab timelineEntries={timelineEntries} job={job} />}
+        {activeTab === 'contacts' && <JobContactsTab jobId={job.id} organisationId={job.organisation_id} />}
+        {activeTab === 'interviews' && showInterviews && (
+          <InterviewsTab jobId={job.id} status={job.status} organisationId={job.organisation_id ?? null} companyName={job.company_name} />
+        )}
+        {activeTab === 'resume' && <ResumeTab jobId={job.id} status={job.status} resumeVariantId={job.resume_variant_id} />}
+      </div>
+    </div>
   )
 }

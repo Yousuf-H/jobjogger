@@ -4,9 +4,6 @@ import { JobTabs } from '@/components/job/JobTabs'
 import { StatusBadge } from '@/components/job/StatusBadge'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,41 +13,36 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Separator } from '@/components/ui/separator'
-import { TypographyH1 } from '@/components/ui/typography'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { usePageTitle } from '@/hooks/usePageTitle'
-import { getPriorityConfig, getStatusConfig } from '@/lib/statusConfig'
+import { getPriorityConfig } from '@/lib/statusConfig'
+import { cn } from '@/lib/utils'
 import { updateJob } from '@/services/api/jobs'
-import { formatDistanceToNow, isFuture } from 'date-fns'
+import { formatDistanceToNow, parseISO, format, isPast } from 'date-fns'
 import {
   ArrowLeft,
+  Bell,
   Briefcase,
   Building2,
   Calendar,
   CalendarClock,
-  CalendarCheck2,
-  Clock,
-  DollarSign,
+  CircleDollarSign,
   ExternalLink,
-  Globe,
-  Link2,
   Link2Off,
   MapPin,
+  Pencil,
   Star,
-  Tag as TagIcon,
+  Tag,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import { useState } from 'react'
@@ -58,9 +50,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-function formatRelativeDate(dateString?: string | null): string {
-  if (!dateString) return 'Not available'
-  return formatDistanceToNow(new Date(dateString), { addSuffix: true })
+function formatDateDisplay(dateString?: string | null): string {
+  if (!dateString) return '—'
+  const d = parseISO(dateString.split('T')[0])
+  return format(d, 'd MMM yyyy')
 }
 
 function formatLabel(value?: string | null): string {
@@ -68,192 +61,147 @@ function formatLabel(value?: string | null): string {
   return value.replaceAll('_', ' ')
 }
 
-function formatDate(dateString?: string | null): string {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-function MetaItem({
-  icon: Icon,
-  children,
-}: {
-  icon: ElementType
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-center gap-1.5 text-sm">
-      <Icon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  )
-}
-
-function QuickStat({
-  icon: Icon,
-  label,
-  value,
-  iconClassName,
-}: {
+type MetaItemProps = {
   icon: ElementType
   label: string
-  value: string
-  iconClassName?: string
-}) {
+  value: React.ReactNode
+  valueClass?: string
+}
+
+function MetaItem({ icon: Icon, label, value, valueClass }: MetaItemProps) {
   return (
-    <div className="flex items-center gap-3">
-      <div
-        className={`flex size-9 items-center justify-center rounded-lg ${iconClassName ?? 'bg-muted text-muted-foreground'}`}
-      >
-        <Icon className="h-4 w-4" />
+    <div className="flex items-center gap-[8px] pr-[20px] mr-[20px] border-r border-border last:border-r-0 last:pr-0 last:mr-0">
+      <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-muted border border-border/60">
+        <Icon className="h-[13px] w-[13px] text-muted-foreground" />
       </div>
-      <div>
-        <p className="text-muted-foreground text-xs">{label}</p>
-        <p className="text-sm font-medium">{value}</p>
+      <div className="flex flex-col">
+        <span className="text-[10px] text-muted-foreground leading-tight">{label}</span>
+        <span className={cn('text-[12px] font-medium text-foreground/80 leading-tight', valueClass)}>
+          {value}
+        </span>
       </div>
     </div>
   )
 }
 
-function LinkOrgDialog({
-  onLink,
-  isPending,
-}: {
-  onLink: (orgId: number) => void
-  isPending: boolean
-}) {
-  const [open, setOpen] = useState(false)
-  const { data: organisations } = useOrganisations()
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Link2 className="mr-1.5 h-3.5 w-3.5" />
-          Link Organisation
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Link Organisation</DialogTitle>
-          <DialogDescription>
-            Choose an organisation to link to this job.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="max-h-64 space-y-1 overflow-y-auto">
-          {!organisations || organisations.length === 0 ? (
-            <p className="text-muted-foreground py-4 text-center text-sm">
-              No organisations found.
-            </p>
-          ) : (
-            organisations.map((org) => (
-              <button
-                key={org.id}
-                className="hover:bg-muted w-full rounded-md px-3 py-2 text-left transition-colors"
-                disabled={isPending}
-                onClick={() => {
-                  onLink(org.id)
-                  setOpen(false)
-                }}
-              >
-                <p className="text-sm font-medium">{org.name}</p>
-                {org.industry && (
-                  <p className="text-muted-foreground text-xs">{org.industry}</p>
-                )}
-              </button>
-            ))
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function OrganisationSection({ jobId, organisationId }: { jobId: number; organisationId?: number | null }) {
+function OrgRow({ jobId, organisationId }: { jobId: number; organisationId?: number | null }) {
   const queryClient = useQueryClient()
   const { data: organisations } = useOrganisations()
   const org = organisations?.find((o) => o.id === organisationId)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [hoverDetach, setHoverDetach] = useState(false)
 
-  const linkMutation = useMutation({
-    mutationFn: (orgId: number | null) =>
-      updateJob(jobId, { organisation_id: orgId }),
-    onSuccess: (_data, orgId) => {
+  const detachMutation = useMutation({
+    mutationFn: () => updateJob(jobId, { organisation_id: null }),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      toast.success(orgId == null ? 'Organisation detached.' : 'Organisation linked!')
+      toast.success('Organisation detached.')
     },
-    onError: () => {
-      toast.error('Failed to update organisation link')
-    },
+    onError: () => toast.error('Failed to detach organisation'),
   })
 
+  const linkMutation = useMutation({
+    mutationFn: (orgId: number) => updateJob(jobId, { organisation_id: orgId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      toast.success('Organisation linked.')
+    },
+    onError: () => toast.error('Failed to link organisation'),
+  })
+
+  if (!org) {
+    // No orgs exist yet — nothing to link
+    if (!organisations || organisations.length === 0) return null
+
+    return (
+      <div className="rounded-[10px] border border-border bg-card p-[11px_16px]">
+        <div className="flex items-center gap-[12px]">
+          <div className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-[7px] bg-muted border border-border">
+            <Building2 className="h-[15px] w-[15px] text-muted-foreground" />
+          </div>
+          <Select
+            value=""
+            onValueChange={(v) => linkMutation.mutate(Number(v))}
+            disabled={linkMutation.isPending}
+          >
+            <SelectTrigger className="rounded-[7px] text-[12px] h-auto px-[10px] py-[7px] text-muted-foreground">
+              <SelectValue placeholder="Link an organisation…" />
+            </SelectTrigger>
+            <SelectContent>
+              {organisations.map((o) => (
+                <SelectItem key={o.id} value={String(o.id)}>
+                  {o.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <Card className="mb-6 border-0 shadow-sm">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-lg">
-              <Building2 className="h-4 w-4" />
-            </div>
-            {org ? (
-              <div>
-                <Link
-                  to={`/organisations/${org.id}`}
-                  className="text-sm font-semibold hover:underline"
-                >
-                  {org.name}
-                </Link>
-                {org.industry && (
-                  <p className="text-muted-foreground text-xs">{org.industry}</p>
-                )}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">No organisation linked</p>
+    <>
+      <div className="rounded-[10px] border border-border bg-card p-[11px_16px]">
+        <div className="flex items-center gap-[12px]">
+          <div className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-[7px] bg-muted border border-border">
+            <Building2 className="h-[15px] w-[15px] text-muted-foreground" />
+          </div>
+          <div className="flex flex-1 flex-col min-w-0">
+            <span className="text-[13px] font-medium text-foreground truncate">{org.name}</span>
+            {org.industry && (
+              <span className="text-[11px] text-muted-foreground">{org.industry}</span>
             )}
           </div>
-
-          <div className="flex items-center gap-2">
-            {org ? (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-destructive"
-                    disabled={linkMutation.isPending}
-                  >
-                    <Link2Off className="mr-1.5 h-3.5 w-3.5" />
-                    Detach
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Detach organisation?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <strong>{org.name}</strong> will be removed from this job.
-                      The organisation itself won't be deleted.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => linkMutation.mutate(null)}>
-                      Detach
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : (
-              <LinkOrgDialog
-                onLink={(orgId) => linkMutation.mutate(orgId)}
-                isPending={linkMutation.isPending}
-              />
-            )}
+          <div className="flex items-center gap-[10px] shrink-0">
+            <Link
+              to={`/organisations/${org.id}`}
+              className="text-[12px] font-medium text-[#2563EB] hover:underline"
+            >
+              View organisation
+            </Link>
+            <span className="text-border">|</span>
+            <button
+              onClick={() => setConfirmOpen(true)}
+              onMouseEnter={() => setHoverDetach(true)}
+              onMouseLeave={() => setHoverDetach(false)}
+              disabled={detachMutation.isPending}
+              className={cn(
+                'flex items-center gap-1 rounded-[6px] px-[6px] py-[3px] text-[12px] transition-colors',
+                hoverDetach
+                  ? 'bg-red-50 text-[#DC2626] border border-red-200 dark:bg-red-950/30 dark:border-red-900 dark:text-red-400'
+                  : 'text-muted-foreground'
+              )}
+            >
+              <Link2Off className="h-[13px] w-[13px]" />
+              Detach
+            </button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Detach this organisation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{org.name}</strong> will be removed from this job. The organisation itself won't be deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmOpen(false)
+                detachMutation.mutate()
+              }}
+            >
+              Detach
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 
@@ -261,200 +209,186 @@ export default function JobDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { archiveMutation, unarchiveMutation, deleteMutation } = useJobActions({
-    onDeleteSuccess: () => {
-      navigate('/jobs')
-    },
+    onDeleteSuccess: () => navigate('/jobs'),
   })
 
   const { data, isLoading, error } = useJob(id)
-
   const job = data?.job
-  usePageTitle(
-    job?.job_title ? `${job.job_title} — ${job.company_name}` : 'Job Detail'
-  )
+
+  usePageTitle(job?.job_title ? `${job.job_title} — ${job.company_name}` : 'Job Detail')
 
   if (isLoading) return <PageLoading variant="detail" />
   if (error) return <PageError message={error.message} />
-  if (!job)
-    return (
-      <PageError
-        title="Job not found"
-        message="This job may have been deleted."
-      />
-    )
+  if (!job) return <PageError title="Job not found" message="This job may have been deleted." />
 
   const { timeline_entries } = data!
-  const statusConfig = getStatusConfig(job.status)
   const priorityConfig = job.priority ? getPriorityConfig(job.priority) : null
 
-  return (
-    <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-6">
-        {/* Top bar */}
-        <div className="mb-6 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              window.history.length > 1 ? navigate(-1) : navigate('/jobs')
-            }
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+  const metaItems: { icon: ElementType; label: string; value: React.ReactNode; valueClass?: string; show: boolean }[] = [
+    {
+      icon: MapPin,
+      label: 'Location',
+      value: job.location || '—',
+      show: Boolean(job.location),
+    },
+    {
+      icon: Briefcase,
+      label: 'Type',
+      value: job.employment_type ? formatLabel(job.employment_type) : '—',
+      show: Boolean(job.employment_type),
+    },
+    {
+      icon: Calendar,
+      label: 'Applied',
+      value: formatDateDisplay(job.date_applied),
+      show: Boolean(job.date_applied),
+    },
+    {
+      icon: Bell,
+      label: 'Follow up',
+      value: formatDateDisplay(job.follow_up_date),
+      valueClass: job.follow_up_date ? 'text-[#D97706] dark:text-amber-400' : undefined,
+      show: Boolean(job.follow_up_date),
+    },
+    {
+      icon: CircleDollarSign,
+      label: 'Salary',
+      value: job.salary_range,
+      show: Boolean(job.salary_range),
+    },
+    {
+      icon: CalendarClock,
+      label: 'Next interview',
+      value: job.next_interview_at
+        ? format(new Date(job.next_interview_at), 'd MMM yyyy, h:mm a')
+        : null,
+      show: Boolean(job.next_interview_at) && !isPast(new Date(job.next_interview_at!)),
+    },
+  ]
 
-          <div className="flex items-center gap-2">
-            <EditJobDialog job={job} />
-            <ActionsCell
-              jobId={job.id}
-              isArchived={Boolean(job.archived_at)}
-              onArchive={archiveMutation.mutate}
-              onUnarchive={unarchiveMutation.mutate}
-              onDelete={deleteMutation.mutate}
-            />
-          </div>
+  const visibleMeta = metaItems.filter((m) => m.show)
+
+  return (
+    <div className="space-y-3">
+      {/* Top bar */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/jobs')}
+          className="flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-[14px] w-[14px]" />
+          Back to jobs
+        </button>
+        <div className="flex items-center gap-2">
+          <EditJobDialog
+            job={job}
+            trigger={
+              <button className="flex items-center gap-[6px] rounded-[7px] border border-border bg-card px-[12px] py-[6px] text-[12px] font-medium text-foreground/80 hover:bg-muted/50 transition-colors">
+                <Pencil className="h-[13px] w-[13px]" />
+                Edit job
+              </button>
+            }
+          />
+          <ActionsCell
+            jobId={job.id}
+            isArchived={Boolean(job.archived_at)}
+            onArchive={archiveMutation.mutate}
+            onUnarchive={unarchiveMutation.mutate}
+            onDelete={deleteMutation.mutate}
+          />
+        </div>
+      </div>
+
+      {/* Header card */}
+      <div className="rounded-[10px] border border-border bg-card p-[18px_20px]">
+        {/* Row 1 — status/priority/source + updated timestamp */}
+        <div className="mb-[12px] flex flex-wrap items-center gap-[8px]">
+          <StatusBadge job={job} />
+
+          {priorityConfig && (
+            <span className="inline-flex items-center gap-[4px] rounded-full border border-amber-200 bg-amber-50 px-[9px] py-[3px] text-[11px] font-medium text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400">
+              <Star className="h-[11px] w-[11px]" />
+              {priorityConfig.label} priority
+            </span>
+          )}
+
+          {job.source && (
+            <span className="inline-flex items-center rounded-full border border-border bg-muted px-[9px] py-[3px] text-[11px] font-medium text-muted-foreground capitalize">
+              {formatLabel(job.source)}
+            </span>
+          )}
+
+          <span className="text-[11px] text-muted-foreground w-full sm:w-auto sm:ml-auto">
+            Updated {formatDistanceToNow(new Date(job.updated_at), { addSuffix: true })}
+          </span>
         </div>
 
-        {/* Header card */}
-        <Card className="mb-6 overflow-hidden border-0 shadow-sm">
-          {/* Status accent bar */}
-          <div
-            className="h-1.5"
-            style={{ backgroundColor: statusConfig.color }}
-          />
+        {/* Title */}
+        <h1 className="text-[20px] font-semibold tracking-tight text-foreground leading-tight mb-[5px]">
+          {job.job_title || 'Untitled role'}
+        </h1>
 
-          <CardContent className="p-6">
-            {/* Top row: status + priority + meta */}
-            <div className="mb-4 flex flex-wrap items-center gap-3">
-              <StatusBadge job={job} />
-              {priorityConfig && (
-                <Badge variant="outline" className="gap-1 capitalize">
-                  <Star className="h-3 w-3" />
-                  {priorityConfig.label} priority
-                </Badge>
-              )}
-              <Separator
-                orientation="vertical"
-                className="hidden h-4 sm:block"
-              />
-              <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                <MetaItem icon={Clock}>
-                  Updated {formatRelativeDate(job.updated_at)}
-                </MetaItem>
-                {job.source && (
-                  <MetaItem icon={Globe}>
-                    <span className="capitalize">
-                      {formatLabel(job.source)}
-                    </span>
-                  </MetaItem>
-                )}
-              </div>
+        {/* Company line */}
+        <div className="flex items-center gap-[6px]">
+          <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[4px] bg-blue-50 dark:bg-blue-950/40">
+            <Building2 className="h-[11px] w-[11px] text-[#2563EB] dark:text-blue-400" />
+          </div>
+          <span className="text-[13px] font-medium text-foreground/80">{job.company_name}</span>
+        </div>
+
+        {/* Tags row — below title/company, above metadata strip */}
+        {job.tags?.length > 0 && (
+          <div className="mt-[12px] mb-[4px]">
+            <span className="block mb-[6px] text-[10px] font-medium uppercase tracking-[0.5px] text-[#9CA3AF]">
+              Tags
+            </span>
+            <div className="flex flex-wrap gap-[6px]">
+              {job.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-[4px] rounded-full border-[0.5px] border-[#E5E7EB] bg-transparent px-[9px] py-[2px] text-[11px] font-normal text-[#6B7280] dark:border-border dark:text-muted-foreground"
+                >
+                  <Tag className="h-[10px] w-[10px] text-[#9CA3AF] dark:text-muted-foreground" />
+                  {tag}
+                </span>
+              ))}
             </div>
+          </div>
+        )}
 
-            {/* Title */}
-            <TypographyH1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {job.job_title || 'Untitled role'}
-            </TypographyH1>
-            <p className="text-muted-foreground mt-1 text-base">
-              {job.company_name || 'No company recorded'}
-            </p>
-
-            {/* Quick stats row */}
-            <div className="mt-6 grid grid-cols-2 gap-4 border-t pt-5 sm:flex sm:flex-wrap sm:gap-6">
-              {job.location && (
-                <QuickStat
-                  icon={MapPin}
-                  label="Location"
-                  value={job.location}
-                  iconClassName="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
-                />
-              )}
-              {job.employment_type && (
-                <QuickStat
-                  icon={Briefcase}
-                  label="Type"
-                  value={formatLabel(job.employment_type)}
-                  iconClassName="bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300"
-                />
-              )}
-              {job.salary_range && (
-                <QuickStat
-                  icon={DollarSign}
-                  label="Salary"
-                  value={job.salary_range}
-                  iconClassName="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300"
-                />
-              )}
-              {job.date_applied && (
-                <QuickStat
-                  icon={Calendar}
-                  label="Applied"
-                  value={formatDate(job.date_applied)}
-                  iconClassName="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300"
-                />
-              )}
-              {job.follow_up_date && (
-                <QuickStat
-                  icon={CalendarClock}
-                  label="Follow up"
-                  value={formatDate(job.follow_up_date)}
-                  iconClassName="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300"
-                />
-              )}
-              {job.next_interview_at && isFuture(new Date(job.next_interview_at)) && (
-                <QuickStat
-                  icon={CalendarCheck2}
-                  label="Next interview"
-                  value={formatDistanceToNow(new Date(job.next_interview_at), { addSuffix: true })}
-                  iconClassName="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300"
-                />
-              )}
-              {job.job_url && (
-                <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300">
-                    <ExternalLink className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Posting</p>
-                    <a
-                      href={
-                        job.job_url.startsWith('http')
-                          ? job.job_url
-                          : `https://${job.job_url}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-sky-600 hover:underline dark:text-sky-400"
-                    >
-                      View original
-                    </a>
-                  </div>
+        {/* Metadata strip */}
+        {(visibleMeta.length > 0 || job.job_url) && (
+          <div className="mt-[14px] pt-[14px] border-t border-border/60 flex flex-wrap items-center gap-y-[10px]">
+            {visibleMeta.map((m, i) => (
+              <MetaItem key={i} icon={m.icon} label={m.label} value={m.value} valueClass={m.valueClass} />
+            ))}
+            {job.job_url && (
+              <div className="flex items-center gap-[8px]">
+                <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-muted border border-border/60">
+                  <ExternalLink className="h-[13px] w-[13px] text-muted-foreground" />
                 </div>
-              )}
-            </div>
-
-            {/* Tags */}
-            {job.tags && job.tags.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-4">
-                <TagIcon className="text-muted-foreground h-3.5 w-3.5" />
-                {job.tags.map((tag: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="capitalize">
-                    {tag}
-                  </Badge>
-                ))}
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-muted-foreground leading-tight">Posting</span>
+                  <a
+                    href={job.job_url.startsWith('http') ? job.job_url : `https://${job.job_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[12px] font-medium text-[#2563EB] hover:underline leading-tight dark:text-blue-400"
+                  >
+                    View original
+                  </a>
+                </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Organisation */}
-        <OrganisationSection jobId={job.id} organisationId={job.organisation_id} />
-
-        {/* Tabs */}
-        <section>
-          <JobTabs job={job} timelineEntries={timeline_entries || []} />
-        </section>
+          </div>
+        )}
       </div>
+
+      {/* Org row — shows linked org or a selector to attach one */}
+      <OrgRow jobId={job.id} organisationId={job.organisation_id} />
+
+      {/* Tabs */}
+      <JobTabs job={job} timelineEntries={timeline_entries || []} />
     </div>
   )
 }
