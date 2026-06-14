@@ -28,19 +28,21 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import { getPriorityConfig } from '@/lib/statusConfig'
 import { cn } from '@/lib/utils'
 import { updateJob } from '@/services/api/jobs'
-import { formatDistanceToNow, parseISO, format } from 'date-fns'
+import { formatDistanceToNow, parseISO, format, isPast } from 'date-fns'
 import {
   ArrowLeft,
   Bell,
   Briefcase,
   Building2,
   Calendar,
+  CalendarClock,
   CircleDollarSign,
   ExternalLink,
   Link2Off,
   MapPin,
   Pencil,
   Star,
+  Tag,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import { useState } from 'react'
@@ -254,6 +256,14 @@ export default function JobDetailPage() {
       value: job.salary_range,
       show: Boolean(job.salary_range),
     },
+    {
+      icon: CalendarClock,
+      label: 'Next interview',
+      value: job.next_interview_at
+        ? format(new Date(job.next_interview_at), 'd MMM yyyy, h:mm a')
+        : null,
+      show: Boolean(job.next_interview_at) && !isPast(new Date(job.next_interview_at!)),
+    },
   ]
 
   const visibleMeta = metaItems.filter((m) => m.show)
@@ -307,6 +317,16 @@ export default function JobDetailPage() {
               {formatLabel(job.source)}
             </span>
           )}
+
+          {job.tags?.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-[4px] rounded-full border border-border bg-muted px-[9px] py-[3px] text-[11px] font-medium text-muted-foreground"
+            >
+              <Tag className="h-[10px] w-[10px]" />
+              {tag}
+            </span>
+          ))}
 
           <span className="text-[11px] text-muted-foreground ml-auto">
             Updated {formatDistanceToNow(new Date(job.updated_at), { addSuffix: true })}
