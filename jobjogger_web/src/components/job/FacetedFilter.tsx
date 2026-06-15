@@ -1,9 +1,6 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { Check, PlusCircle } from 'lucide-react'
-import { useState } from 'react'
 
 interface FacetedFilterOption {
   label: string
@@ -24,7 +21,7 @@ export function FacetedFilter({
   selected,
   onSelectionChange,
 }: FacetedFilterProps) {
-  const [open, setOpen] = useState(false)
+  const isActive = selected.size > 0
 
   const toggleOption = (value: string) => {
     const next = new Set(selected)
@@ -37,86 +34,73 @@ export function FacetedFilter({
   }
 
   return (
-    <div className="relative">
-      <Button
-        variant="outline"
-        size="sm"
-        className="h-8 border-dashed text-xs"
-        onClick={() => setOpen(!open)}
-      >
-        <PlusCircle className="mr-2 h-3.5 w-3.5" />
-        {title}
-        {selected.size > 0 && (
-          <>
-            <Separator orientation="vertical" className="mx-2 h-4" />
-            <Badge
-              variant="secondary"
-              className="rounded-sm px-1 font-normal text-xs"
-            >
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'inline-flex items-center gap-1.5 h-8 rounded-full border px-3 text-xs font-normal whitespace-nowrap transition-colors cursor-pointer shrink-0',
+            isActive
+              ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800'
+              : 'bg-background text-muted-foreground border-dashed border-border hover:text-foreground hover:bg-muted/60'
+          )}
+        >
+          <PlusCircle className="h-3.5 w-3.5 shrink-0" />
+          {title}
+          {isActive && (
+            <span className="ml-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-[5px] py-px text-[10px] font-medium leading-none">
               {selected.size}
-            </Badge>
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+
+      <PopoverContent align="start" className="w-52 p-1">
+        <div className="max-h-60 overflow-y-auto">
+          {options.map((option) => {
+            const isSelected = selected.has(option.value)
+            return (
+              <button
+                type="button"
+                key={option.value}
+                onClick={() => toggleOption(option.value)}
+                className={cn(
+                  'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none cursor-pointer',
+                  'hover:bg-accent hover:text-accent-foreground'
+                )}
+              >
+                <div
+                  className={cn(
+                    'flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border',
+                    isSelected
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-muted-foreground/30'
+                  )}
+                >
+                  {isSelected && <Check className="h-3 w-3" />}
+                </div>
+                {option.icon && (
+                  <option.icon className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span>{option.label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {isActive && (
+          <>
+            <div className="my-1 h-px bg-border" />
+            <button
+              type="button"
+              onClick={() => onSelectionChange(new Set())}
+              className="flex w-full items-center justify-center rounded-sm py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
+            >
+              Clear
+            </button>
           </>
         )}
-      </Button>
-
-      {open && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setOpen(false)}
-          />
-
-          {/* Dropdown */}
-          <div className="absolute left-0 top-full z-50 mt-1 w-52 rounded-md border bg-popover p-1 shadow-md">
-            <div className="max-h-60 overflow-y-auto">
-              {options.map((option) => {
-                const isSelected = selected.has(option.value)
-                return (
-                  <button
-                    type='button'
-                    key={option.value}
-                    onClick={() => toggleOption(option.value)}
-                    className={cn(
-                      'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none',
-                      'hover:bg-accent hover:text-accent-foreground',
-                      'cursor-pointer'
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        'flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border',
-                        isSelected
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-muted-foreground/30'
-                      )}
-                    >
-                      {isSelected && <Check className="h-3 w-3" />}
-                    </div>
-                    {option.icon && (
-                      <option.icon className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span>{option.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {selected.size > 0 && (
-              <>
-                <Separator className="my-1" />
-                <button
-                  type='button'
-                  onClick={() => onSelectionChange(new Set())}
-                  className="flex w-full items-center justify-center rounded-sm py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                >
-                  Clear
-                </button>
-              </>
-            )}
-          </div>
-        </>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   )
 }

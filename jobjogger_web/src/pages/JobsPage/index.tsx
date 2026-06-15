@@ -6,12 +6,12 @@ import { JobsToolbar } from '@/components/job/JobsToolbar'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { Card } from '@/components/ui/card'
-import { TypographyH1 } from '@/components/ui/typography'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Job, JobFilters } from '@/types/job'
 import { useCallback, useMemo, useState } from 'react'
+import { Plus } from 'lucide-react'
 
 export default function JobsPage() {
   usePageTitle('Jobs')
@@ -25,28 +25,38 @@ export default function JobsPage() {
   const { handleView, archiveMutation, unarchiveMutation, deleteMutation } =
     useJobActions()
 
+  const hasFollowUp = useMemo(() => (data || []).some((j) => Boolean(j.follow_up_date)), [data])
+  const hasNextInterview = useMemo(() => (data || []).some((j) => Boolean(j.next_interview_at)), [data])
+
   const tableColumns = useMemo(
     () => createColumns(
       handleView,
       archiveMutation.mutate,
       unarchiveMutation.mutate,
       deleteMutation.mutate,
+      hasFollowUp,
+      hasNextInterview,
     ),
-    [handleView, archiveMutation.mutate, unarchiveMutation.mutate, deleteMutation.mutate],
+    [handleView, archiveMutation.mutate, unarchiveMutation.mutate, deleteMutation.mutate, hasFollowUp, hasNextInterview],
   )
 
   return (
-    <div className="page-container space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-[14px]">
+      <div className="flex items-start justify-between">
         <div>
-          <TypographyH1 className="text-2xl font-bold tracking-tight">
-            Jobs
-          </TypographyH1>
-          <p className="text-muted-foreground text-sm">
-            Manage and track all your job applications.
+          <h1 className="text-[18px] font-semibold tracking-tight text-foreground">Jobs</h1>
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
+            Track and manage all your job applications.
           </p>
         </div>
-        <CreateJobDialog className="w-full sm:w-auto" />
+        <CreateJobDialog
+          trigger={
+            <button className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700">
+              <Plus className="h-4 w-4" />
+              New job
+            </button>
+          }
+        />
       </div>
 
       <ExtensionBanner />
@@ -56,11 +66,15 @@ export default function JobsPage() {
         resultCount={data?.length || 0}
       />
 
-      <Card className="overflow-hidden border-0 p-4 shadow-sm">
+      <Card className="overflow-hidden border-0 p-0 shadow-sm">
         {isLoading ? (
-          <PageLoading variant="table" />
+          <div className="p-4">
+            <PageLoading variant="table" />
+          </div>
         ) : error ? (
-          <PageError message={error.message} />
+          <div className="p-4">
+            <PageError message={error.message} />
+          </div>
         ) : (
           <DataTable
             columns={tableColumns}
