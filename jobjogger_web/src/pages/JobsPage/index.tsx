@@ -11,6 +11,7 @@ import { useJobs } from '@/hooks/useJobs'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Job, JobFilters } from '@/types/job'
 import { useCallback, useMemo, useState } from 'react'
+import { Plus } from 'lucide-react'
 
 export default function JobsPage() {
   usePageTitle('Jobs')
@@ -40,15 +41,22 @@ export default function JobsPage() {
   )
 
   return (
-    <div className="page-container space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-[14px]">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[18px] font-semibold text-foreground">Jobs</h1>
-          <p className="text-[13px] text-muted-foreground">
+          <h1 className="text-[18px] font-semibold tracking-tight text-foreground">Jobs</h1>
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
             Track and manage all your job applications.
           </p>
         </div>
-        <CreateJobDialog className="w-full sm:w-auto" />
+        <CreateJobDialog
+          trigger={
+            <button className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700">
+              <Plus className="h-4 w-4" />
+              New job
+            </button>
+          }
+        />
       </div>
 
       <ExtensionBanner />
