@@ -13,6 +13,18 @@ class Api::V1::ContactInteractionsController < Api::V1::AuthenticatedController
     end
   end
 
+  def update
+    interaction = @contact.contact_interactions.find(params[:id])
+
+    if interaction.update(interaction_params)
+      render json: interaction
+    else
+      render json: { errors: interaction.errors.full_messages }, status: :unprocessable_content
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Interaction not found" }, status: :not_found
+  end
+
   def destroy
     interaction = @contact.contact_interactions.find(params[:id])
     interaction.destroy
