@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -7,12 +6,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
+import { getEntryTypeConfig } from '@/lib/timelineEntryStyles'
 import { Info } from 'lucide-react'
 
 const entryTypeExamples = [
   {
     type: 'note',
-    color: 'bg-yellow-500',
     description: 'General observations, thoughts, reminders',
     examples: [
       'Noticed on their LinkedIn that the CTO previously worked at Canva. Might be worth mentioning my experience with design systems.',
@@ -21,7 +21,6 @@ const entryTypeExamples = [
   },
   {
     type: 'contact',
-    color: 'bg-purple-500',
     description: 'Emails, calls, messages with recruiters/hiring managers',
     examples: [
       'Emailed recruiter to follow up on application status. Asked about timeline for next steps.',
@@ -30,7 +29,6 @@ const entryTypeExamples = [
   },
   {
     type: 'interview',
-    color: 'bg-green-500',
     description: 'Interview sessions, what was discussed, how it went',
     examples: [
       'Technical interview with two senior engineers. Live coding session building a REST API endpoint. Got stuck on error handling but they were helpful.',
@@ -39,7 +37,6 @@ const entryTypeExamples = [
   },
   {
     type: 'assessment',
-    color: 'bg-orange-500',
     description: 'Take-home challenges, coding tests, presentations',
     examples: [
       'Completed take-home coding challenge. Built a task management app with React + TypeScript. Took about 6 hours.',
@@ -48,7 +45,6 @@ const entryTypeExamples = [
   },
   {
     type: 'follow_up',
-    color: 'bg-pink-500',
     description: 'Actions you need to take or have taken',
     examples: [
       'Need to send references by end of week. Plan to reach out to my manager at previous company.',
@@ -58,6 +54,8 @@ const entryTypeExamples = [
 ]
 
 export default function TimelineHelpDialog() {
+  const statusChangeConfig = getEntryTypeConfig('status_change')
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -77,42 +75,61 @@ export default function TimelineHelpDialog() {
             process. Here's what each entry type is for:
           </p>
 
-          {entryTypeExamples.map((item) => (
-            <div key={item.type} className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className={`h-3 w-3 rounded-full ${item.color}`} />
-                <Badge variant="outline" className="capitalize">
-                  {item.type.replace('_', ' ')}
-                </Badge>
-              </div>
-
-              <p className="text-muted-foreground pl-5 text-sm">
-                {item.description}
-              </p>
-
-              <div className="space-y-2 pl-5">
-                {item.examples.map((example, idx) => (
+          {entryTypeExamples.map((item) => {
+            const config = getEntryTypeConfig(item.type)
+            return (
+              <div key={item.type} className="space-y-3">
+                <div className="flex items-center gap-2">
                   <div
-                    key={idx}
-                    className="bg-muted/50 rounded-lg border p-3 text-sm"
+                    className={cn(
+                      'flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-white ring-1',
+                      config.bg,
+                      config.ring
+                    )}
                   >
-                    <p className="text-muted-foreground mb-1 text-xs font-medium">
-                      Example {idx + 1}:
-                    </p>
-                    <p className="text-sm">{example}</p>
+                    <config.Icon className={cn('h-[14px] w-[14px]', config.color)} />
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                  <span className={cn('text-[13px] font-medium', config.color)}>
+                    {config.label}
+                  </span>
+                </div>
 
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                <p className="text-muted-foreground pl-[34px] text-sm">
+                  {item.description}
+                </p>
+
+                <div className="space-y-2 pl-[34px]">
+                  {item.examples.map((example, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-[8px] border-[0.5px] border-[#E5E7EB] bg-[#F9FAFB] p-3 text-sm"
+                    >
+                      <p className="text-muted-foreground mb-1 text-xs font-medium">
+                        Example {idx + 1}:
+                      </p>
+                      <p className="text-sm">{example}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+
+          <div className="rounded-[8px] border border-[#BFDBFE] bg-[#EFF6FF] p-4">
             <div className="flex items-start gap-2">
-              <div className="mt-0.5 h-3 w-3 flex-shrink-0 rounded-full bg-blue-500" />
+              <div
+                className={cn(
+                  'mt-0.5 flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full border-2 border-white ring-1',
+                  statusChangeConfig.bg,
+                  statusChangeConfig.ring
+                )}
+              >
+                <statusChangeConfig.Icon className={cn('h-[14px] w-[14px]', statusChangeConfig.color)} />
+              </div>
               <div>
-                <Badge variant="outline" className="mb-2">
-                  Status Change
-                </Badge>
+                <span className={cn('mb-2 block text-[13px] font-medium', statusChangeConfig.color)}>
+                  {statusChangeConfig.label}
+                </span>
                 <p className="text-muted-foreground text-sm">
                   Status changes are automatically created when you update a
                   job's status. You don't need to create these manually.

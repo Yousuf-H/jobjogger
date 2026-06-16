@@ -1,12 +1,13 @@
 import AddTimelineEntryDialog from '@/components/job/AddTimelineEntryDialog'
 import TimelineHelpDialog from '@/components/job/TimelineHelpDialog'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getEntryTypeConfig } from '@/lib/timelineEntryStyles'
 import { deleteTimelineEntry } from '@/services/api/timelineEntries'
 import type { TimelineEntry } from '@/types/timelineEntry'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { History, Trash2 } from 'lucide-react'
+import { IconPencil, IconTrash } from '@tabler/icons-react'
+import { format, parseISO } from 'date-fns'
+import { History } from 'lucide-react'
 import { TypographyH3 } from '@/components/ui/typography'
 import { toast } from 'sonner'
 
@@ -15,40 +16,15 @@ interface TimelineTabProps {
   job: { id: number }
 }
 
-function getEntryTypeColor(type: string) {
-  switch (type) {
-    case 'status_change':
-      return 'bg-blue-500'
-    case 'interview':
-      return 'bg-green-500'
-    case 'contact':
-      return 'bg-purple-500'
-    case 'note':
-      return 'bg-yellow-500'
-    case 'assessment':
-      return 'bg-orange-500'
-    case 'follow_up':
-      return 'bg-pink-500'
-    default:
-      return 'bg-gray-400'
-  }
-}
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+function formatEntryDate(date: string) {
+  return format(parseISO(date), 'd MMM yyyy')
 }
 
 function TimelineEntryItem({
   entry,
-  isLast,
   jobId,
 }: {
   entry: TimelineEntry
-  isLast: boolean
   jobId: number
 }) {
   const queryClient = useQueryClient()
@@ -70,55 +46,95 @@ function TimelineEntryItem({
     }
   }
 
-  const isManualEntry = entry.entry_type !== 'status_change'
+  // Only status_change entries are system-generated and immutable — every
+  // other type is user-created and supports edit/delete.
+  const isLocked = entry.entry_type === 'status_change'
+  const config = getEntryTypeConfig(entry.entry_type)
+  const date = formatEntryDate(entry.occurred_at)
 
   return (
-    <div className="flex gap-4">
-      <div className="flex w-6 flex-col items-center">
-        <div
-          className={cn(
-            'border-background relative z-10 mt-2 h-3 w-3 rounded-full border-2 shadow-sm',
-            getEntryTypeColor(entry.entry_type)
-          )}
-        />
-        {!isLast && <div className="bg-border mt-2 w-px flex-1" />}
+    <div
+      className={cn(
+        'relative flex gap-[14px] rounded-[8px] px-[6px] py-[10px]',
+        !isLocked && 'timeline-row'
+      )}
+    >
+      {/* Dot */}
+      <div
+        className={cn(
+          'relative z-10 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border-2 border-white ring-1',
+          config.bg,
+          config.ring
+        )}
+        style={{ marginLeft: '-8px' }}
+      >
+        <config.Icon className={cn('h-[16px] w-[16px]', config.color)} />
       </div>
 
-      <div className="relative flex-1 rounded-lg border p-4">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <Badge variant="outline" className="capitalize">
-            {entry.entry_type.replaceAll('_', ' ')}
-          </Badge>
-
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-xs">
-              {formatDate(entry.occurred_at)}
-            </span>
-
-            {isManualEntry && (
-              <div className="flex gap-1">
-                <AddTimelineEntryDialog
-                  jobId={jobId}
-                  entry={entry}
-                  mode="edit"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={handleDelete}
-                  disabled={deleteMutation.isPending}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <p className="whitespace-pre-wrap text-sm leading-6">
+      {/* Body */}
+      <div className="min-w-0 flex-1 pt-[2px]">
+        <p className={cn('text-[12px] font-medium', config.color)}>{config.label}</p>
+        <p className="mt-[2px] whitespace-pre-wrap text-[13px] leading-[1.5] text-[#374151]">
           {entry.description}
         </p>
+
+        {!isLocked && (
+          <div className="timeline-mobile-actions mt-[8px] gap-[6px]">
+            <AddTimelineEntryDialog
+              jobId={jobId}
+              entry={entry}
+              mode="edit"
+              trigger={
+                <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280]">
+                  <IconPencil className="h-[11px] w-[11px]" />
+                  Edit
+                </button>
+              }
+            />
+            <button
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626]"
+            >
+              <IconTrash className="h-[11px] w-[11px]" />
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Date / actions column — fixed width so hover never shifts layout */}
+      <div className="relative h-[22px] w-[116px] shrink-0">
+        <span
+          className={cn(
+            'absolute right-0 text-[11px] text-[#9CA3AF]',
+            !isLocked && 'timeline-date'
+          )}
+        >
+          {date}
+        </span>
+
+        {!isLocked && (
+          <div className="timeline-actions absolute right-0 flex items-center gap-[6px]">
+            <AddTimelineEntryDialog
+              jobId={jobId}
+              entry={entry}
+              mode="edit"
+              trigger={
+                <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6]">
+                  <IconPencil className="h-[12px] w-[12px]" />
+                </button>
+              }
+            />
+            <button
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626]"
+            >
+              <IconTrash className="h-[12px] w-[12px]" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -144,15 +160,16 @@ export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {timelineEntries.map((entry, index) => (
-            <TimelineEntryItem
-              key={entry.id}
-              entry={entry}
-              isLast={index === timelineEntries.length - 1}
-              jobId={job.id}
-            />
-          ))}
+        <div className="relative">
+          <div
+            className="absolute w-[1.5px] bg-[#E5E7EB]"
+            style={{ left: '15px', top: '25px', bottom: '25px' }}
+          />
+          <div>
+            {timelineEntries.map((entry) => (
+              <TimelineEntryItem key={entry.id} entry={entry} jobId={job.id} />
+            ))}
+          </div>
         </div>
       )}
     </div>

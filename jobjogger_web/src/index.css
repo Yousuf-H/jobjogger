@@ -210,3 +210,38 @@
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   display: none;
 }
+
+/* Timeline tab — desktop hover reveals actions in place of the date; locked
+   rows never get this class, so they never get the hover treatment. */
+.timeline-date {
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+.timeline-actions {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+@media (hover: hover) {
+  .timeline-row:hover {
+    background-color: #FAFAFA;
+  }
+  .timeline-row:hover .timeline-date {
+    opacity: 0;
+  }
+  .timeline-row:hover .timeline-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Mobile fallback action chips — hidden on hover-capable devices since the
+   hover-reveal actions above already cover that case. */
+.timeline-mobile-actions {
+  display: none;
+}
+@media (hover: none) {
+  .timeline-mobile-actions {
+    display: flex;
+  }
+}
