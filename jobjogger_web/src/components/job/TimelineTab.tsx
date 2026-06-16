@@ -74,7 +74,7 @@ function TimelineEntryItem({
       {/* Body */}
       <div className="min-w-0 flex-1 pt-[2px]">
         <p className={cn('text-[12px] font-medium', config.color)}>{config.label}</p>
-        <p className="mt-[2px] whitespace-pre-wrap text-[13px] leading-[1.5] text-[#374151]">
+        <p className="mt-[2px] whitespace-pre-wrap text-[13px] leading-[1.5] text-[#374151] dark:text-foreground/80">
           {entry.description}
         </p>
 

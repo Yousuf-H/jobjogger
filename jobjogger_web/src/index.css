@@ -229,9 +229,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   .timeline-row:hover .timeline-date {
     opacity: 0;
   }
-  .timeline-row:hover .timeline-actions {
+  .timeline-row:hover .timeline-actions,
+  .timeline-row:focus-within .timeline-actions {
     opacity: 1;
     pointer-events: auto;
+  }
+  .timeline-row:focus-within .timeline-date {
+    opacity: 0;
   }
 }
 
