@@ -207,7 +207,7 @@ function InteractionItem({
       {/* Dot */}
       <div
         className={cn(
-          'relative z-10 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border-2 border-white ring-1',
+          'relative z-10 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border-2 border-card ring-1',
           bg,
           ring
         )}

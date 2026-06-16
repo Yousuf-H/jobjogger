@@ -82,7 +82,7 @@ export default function TimelineHelpDialog() {
                 <div className="flex items-center gap-2">
                   <div
                     className={cn(
-                      'flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-white ring-1',
+                      'flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-card ring-1',
                       config.bg,
                       config.ring
                     )}
@@ -119,7 +119,7 @@ export default function TimelineHelpDialog() {
             <div className="flex items-start gap-2">
               <div
                 className={cn(
-                  'mt-0.5 flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full border-2 border-white ring-1',
+                  'mt-0.5 flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full border-2 border-card ring-1',
                   statusChangeConfig.bg,
                   statusChangeConfig.ring
                 )}
