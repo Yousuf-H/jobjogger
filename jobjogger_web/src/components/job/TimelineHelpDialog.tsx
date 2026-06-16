@@ -102,7 +102,7 @@ export default function TimelineHelpDialog() {
                   {item.examples.map((example, idx) => (
                     <div
                       key={idx}
-                      className="rounded-[8px] border-[0.5px] border-[#E5E7EB] bg-[#F9FAFB] p-3 text-sm"
+                      className="rounded-[8px] border-[0.5px] border-[#E5E7EB] bg-[#F9FAFB] p-3 text-sm dark:border-border dark:bg-muted"
                     >
                       <p className="text-muted-foreground mb-1 text-xs font-medium">
                         Example {idx + 1}:
@@ -115,7 +115,7 @@ export default function TimelineHelpDialog() {
             )
           })}
 
-          <div className="rounded-[8px] border border-[#BFDBFE] bg-[#EFF6FF] p-4">
+          <div className="rounded-[8px] border border-[#BFDBFE] bg-[#EFF6FF] p-4 dark:border-blue-800 dark:bg-blue-950/30">
             <div className="flex items-start gap-2">
               <div
                 className={cn(

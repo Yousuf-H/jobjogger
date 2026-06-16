@@ -291,7 +291,7 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={() => navigate('/jobs')}
-            className="text-[12px] font-medium text-[#2563EB] hover:underline"
+            className="text-[12px] font-medium text-[#2563EB] hover:underline dark:text-blue-400"
           >
             View all →
           </button>

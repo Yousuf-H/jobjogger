@@ -223,8 +223,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   transition: opacity 0.15s;
 }
 @media (hover: hover) {
-  .timeline-row:hover {
-    background-color: #FAFAFA;
+  .timeline-row:hover,
+  .timeline-row:focus-within {
+    background-color: var(--muted);
   }
   .timeline-row:hover .timeline-date {
     opacity: 0;

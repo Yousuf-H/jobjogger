@@ -85,7 +85,7 @@ function TimelineEntryItem({
               entry={entry}
               mode="edit"
               trigger={
-                <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280]">
+                <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280] dark:border-border dark:text-muted-foreground">
                   <IconPencil className="h-[11px] w-[11px]" />
                   Edit
                 </button>
@@ -94,7 +94,7 @@ function TimelineEntryItem({
             <button
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626]"
+              className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626] dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
             >
               <IconTrash className="h-[11px] w-[11px]" />
               Delete
@@ -107,7 +107,7 @@ function TimelineEntryItem({
       <div className="relative h-[22px] w-[116px] shrink-0">
         <span
           className={cn(
-            'absolute right-0 text-[11px] text-[#9CA3AF]',
+            'absolute right-0 text-[11px] text-[#9CA3AF] dark:text-muted-foreground',
             !isLocked && 'timeline-date'
           )}
         >
@@ -121,7 +121,7 @@ function TimelineEntryItem({
               entry={entry}
               mode="edit"
               trigger={
-                <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6]">
+                <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-muted">
                   <IconPencil className="h-[12px] w-[12px]" />
                 </button>
               }
@@ -129,7 +129,7 @@ function TimelineEntryItem({
             <button
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626]"
+              className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:border-red-900 dark:hover:bg-red-950/30 dark:hover:text-red-400"
             >
               <IconTrash className="h-[12px] w-[12px]" />
             </button>
@@ -162,7 +162,7 @@ export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
       ) : (
         <div className="relative">
           <div
-            className="absolute w-[1.5px] bg-[#E5E7EB]"
+            className="absolute w-[1.5px] bg-[#E5E7EB] dark:bg-border"
             style={{ left: '15px', top: '25px', bottom: '25px' }}
           />
           <div>

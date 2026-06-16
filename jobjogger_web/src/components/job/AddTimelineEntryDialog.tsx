@@ -120,7 +120,7 @@ export default function AddTimelineEntryDialog({
               name="entry_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px]">
+                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px] dark:text-muted-foreground">
                     Entry Type
                   </FormLabel>
                   <Select
@@ -128,7 +128,7 @@ export default function AddTimelineEntryDialog({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="border-[0.5px] border-[#E5E7EB] rounded-[7px]">
+                      <SelectTrigger className="border-[0.5px] border-[#E5E7EB] rounded-[7px] dark:border-border">
                         <SelectValue placeholder="Select entry type" />
                       </SelectTrigger>
                     </FormControl>
@@ -151,7 +151,7 @@ export default function AddTimelineEntryDialog({
               name="occurred_at"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px]">
+                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px] dark:text-muted-foreground">
                     Date
                   </FormLabel>
                   <FormControl>
@@ -159,7 +159,7 @@ export default function AddTimelineEntryDialog({
                       <CalendarIcon className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
                       <Input
                         type="date"
-                        className="border-[0.5px] border-[#E5E7EB] rounded-[7px] pl-9 cursor-pointer"
+                        className="border-[0.5px] border-[#E5E7EB] rounded-[7px] pl-9 cursor-pointer dark:border-border"
                         max="9999-12-31"
                         {...field}
                       />
@@ -176,7 +176,7 @@ export default function AddTimelineEntryDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px]">
+                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px] dark:text-muted-foreground">
                     Description
                   </FormLabel>
                   <FormControl>
@@ -184,7 +184,7 @@ export default function AddTimelineEntryDialog({
                       placeholder="e.g., Had phone screen with hiring manager..."
                       rows={4}
                       maxLength={1000}
-                      className="border-[0.5px] border-[#E5E7EB] rounded-[7px]"
+                      className="border-[0.5px] border-[#E5E7EB] rounded-[7px] dark:border-border"
                       {...field}
                     />
                   </FormControl>

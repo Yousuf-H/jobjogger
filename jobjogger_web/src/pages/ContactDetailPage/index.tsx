@@ -68,17 +68,17 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 function getInteractionIconConfig(type: InteractionType) {
   switch (type) {
     case 'call':
-      return { Icon: IconPhone, bg: 'bg-[#F0FDF4]', ring: 'ring-[#BBF7D0]', color: 'text-[#16A34A]' }
+      return { Icon: IconPhone, bg: 'bg-[#F0FDF4] dark:bg-green-950/30', ring: 'ring-[#BBF7D0] dark:ring-green-800', color: 'text-[#16A34A] dark:text-green-400' }
     case 'email':
-      return { Icon: IconMail, bg: 'bg-[#EFF6FF]', ring: 'ring-[#BFDBFE]', color: 'text-[#2563EB]' }
+      return { Icon: IconMail, bg: 'bg-[#EFF6FF] dark:bg-blue-950/30', ring: 'ring-[#BFDBFE] dark:ring-blue-800', color: 'text-[#2563EB] dark:text-blue-400' }
     case 'linkedin':
-      return { Icon: IconBrandLinkedin, bg: 'bg-[#EFF6FF]', ring: 'ring-[#BFDBFE]', color: 'text-[#0A66C2]' }
+      return { Icon: IconBrandLinkedin, bg: 'bg-[#EFF6FF] dark:bg-blue-950/30', ring: 'ring-[#BFDBFE] dark:ring-blue-800', color: 'text-[#0A66C2] dark:text-blue-400' }
     case 'coffee_chat':
-      return { Icon: IconCoffee, bg: 'bg-[#FFFBEB]', ring: 'ring-[#FDE68A]', color: 'text-[#D97706]' }
+      return { Icon: IconCoffee, bg: 'bg-[#FFFBEB] dark:bg-amber-950/30', ring: 'ring-[#FDE68A] dark:ring-amber-800', color: 'text-[#D97706] dark:text-amber-400' }
     case 'interview':
-      return { Icon: IconMicrophone, bg: 'bg-[#F5F3FF]', ring: 'ring-[#DDD6FE]', color: 'text-[#7C3AED]' }
+      return { Icon: IconMicrophone, bg: 'bg-[#F5F3FF] dark:bg-violet-950/30', ring: 'ring-[#DDD6FE] dark:ring-violet-800', color: 'text-[#7C3AED] dark:text-violet-400' }
     default:
-      return { Icon: IconMessage, bg: 'bg-[#F9FAFB]', ring: 'ring-[#E5E7EB]', color: 'text-[#6B7280]' }
+      return { Icon: IconMessage, bg: 'bg-[#F9FAFB] dark:bg-muted', ring: 'ring-[#E5E7EB] dark:ring-border', color: 'text-[#6B7280] dark:text-muted-foreground' }
   }
 }
 
@@ -233,7 +233,7 @@ function InteractionItem({
             contactId={contactId}
             interaction={interaction}
             trigger={
-              <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280]">
+              <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280] dark:border-border dark:text-muted-foreground">
                 <IconPencil className="h-[11px] w-[11px]" />
                 Edit
               </button>
@@ -243,7 +243,7 @@ function InteractionItem({
             contactId={contactId}
             interaction={interaction}
             trigger={
-              <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626]">
+              <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626] dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
                 <IconTrash className="h-[11px] w-[11px]" />
                 Delete
               </button>
@@ -263,7 +263,7 @@ function InteractionItem({
             contactId={contactId}
             interaction={interaction}
             trigger={
-              <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6] dark:bg-card">
+              <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-muted">
                 <IconPencil className="h-[12px] w-[12px]" />
               </button>
             }
@@ -272,7 +272,7 @@ function InteractionItem({
             contactId={contactId}
             interaction={interaction}
             trigger={
-              <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626] dark:bg-card">
+              <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:border-red-900 dark:hover:bg-red-950/30 dark:hover:text-red-400">
                 <IconTrash className="h-[12px] w-[12px]" />
               </button>
             }
@@ -336,7 +336,7 @@ function InteractionsTab({
       {interactions.length > 0 && (
         <div className="relative">
           <div
-            className="absolute w-[1.5px] bg-[#E5E7EB]"
+            className="absolute w-[1.5px] bg-[#E5E7EB] dark:bg-border"
             style={{ left: '15px', top: '25px', bottom: '25px' }}
           />
           <div>
