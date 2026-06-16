@@ -6,6 +6,7 @@ import {
   linkContactToJob,
   unlinkContactFromJob,
   updateContact,
+  updateInteraction,
 } from '@/services/api/contacts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -93,6 +94,23 @@ export function useContactActions(options?: UseContactActionsOptions) {
     onError: () => toast.error('Failed to log interaction'),
   })
 
+  const updateInteractionMutation = useMutation({
+    mutationFn: ({
+      contactId,
+      interactionId,
+      data,
+    }: {
+      contactId: number
+      interactionId: number
+      data: Parameters<typeof updateInteraction>[2]
+    }) => updateInteraction(contactId, interactionId, data),
+    onSuccess: () => {
+      invalidateContacts()
+      toast.success('Interaction updated')
+    },
+    onError: () => toast.error('Failed to update interaction'),
+  })
+
   const deleteInteractionMutation = useMutation({
     mutationFn: ({
       contactId,
@@ -115,6 +133,7 @@ export function useContactActions(options?: UseContactActionsOptions) {
     linkMutation,
     unlinkMutation,
     createInteractionMutation,
+    updateInteractionMutation,
     deleteInteractionMutation,
   }
 }

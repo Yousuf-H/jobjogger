@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -29,15 +28,23 @@ import { useForm } from 'react-hook-form'
 interface InteractionFormProps {
   onSubmit: (data: InteractionFormValues) => void
   isSubmitting?: boolean
+  defaultValues?: Partial<InteractionFormValues>
+  mode?: 'create' | 'edit'
 }
 
-export function InteractionForm({ onSubmit, isSubmitting }: InteractionFormProps) {
+export function InteractionForm({
+  onSubmit,
+  isSubmitting,
+  defaultValues,
+  mode = 'create',
+}: InteractionFormProps) {
   const form = useForm<InteractionFormValues>({
     resolver: zodResolver(interactionSchema),
     defaultValues: {
       interaction_type: undefined,
       notes: '',
       occurred_at: format(new Date(), 'yyyy-MM-dd'),
+      ...defaultValues,
     },
   })
 
@@ -106,9 +113,19 @@ export function InteractionForm({ onSubmit, isSubmitting }: InteractionFormProps
           )}
         />
 
-        <Button type="submit" variant="success" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? 'Logging...' : 'Log Interaction'}
-        </Button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full rounded-[7px] bg-[#2563EB] py-[8px] text-[13px] font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
+        >
+          {isSubmitting
+            ? mode === 'edit'
+              ? 'Saving...'
+              : 'Logging...'
+            : mode === 'edit'
+              ? 'Save Changes'
+              : 'Log Interaction'}
+        </button>
       </form>
     </Form>
   )
