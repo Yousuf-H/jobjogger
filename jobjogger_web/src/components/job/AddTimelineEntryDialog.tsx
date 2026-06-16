@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarIcon, Pencil, Plus } from 'lucide-react'
+import { CalendarIcon, Plus } from 'lucide-react'
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useTimelineEntryActions } from '@/hooks/useTimelineEntryActions'
@@ -10,7 +11,6 @@ import {
 } from '@/lib/validations/timelineEntry'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -40,12 +40,14 @@ interface AddTimelineEntryDialogProps {
   jobId: number
   entry?: TimelineEntry
   mode?: 'create' | 'edit'
+  trigger?: ReactNode
 }
 
 export default function AddTimelineEntryDialog({
   jobId,
   entry,
   mode = 'create',
+  trigger,
 }: AddTimelineEntryDialogProps) {
   const [open, setOpen] = useState(false)
 
@@ -95,15 +97,11 @@ export default function AddTimelineEntryDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {mode === 'create' ? (
-          <Button size="sm" variant="success">
-            <Plus className="h-4 w-4" />
+        {trigger ?? (
+          <button className="flex items-center gap-1.5 rounded-[7px] bg-[#2563EB] px-[14px] py-[7px] text-[12px] font-medium text-white hover:bg-blue-700 transition-colors">
+            <Plus className="h-3.5 w-3.5" />
             Add Entry
-          </Button>
-        ) : (
-          <Button variant="ghost" size="icon" className="h-7 w-7">
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
+          </button>
         )}
       </DialogTrigger>
 
@@ -122,13 +120,15 @@ export default function AddTimelineEntryDialog({
               name="entry_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Entry Type</FormLabel>
+                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px]">
+                    Entry Type
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-[0.5px] border-[#E5E7EB] rounded-[7px]">
                         <SelectValue placeholder="Select entry type" />
                       </SelectTrigger>
                     </FormControl>
@@ -151,11 +151,18 @@ export default function AddTimelineEntryDialog({
               name="occurred_at"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px]">
+                    Date
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <CalendarIcon className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
-                      <Input type="date" className="pl-9 cursor-pointer" max="9999-12-31" {...field} />
+                      <Input
+                        type="date"
+                        className="border-[0.5px] border-[#E5E7EB] rounded-[7px] pl-9 cursor-pointer"
+                        max="9999-12-31"
+                        {...field}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -169,12 +176,15 @@ export default function AddTimelineEntryDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px]">
+                    Description
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="e.g., Had phone screen with hiring manager..."
                       rows={4}
                       maxLength={1000}
+                      className="border-[0.5px] border-[#E5E7EB] rounded-[7px]"
                       {...field}
                     />
                   </FormControl>
@@ -186,11 +196,10 @@ export default function AddTimelineEntryDialog({
               )}
             />
 
-            <Button
+            <button
               type="submit"
-              className="w-full"
               disabled={mutation.isPending}
-              value="success"
+              className="w-full rounded-[7px] bg-[#2563EB] py-[8px] text-[13px] font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
             >
               {mutation.isPending
                 ? mode === 'edit'
@@ -199,7 +208,7 @@ export default function AddTimelineEntryDialog({
                 : mode === 'edit'
                   ? 'Save Changes'
                   : 'Add Entry'}
-            </Button>
+            </button>
           </form>
         </Form>
       </DialogContent>

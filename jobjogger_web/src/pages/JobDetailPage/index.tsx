@@ -277,7 +277,7 @@ export default function JobDetailPage() {
           className="flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-[14px] w-[14px]" />
-          Back to jobs
+          Back
         </button>
         <div className="flex items-center gap-2">
           <EditJobDialog
@@ -285,7 +285,7 @@ export default function JobDetailPage() {
             trigger={
               <button className="flex items-center gap-[6px] rounded-[7px] border border-border bg-card px-[12px] py-[6px] text-[12px] font-medium text-foreground/80 hover:bg-muted/50 transition-colors">
                 <Pencil className="h-[13px] w-[13px]" />
-                Edit job
+                Edit
               </button>
             }
           />
