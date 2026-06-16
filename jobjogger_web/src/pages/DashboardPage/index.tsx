@@ -46,7 +46,7 @@ function StatCard({ label, value, subLabel, icon: Icon, iconContainerClass, icon
     <div className="rounded-[10px] border border-border bg-card" style={{ padding: '14px 16px' }}>
       <div className="flex items-center justify-between">
         <span className="text-[12px] text-muted-foreground">{label}</span>
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', iconContainerClass)}>
+        <div className={cn('flex h-[30px] w-[30px] items-center justify-center rounded-[7px]', iconContainerClass)}>
           <Icon className={cn('h-[18px] w-[18px]', iconColor)} />
         </div>
       </div>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={() => navigate('/jobs')}
-            className="text-[12px] font-medium text-[#2563EB] hover:underline"
+            className="text-[12px] font-medium text-[#2563EB] hover:underline dark:text-blue-400"
           >
             View all →
           </button>

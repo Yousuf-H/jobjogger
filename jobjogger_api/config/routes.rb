@@ -56,7 +56,7 @@ Rails.application.routes.draw do
 
       # Contacts
       resources :contacts, only: [:index, :show, :create, :update, :destroy] do
-        resources :contact_interactions, only: [:create, :destroy]
+        resources :contact_interactions, only: [:create, :update, :destroy]
       end
 
       # Job routes

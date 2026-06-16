@@ -156,7 +156,7 @@ function OrgRow({ jobId, organisationId }: { jobId: number; organisationId?: num
           <div className="flex items-center gap-[10px] shrink-0">
             <Link
               to={`/organisations/${org.id}`}
-              className="text-[12px] font-medium text-[#2563EB] hover:underline"
+              className="text-[12px] font-medium text-[#2563EB] hover:underline dark:text-blue-400"
             >
               View organisation
             </Link>
@@ -277,7 +277,7 @@ export default function JobDetailPage() {
           className="flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-[14px] w-[14px]" />
-          Back to jobs
+          Back
         </button>
         <div className="flex items-center gap-2">
           <EditJobDialog
@@ -285,7 +285,7 @@ export default function JobDetailPage() {
             trigger={
               <button className="flex items-center gap-[6px] rounded-[7px] border border-border bg-card px-[12px] py-[6px] text-[12px] font-medium text-foreground/80 hover:bg-muted/50 transition-colors">
                 <Pencil className="h-[13px] w-[13px]" />
-                Edit job
+                Edit
               </button>
             }
           />
@@ -339,7 +339,7 @@ export default function JobDetailPage() {
         {/* Tags row — below title/company, above metadata strip */}
         {job.tags?.length > 0 && (
           <div className="mt-[12px] mb-[4px]">
-            <span className="block mb-[6px] text-[10px] font-medium uppercase tracking-[0.5px] text-[#9CA3AF]">
+            <span className="block mb-[6px] text-[10px] font-medium uppercase tracking-[0.5px] text-[#9CA3AF] dark:text-muted-foreground">
               Tags
             </span>
             <div className="flex flex-wrap gap-[6px]">

@@ -169,3 +169,43 @@ const invalidate = () => {
 ```
 
 **Seen in:** useInterviews hook (feature/interview PR #38).
+
+---
+
+## 8. Pair every hardcoded hex color with a dark-mode equivalent — or use a token instead
+
+**The pattern:** Adding an arbitrary Tailwind color class (`bg-[#F9FAFB]`, `text-[#6B7280]`,
+`border-[#E5E7EB]`, `border-white`, etc.) without a `dark:` variant. This has shipped three
+separate times: a review-bot catch on `TimelineTab.tsx` description text with no dark
+override, a full-page audit after the UI redesign found ~40+ unpaired hex classes across 8
+files, and a `border-white` "cutout" ring around timeline/interaction dot icons that was
+invisible-but-wrong until a dark-mode screenshot showed a bright white ring on a dark card.
+
+**Why it matters:** The app's dark mode (`next-themes` + the `.dark` class + Tailwind's
+`@custom-variant dark (&:is(.dark *))` in `index.css`) only works if every color either
+resolves through a theme token or has an explicit `dark:` pair. Arbitrary hex values don't
+get this for free, and the bug is invisible to `tsc`/`eslint` — it only shows up on visual
+inspection in dark mode.
+
+**The rule:**
+1. Prefer an existing semantic token over a hardcoded hex wherever one exists — `bg-card`,
+   `text-muted-foreground`, `border-border`, `bg-muted`, etc. These resolve correctly in both
+   themes automatically because the underlying CSS var swaps in `.dark`.
+2. If no token fits (e.g. a per-type accent color), pair the hex with an explicit `dark:`
+   class using a Tailwind named-color shade, not another raw hex.
+3. Watch for "relative to background" techniques like a colored ring with a `border-white`
+   gap to separate it from the card behind it — `border-white` assumes a light card and
+   breaks in dark mode. Use `border-card` instead so the cutout always matches the actual
+   card background.
+
+```tsx
+// Bad — no dark variant, and assumes a white card background
+<div className="border-2 border-white bg-[#F9FAFB] text-[#6B7280]">
+
+// Good — token where one exists, dark: pair where it doesn't
+<div className="border-2 border-card dark:bg-muted text-muted-foreground">
+```
+
+**Seen in:** TimelineTab.tsx description text (review comment), app-wide redesign dark-mode
+audit, dot-icon `border-white` cutout on TimelineTab/ContactDetailPage/TimelineHelpDialog
+(feature/detail-pages-redesign).

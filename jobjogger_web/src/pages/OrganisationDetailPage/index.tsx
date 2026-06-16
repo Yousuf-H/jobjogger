@@ -33,9 +33,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { TypographyH1 } from '@/components/ui/typography'
 import { useContacts } from '@/hooks/useContacts'
 import {
   useOrganisation,
@@ -44,6 +41,7 @@ import {
 import { useOrganisationActions } from '@/hooks/useOrganisationActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { getStatusConfig } from '@/lib/statusConfig'
+import { cn } from '@/lib/utils'
 import type { OrgJob, Organisation } from '@/types/organisation'
 import {
   AlertTriangle,
@@ -62,16 +60,7 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-// ─── Rating accent colour for header bar ────────────────────────────────────
-
-function getRatingAccentClass(rating?: number | null): string {
-  if (rating == null) return 'bg-primary'
-  if (rating <= 2) return 'bg-rose-400 dark:bg-rose-500'
-  if (rating <= 3.5) return 'bg-violet-400 dark:bg-violet-500'
-  return 'bg-sky-400 dark:bg-sky-500'
-}
-
-// ─── Star rating (read-only, always shows all 5 stars) ──────────────────────
+// ─── Star rating (read-only) ─────────────────────────────────────────────────
 
 function StarRating({ rating }: { rating?: number | null }) {
   if (rating == null) {
@@ -91,9 +80,7 @@ function StarRating({ rating }: { rating?: number | null }) {
           const fill = Math.min(Math.max(rating - (s - 1), 0), 1)
           return (
             <span key={s} className="relative h-3.5 w-3.5">
-              {/* Empty star underneath */}
               <Star className="text-muted-foreground/25 h-3.5 w-3.5" />
-              {/* Filled star clipped to fill% */}
               {fill > 0 && (
                 <span
                   className="absolute inset-0 overflow-hidden"
@@ -106,38 +93,34 @@ function StarRating({ rating }: { rating?: number | null }) {
           )
         })}
       </div>
-      <span className="text-muted-foreground text-xs font-medium tabular-nums">
+      <span className="text-[12px] font-medium text-[#374151] dark:text-foreground/80 tabular-nums">
         {rating % 1 === 0 ? `${rating}.0` : rating}
       </span>
     </div>
   )
 }
 
-// ─── Quick stat chip (mirrors JobDetailPage pattern) ────────────────────────
+// ─── Meta item (matches job detail pattern) ──────────────────────────────────
 
-function QuickStat({
+function MetaItem({
   icon: Icon,
   label,
-  value,
-  iconClassName,
   children,
 }: {
   icon: React.ElementType
   label: string
-  value?: string
-  iconClassName?: string
-  children?: React.ReactNode
+  children: React.ReactNode
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <div
-        className={`flex size-9 items-center justify-center rounded-lg ${iconClassName ?? 'bg-muted text-muted-foreground'}`}
-      >
-        <Icon className="h-4 w-4" />
+    <div className="flex items-center gap-[8px] pr-[20px] mr-[20px] border-r border-[#E5E7EB] last:border-r-0 last:pr-0 last:mr-0 dark:border-border">
+      <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-[#F9FAFB] border border-[#F3F4F6] dark:bg-muted dark:border-border/60">
+        <Icon className="h-[13px] w-[13px] text-[#9CA3AF] dark:text-muted-foreground" />
       </div>
-      <div>
-        <p className="text-muted-foreground text-xs">{label}</p>
-        {children ?? <p className="text-sm font-medium">{value}</p>}
+      <div className="flex flex-col">
+        <span className="text-[10px] text-[#9CA3AF] leading-tight dark:text-muted-foreground">
+          {label}
+        </span>
+        {children}
       </div>
     </div>
   )
@@ -145,7 +128,13 @@ function QuickStat({
 
 // ─── Edit dialog ─────────────────────────────────────────────────────────────
 
-function EditOrganisationDialog({ org }: { org: Organisation }) {
+function EditOrganisationDialog({
+  org,
+  trigger,
+}: {
+  org: Organisation
+  trigger?: React.ReactNode
+}) {
   const [open, setOpen] = useState(false)
   const { updateMutation } = useOrganisationActions()
 
@@ -159,10 +148,12 @@ function EditOrganisationDialog({ org }: { org: Organisation }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Pencil className="mr-1.5 h-3.5 w-3.5" />
-          Edit
-        </Button>
+        {trigger ?? (
+          <Button variant="outline" size="sm">
+            <Pencil className="mr-1.5 h-3.5 w-3.5" />
+            Edit
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
@@ -332,7 +323,7 @@ function OrgActionsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-[26px] w-[26px] p-0">
             <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -379,26 +370,28 @@ function OrgActionsMenu({
 
 function OverviewTab({ org }: { org: Organisation }) {
   return (
-    <div className="space-y-6">
-      {/* Notes */}
+    <div>
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Notes</h3>
+        <h3 className="text-[12px] font-semibold text-[#111827] mb-[6px] dark:text-foreground">
+          Notes
+        </h3>
         {org.notes ? (
-          <p className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed">
+          <p className="text-[13px] text-[#374151] leading-[1.6] whitespace-pre-wrap dark:text-foreground/80">
             {org.notes}
           </p>
         ) : (
-          <p className="text-muted-foreground text-sm italic">
+          <p className="text-[13px] text-[#9CA3AF] italic dark:text-muted-foreground">
             No notes yet. Click edit to add company notes.
           </p>
         )}
       </div>
 
-      <Separator />
+      <div className="border-t border-[#F3F4F6] my-[16px] dark:border-border/60" />
 
-      {/* Aliases */}
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Also known as</h3>
+        <h3 className="text-[12px] font-semibold text-[#111827] mb-[6px] dark:text-foreground">
+          Also known as
+        </h3>
         {org.aliases && org.aliases.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {org.aliases.map((alias) => (
@@ -409,7 +402,7 @@ function OverviewTab({ org }: { org: Organisation }) {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-sm italic">
+          <p className="text-[12px] text-[#9CA3AF] italic dark:text-muted-foreground">
             No aliases yet — these are added automatically when you merge
             duplicate organisations.
           </p>
@@ -424,21 +417,21 @@ function OverviewTab({ org }: { org: Organisation }) {
 function JobsTab({ jobs }: { jobs: OrgJob[] }) {
   if (jobs.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm italic">
+      <p className="text-[13px] text-[#9CA3AF] italic dark:text-muted-foreground">
         No jobs linked to this organisation yet.
       </p>
     )
   }
 
   return (
-    <div className="-mx-6 -mb-6">
+    <div className="-mx-[20px] -mb-[16px]">
       {jobs.map((job, i) => {
         const statusConfig = getStatusConfig(job.status)
         return (
           <Link
             key={job.id}
             to={`/jobs/${job.id}`}
-            className={`hover:bg-muted/50 group flex items-center justify-between gap-4 px-6 py-3.5 transition-colors ${i !== 0 ? 'border-t' : ''}`}
+            className={`hover:bg-muted/50 group flex items-center justify-between gap-4 px-[20px] py-3.5 transition-colors ${i !== 0 ? 'border-t' : ''}`}
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div
@@ -469,12 +462,14 @@ function JobsTab({ jobs }: { jobs: OrgJob[] }) {
   )
 }
 
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+type ActiveTab = 'overview' | 'jobs' | 'contacts'
 
 export default function OrganisationDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState<ActiveTab>('overview')
 
   const { data: org, isLoading, error } = useOrganisation(id)
   const { deleteMutation } = useOrganisationActions({
@@ -499,151 +494,142 @@ export default function OrganisationDetailPage() {
       />
     )
 
+  const tabs: { key: ActiveTab; label: string; count?: number }[] = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'jobs', label: 'Jobs', count: linkedJobs.length },
+    { key: 'contacts', label: 'Contacts', count: orgContacts.length },
+  ]
+
   return (
-    <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-6">
-        {/* Review banner — above everything */}
-        {org.needs_review && (
-          <div className="mb-6">
-            <ReviewBanner org={org} />
-          </div>
+    <div className="space-y-3">
+      {/* Review banner — above everything */}
+      {org.needs_review && <ReviewBanner org={org} />}
+
+      {/* Top bar */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() =>
+            window.history.length > 1
+              ? navigate(-1)
+              : navigate('/organisations')
+          }
+          className="flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-[14px] w-[14px]" />
+          Back
+        </button>
+
+        <div className="flex items-center gap-2">
+          <EditOrganisationDialog
+            org={org}
+            trigger={
+              <button className="flex items-center gap-[6px] rounded-[7px] border border-border bg-card px-[12px] py-[6px] text-[12px] font-medium text-foreground/80 hover:bg-muted/50 transition-colors">
+                <Pencil className="h-[13px] w-[13px]" />
+                Edit
+              </button>
+            }
+          />
+          <OrgActionsMenu
+            org={org}
+            onDelete={() => deleteMutation.mutate(org.id)}
+            isPending={deleteMutation.isPending}
+          />
+        </div>
+      </div>
+
+      {/* Header card */}
+      <div className="rounded-[10px] border border-[#E5E7EB] bg-card p-[18px_20px] dark:border-border">
+        <h1 className="text-[20px] font-semibold tracking-tight text-[#111827] leading-tight mb-[4px] dark:text-foreground">
+          {org.name}
+        </h1>
+        {org.industry && (
+          <p className="text-[13px] text-[#6B7280] dark:text-muted-foreground">
+            {org.industry}
+          </p>
         )}
 
-        {/* Top bar */}
-        <div className="mb-6 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              window.history.length > 1
-                ? navigate(-1)
-                : navigate('/organisations')
-            }
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+        {/* Meta strip */}
+        <div className="flex flex-wrap items-stretch pt-[14px] mt-[14px] border-t border-[#F3F4F6] dark:border-border/60 gap-y-[10px]">
+          {org.size && (
+            <MetaItem icon={Users} label="Size">
+              <span className="text-[12px] font-medium text-[#374151] leading-tight dark:text-foreground/80">
+                {org.size} employees
+              </span>
+            </MetaItem>
+          )}
+          {org.website && (
+            <MetaItem icon={Globe} label="Website">
+              <a
+                href={
+                  org.website.startsWith('http')
+                    ? org.website
+                    : `https://${org.website}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-[3px] text-[12px] font-medium text-[#2563EB] hover:underline leading-tight dark:text-blue-400"
+              >
+                Visit <ExternalLink className="h-[10px] w-[10px]" />
+              </a>
+            </MetaItem>
+          )}
+          <MetaItem icon={Briefcase} label="Linked jobs">
+            <span className="text-[12px] font-medium text-[#374151] leading-tight dark:text-foreground/80">
+              {linkedJobs.length}
+            </span>
+          </MetaItem>
+          <MetaItem icon={Star} label="Rating">
+            <StarRating rating={org.rating} />
+          </MetaItem>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-2">
-            <EditOrganisationDialog org={org} />
-            <OrgActionsMenu
-              org={org}
-              onDelete={() => deleteMutation.mutate(org.id)}
-              isPending={deleteMutation.isPending}
-            />
-          </div>
+      {/* Tabs card */}
+      <div className="rounded-[10px] border border-[#E5E7EB] bg-card overflow-hidden dark:border-border">
+        {/* Tab bar */}
+        <div className="overflow-x-auto border-b border-[#E5E7EB] px-[16px] flex scrollbar-hide dark:border-border">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'flex shrink-0 items-center gap-[5px] whitespace-nowrap border-b-2 -mb-px px-[12px] py-[11px] text-[12px] cursor-pointer transition-colors',
+                  isActive
+                    ? 'border-[#2563EB] text-[#2563EB] font-medium dark:text-blue-400 dark:border-blue-400'
+                    : 'border-transparent text-[#6B7280] hover:text-foreground dark:text-muted-foreground'
+                )}
+              >
+                {tab.label}
+                {tab.count != null && tab.count > 0 && (
+                  <span
+                    className={cn(
+                      'rounded-full px-[5px] py-[1px] text-[10px] leading-tight',
+                      isActive
+                        ? 'bg-[#DBEAFE] text-[#1D4ED8] dark:bg-blue-950/50 dark:text-blue-300'
+                        : 'bg-[#F3F4F6] text-[#6B7280] dark:bg-muted dark:text-muted-foreground'
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </div>
 
-        {/* Header card */}
-        <Card className="mb-6 overflow-hidden border-0 shadow-sm">
-          <div className={`h-1.5 ${getRatingAccentClass(org.rating)}`} />
-          <CardContent className="p-6">
-            {/* Name + industry */}
-            <TypographyH1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {org.name}
-            </TypographyH1>
-            {org.industry && (
-              <p className="text-muted-foreground mt-1 text-base">
-                {org.industry}
-              </p>
-            )}
-
-            {/* Quick stats row */}
-            <div className="mt-6 grid grid-cols-2 gap-4 border-t pt-5 sm:flex sm:flex-wrap sm:gap-6">
-              {org.size && (
-                <QuickStat
-                  icon={Users}
-                  label="Size"
-                  value={`${org.size} employees`}
-                  iconClassName="bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300"
-                />
-              )}
-              {org.website && (
-                <QuickStat
-                  icon={Globe}
-                  label="Website"
-                  iconClassName="bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300"
-                >
-                  <a
-                    href={
-                      org.website.startsWith('http')
-                        ? org.website
-                        : `https://${org.website}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm font-medium text-sky-600 hover:underline dark:text-sky-400"
-                  >
-                    Visit <ExternalLink className="h-3 w-3" />
-                  </a>
-                </QuickStat>
-              )}
-              <QuickStat
-                icon={Briefcase}
-                label="Linked jobs"
-                value={String(linkedJobs.length)}
-                iconClassName="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300"
-              />
-              <QuickStat
-                icon={Star}
-                label="Rating"
-                iconClassName="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300"
-              >
-                <StarRating rating={org.rating} />
-              </QuickStat>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tabs */}
-        <Card className="overflow-hidden border-0 shadow-sm">
-          <Tabs defaultValue="overview" className="w-full">
-            <div className="px-6 pt-2">
-              <TabsList className="h-auto w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
-                <TabsTrigger
-                  value="overview"
-                  className="data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 text-sm shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger
-                  value="jobs"
-                  className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 text-sm shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Jobs
-                  {linkedJobs.length > 0 && (
-                    <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
-                      {linkedJobs.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="contacts"
-                  className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 text-sm shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Contacts
-                  {orgContacts.length > 0 && (
-                    <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
-                      {orgContacts.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <div className="p-6">
-              <TabsContent value="overview" className="mt-0">
-                <OverviewTab org={org} />
-              </TabsContent>
-              <TabsContent value="jobs" className="mt-0">
-                <JobsTab jobs={linkedJobs} />
-              </TabsContent>
-              <TabsContent value="contacts" className="mt-0">
-                <OrgContactsTab organisationId={org.id} organisationName={org.name} />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </Card>
+        {/* Tab content */}
+        <div className="p-[16px_20px]">
+          {activeTab === 'overview' && <OverviewTab org={org} />}
+          {activeTab === 'jobs' && <JobsTab jobs={linkedJobs} />}
+          {activeTab === 'contacts' && (
+            <OrgContactsTab
+              organisationId={org.id}
+              organisationName={org.name}
+            />
+          )}
+        </div>
       </div>
     </div>
   )

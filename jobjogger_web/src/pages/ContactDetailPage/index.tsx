@@ -14,7 +14,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -28,17 +27,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { TypographyH1 } from '@/components/ui/typography'
+import {
+  IconBrandLinkedin,
+  IconCoffee,
+  IconMail,
+  IconMessage,
+  IconMicrophone,
+  IconPencil,
+  IconPhone,
+  IconTrash,
+} from '@tabler/icons-react'
+import { format, parseISO } from 'date-fns'
 import { useContactActions } from '@/hooks/useContactActions'
 import { useContact } from '@/hooks/useContacts'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { ContactFormValues, InteractionFormValues } from '@/lib/validations/contact'
 import { getStatusConfig } from '@/lib/statusConfig'
+import { cn } from '@/lib/utils'
 import {
   INTERACTION_TYPE_LABELS,
   type ContactInteraction,
+  type InteractionType,
 } from '@/types/contact'
 import {
   ArrowLeft,
@@ -46,73 +55,235 @@ import {
   Building2,
   ExternalLink,
   Mail,
-  MessageSquarePlus,
   MoreVertical,
   Pencil,
   Phone,
-  Trash2,
+  Plus,
 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-// ─── Interaction item ─────────────────────────────────────────────────────────
+// ─── Interaction icon config ──────────────────────────────────────────────────
 
-function InteractionItem({
-  interaction,
-  onDelete,
-  isDeleting,
+function getInteractionIconConfig(type: InteractionType) {
+  switch (type) {
+    case 'call':
+      return { Icon: IconPhone, bg: 'bg-[#F0FDF4] dark:bg-green-950/30', ring: 'ring-[#BBF7D0] dark:ring-green-800', color: 'text-[#16A34A] dark:text-green-400' }
+    case 'email':
+      return { Icon: IconMail, bg: 'bg-[#EFF6FF] dark:bg-blue-950/30', ring: 'ring-[#BFDBFE] dark:ring-blue-800', color: 'text-[#2563EB] dark:text-blue-400' }
+    case 'linkedin':
+      return { Icon: IconBrandLinkedin, bg: 'bg-[#EFF6FF] dark:bg-blue-950/30', ring: 'ring-[#BFDBFE] dark:ring-blue-800', color: 'text-[#0A66C2] dark:text-blue-400' }
+    case 'coffee_chat':
+      return { Icon: IconCoffee, bg: 'bg-[#FFFBEB] dark:bg-amber-950/30', ring: 'ring-[#FDE68A] dark:ring-amber-800', color: 'text-[#D97706] dark:text-amber-400' }
+    case 'interview':
+      return { Icon: IconMicrophone, bg: 'bg-[#F5F3FF] dark:bg-violet-950/30', ring: 'ring-[#DDD6FE] dark:ring-violet-800', color: 'text-[#7C3AED] dark:text-violet-400' }
+    default:
+      return { Icon: IconMessage, bg: 'bg-[#F9FAFB] dark:bg-muted', ring: 'ring-[#E5E7EB] dark:ring-border', color: 'text-[#6B7280] dark:text-muted-foreground' }
+  }
+}
+
+// ─── Meta item (matches job/org detail pattern) ──────────────────────────────
+
+function MetaItem({
+  icon: Icon,
+  label,
+  children,
 }: {
-  interaction: ContactInteraction
-  onDelete: (interactionId: number) => void
-  isDeleting: boolean
+  icon: React.ElementType
+  label: string
+  children: React.ReactNode
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">
-            {INTERACTION_TYPE_LABELS[interaction.interaction_type]}
-          </span>
-          <span className="text-muted-foreground text-xs">
-            {interaction.occurred_at.split('T')[0].split('-').reverse().join('/')}
-          </span>
-        </div>
-        {interaction.notes && (
-          <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
-            {interaction.notes}
-          </p>
-        )}
+    <div className="flex items-center gap-[8px] pr-[20px] mr-[20px] border-r border-[#E5E7EB] last:border-r-0 last:pr-0 last:mr-0 dark:border-border">
+      <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-[#F9FAFB] border border-[#F3F4F6] dark:bg-muted dark:border-border/60">
+        <Icon className="h-[13px] w-[13px] text-[#9CA3AF] dark:text-muted-foreground" />
       </div>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive shrink-0">
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete interaction?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This interaction log will be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => onDelete(interaction.id)}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <div className="flex flex-col">
+        <span className="text-[10px] text-[#9CA3AF] leading-tight dark:text-muted-foreground">
+          {label}
+        </span>
+        {children}
+      </div>
     </div>
   )
 }
 
-// ─── Interactions tab ─────────────────────────────────────────────────────────
+// ─── Interaction item ─────────────────────────────────────────────────────────
+
+function EditInteractionDialog({
+  contactId,
+  interaction,
+  trigger,
+}: {
+  contactId: number
+  interaction: ContactInteraction
+  trigger: React.ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  const { updateInteractionMutation } = useContactActions()
+
+  const handleUpdate = (data: InteractionFormValues) => {
+    updateInteractionMutation.mutate(
+      { contactId, interactionId: interaction.id, data },
+      { onSuccess: () => setOpen(false) }
+    )
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Interaction</DialogTitle>
+        </DialogHeader>
+        <InteractionForm
+          key={open ? 'open' : 'closed'}
+          mode="edit"
+          onSubmit={handleUpdate}
+          isSubmitting={updateInteractionMutation.isPending}
+          defaultValues={{
+            interaction_type: interaction.interaction_type,
+            notes: interaction.notes ?? '',
+            occurred_at: interaction.occurred_at.split('T')[0],
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function DeleteInteractionAlertDialog({
+  contactId,
+  interaction,
+  trigger,
+}: {
+  contactId: number
+  interaction: ContactInteraction
+  trigger: React.ReactNode
+}) {
+  const { deleteInteractionMutation } = useContactActions()
+
+  const handleDelete = () => {
+    deleteInteractionMutation.mutate({ contactId, interactionId: interaction.id })
+  }
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete interaction?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This interaction log will be permanently deleted.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={deleteInteractionMutation.isPending}
+            className="bg-destructive hover:bg-destructive/90"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
+function InteractionItem({
+  contactId,
+  interaction,
+}: {
+  contactId: number
+  interaction: ContactInteraction
+}) {
+  const { Icon, bg, ring, color } = getInteractionIconConfig(interaction.interaction_type)
+  const dateStr = format(parseISO(interaction.occurred_at.split('T')[0]), 'd MMM yyyy')
+
+  return (
+    <div className="timeline-row relative flex gap-[14px] rounded-[8px] px-[6px] py-[10px]">
+      {/* Dot */}
+      <div
+        className={cn(
+          'relative z-10 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border-2 border-card ring-1',
+          bg,
+          ring
+        )}
+        style={{ marginLeft: '-8px' }}
+      >
+        <Icon className={cn('h-[15px] w-[15px]', color)} />
+      </div>
+
+      {/* Body */}
+      <div className="min-w-0 flex-1 pt-[2px]">
+        <p className={cn('text-[12px] font-medium', color)}>
+          {INTERACTION_TYPE_LABELS[interaction.interaction_type]}
+        </p>
+        {interaction.notes && (
+          <p className="mt-[2px] whitespace-pre-wrap text-[13px] leading-[1.5] text-[#374151] dark:text-foreground/80">
+            {interaction.notes}
+          </p>
+        )}
+
+        {/* Mobile action chips */}
+        <div className="timeline-mobile-actions mt-[8px] gap-[6px]">
+          <EditInteractionDialog
+            contactId={contactId}
+            interaction={interaction}
+            trigger={
+              <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280] dark:border-border dark:text-muted-foreground">
+                <IconPencil className="h-[11px] w-[11px]" />
+                Edit
+              </button>
+            }
+          />
+          <DeleteInteractionAlertDialog
+            contactId={contactId}
+            interaction={interaction}
+            trigger={
+              <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626] dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
+                <IconTrash className="h-[11px] w-[11px]" />
+                Delete
+              </button>
+            }
+          />
+        </div>
+      </div>
+
+      {/* Date / actions column — fixed width so hover never shifts layout */}
+      <div className="relative h-[22px] w-[116px] shrink-0">
+        <span className="timeline-date absolute right-0 text-[11px] text-[#9CA3AF] dark:text-muted-foreground">
+          {dateStr}
+        </span>
+
+        <div className="timeline-actions absolute right-0 flex items-center gap-[6px]">
+          <EditInteractionDialog
+            contactId={contactId}
+            interaction={interaction}
+            trigger={
+              <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-muted">
+                <IconPencil className="h-[12px] w-[12px]" />
+              </button>
+            }
+          />
+          <DeleteInteractionAlertDialog
+            contactId={contactId}
+            interaction={interaction}
+            trigger={
+              <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:border-red-900 dark:hover:bg-red-950/30 dark:hover:text-red-400">
+                <IconTrash className="h-[12px] w-[12px]" />
+              </button>
+            }
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Tab: Interactions ────────────────────────────────────────────────────────
 
 function InteractionsTab({
   contactId,
@@ -122,8 +293,7 @@ function InteractionsTab({
   interactions: ContactInteraction[]
 }) {
   const [addOpen, setAddOpen] = useState(false)
-  const { createInteractionMutation, deleteInteractionMutation } =
-    useContactActions()
+  const { createInteractionMutation } = useContactActions()
 
   const handleAdd = (data: InteractionFormValues) => {
     createInteractionMutation.mutate(
@@ -132,24 +302,23 @@ function InteractionsTab({
     )
   }
 
-  const handleDelete = (interactionId: number) => {
-    deleteInteractionMutation.mutate({ contactId, interactionId })
-  }
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-[12px]">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[12px] text-[#9CA3AF] dark:text-muted-foreground">
           {interactions.length === 0
             ? 'No interactions logged yet.'
             : `${interactions.length} interaction${interactions.length !== 1 ? 's' : ''}`}
         </p>
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline">
-              <MessageSquarePlus className="mr-1.5 h-3.5 w-3.5" />
-              Log Interaction
-            </Button>
+            <button
+              type="button"
+              className="flex items-center gap-[6px] rounded-[7px] bg-[#2563EB] px-[12px] py-[6px] text-[12px] font-medium text-white transition-colors hover:bg-blue-700"
+            >
+              <Plus className="h-[13px] w-[13px]" />
+              Log interaction
+            </button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -165,28 +334,33 @@ function InteractionsTab({
       </div>
 
       {interactions.length > 0 && (
-        <div className="space-y-2">
-          {[...interactions]
-            .sort(
-              (a, b) =>
-                new Date(b.occurred_at).getTime() -
-                new Date(a.occurred_at).getTime()
-            )
-            .map((interaction) => (
-              <InteractionItem
-                key={interaction.id}
-                interaction={interaction}
-                onDelete={handleDelete}
-                isDeleting={deleteInteractionMutation.isPending}
-              />
-            ))}
+        <div className="relative">
+          <div
+            className="absolute w-[1.5px] bg-[#E5E7EB] dark:bg-border"
+            style={{ left: '15px', top: '25px', bottom: '25px' }}
+          />
+          <div>
+            {[...interactions]
+              .sort(
+                (a, b) =>
+                  new Date(b.occurred_at).getTime() -
+                  new Date(a.occurred_at).getTime()
+              )
+              .map((interaction) => (
+                <InteractionItem
+                  key={interaction.id}
+                  contactId={contactId}
+                  interaction={interaction}
+                />
+              ))}
+          </div>
         </div>
       )}
     </div>
   )
 }
 
-// ─── Jobs tab ─────────────────────────────────────────────────────────────────
+// ─── Tab: Jobs ────────────────────────────────────────────────────────────────
 
 function JobsTab({
   jobs,
@@ -195,21 +369,21 @@ function JobsTab({
 }) {
   if (!jobs || jobs.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm italic">
+      <p className="text-[13px] text-[#9CA3AF] italic dark:text-muted-foreground">
         No jobs linked to this contact yet.
       </p>
     )
   }
 
   return (
-    <div className="-mx-6 -mb-6">
+    <div className="-mx-[20px] -mb-[16px]">
       {jobs.map((job, i) => {
         const statusConfig = getStatusConfig(job.status)
         return (
           <Link
             key={job.id}
             to={`/jobs/${job.id}`}
-            className={`hover:bg-muted/50 group flex items-center justify-between gap-4 px-6 py-3.5 transition-colors ${i !== 0 ? 'border-t' : ''}`}
+            className={`hover:bg-muted/50 group flex items-center justify-between gap-4 px-[20px] py-3.5 transition-colors ${i !== 0 ? 'border-t' : ''}`}
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div
@@ -234,10 +408,13 @@ function JobsTab({
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+type ActiveTab = 'interactions' | 'jobs'
+
 export default function ContactDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [editOpen, setEditOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<ActiveTab>('interactions')
 
   const { data: contact, isLoading, error } = useContact(id)
   const { updateMutation, deleteMutation } = useContactActions({
@@ -266,238 +443,215 @@ export default function ContactDetailPage() {
     )
   }
 
+  const tabs: { key: ActiveTab; label: string; count?: number }[] = [
+    { key: 'interactions', label: 'Interactions', count: interactions.length },
+    { key: 'jobs', label: 'Jobs', count: jobs.length },
+  ]
+
   return (
-    <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-6">
-        {/* Top bar */}
-        <div className="mb-6 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              window.history.length > 1 ? navigate(-1) : navigate('/contacts')
-            }
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+    <div className="space-y-3">
+      {/* Top bar */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() =>
+            window.history.length > 1 ? navigate(-1) : navigate('/contacts')
+          }
+          className="flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-[14px] w-[14px]" />
+          Back
+        </button>
 
-          <div className="flex items-center gap-2">
-            <Dialog open={editOpen} onOpenChange={setEditOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                  Edit
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-h-[95vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Edit Contact</DialogTitle>
-                </DialogHeader>
-                <ContactForm
-                  key={editOpen ? 'open' : 'closed'}
-                  onSubmit={handleUpdate}
-                  defaultValues={{
-                    name: contact.name,
-                    role: contact.role ?? '',
-                    email: contact.email ?? '',
-                    phone: contact.phone ?? '',
-                    linkedin_url: contact.linkedin_url ?? '',
-                    notes: contact.notes ?? '',
-                    organisation_id: contact.organisation_id ?? null,
-                  }}
-                  isSubmitting={updateMutation.isPending}
-                  mode="edit"
-                />
-              </DialogContent>
-            </Dialog>
+        <div className="flex items-center gap-2">
+          <Dialog open={editOpen} onOpenChange={setEditOpen}>
+            <DialogTrigger asChild>
+              <button className="flex items-center gap-[6px] rounded-[7px] border border-border bg-card px-[12px] py-[6px] text-[12px] font-medium text-foreground/80 hover:bg-muted/50 transition-colors">
+                <Pencil className="h-[13px] w-[13px]" />
+                Edit
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[95vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit Contact</DialogTitle>
+              </DialogHeader>
+              <ContactForm
+                key={editOpen ? 'open' : 'closed'}
+                onSubmit={handleUpdate}
+                defaultValues={{
+                  name: contact.name,
+                  role: contact.role ?? '',
+                  email: contact.email ?? '',
+                  phone: contact.phone ?? '',
+                  linkedin_url: contact.linkedin_url ?? '',
+                  notes: contact.notes ?? '',
+                  organisation_id: contact.organisation_id ?? null,
+                }}
+                isSubmitting={updateMutation.isPending}
+                mode="edit"
+              />
+            </DialogContent>
+          </Dialog>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive"
-                      onSelect={(e) => e.preventDefault()}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-[26px] w-[26px] p-0">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete contact?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      <strong>{contact.name}</strong> will be permanently
+                      deleted along with all their interaction history.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => deleteMutation.mutate(contact.id)}
+                      disabled={deleteMutation.isPending}
+                      className="bg-destructive hover:bg-destructive/90"
                     >
-                      Delete
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete contact?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        <strong>{contact.name}</strong> will be permanently
-                        deleted along with all their interaction history.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteMutation.mutate(contact.id)}
-                        disabled={deleteMutation.isPending}
-                        className="bg-destructive hover:bg-destructive/90"
-                      >
-                        {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                      {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Header card */}
+      <div className="rounded-[10px] border border-[#E5E7EB] bg-card p-[18px_20px] dark:border-border">
+        <h1 className="text-[20px] font-semibold tracking-tight text-[#111827] leading-tight mb-[4px] dark:text-foreground">
+          {contact.name}
+        </h1>
+        {contact.role && (
+          <p className="text-[13px] text-[#6B7280] dark:text-muted-foreground">
+            {contact.role}
+          </p>
+        )}
+
+        {/* Meta strip */}
+        <div className="flex flex-wrap items-stretch pt-[14px] mt-[14px] border-t border-[#F3F4F6] dark:border-border/60 gap-y-[10px]">
+          {contact.organisation && (
+            <MetaItem icon={Building2} label="Organisation">
+              <Link
+                to={`/organisations/${contact.organisation.id}`}
+                className="text-[12px] font-medium text-[#2563EB] hover:underline leading-tight dark:text-blue-400"
+              >
+                {contact.organisation.name}
+              </Link>
+            </MetaItem>
+          )}
+          {contact.email && (
+            <MetaItem icon={Mail} label="Email">
+              <a
+                href={`mailto:${contact.email}`}
+                className="text-[12px] font-medium text-[#374151] hover:underline leading-tight dark:text-foreground/80"
+              >
+                {contact.email}
+              </a>
+            </MetaItem>
+          )}
+          {contact.phone && (
+            <MetaItem icon={Phone} label="Phone">
+              <span className="text-[12px] font-medium text-[#374151] leading-tight dark:text-foreground/80">
+                {contact.phone}
+              </span>
+            </MetaItem>
+          )}
+          {contact.linkedin_url && (
+            <MetaItem icon={ExternalLink} label="LinkedIn">
+              <a
+                href={
+                  contact.linkedin_url.startsWith('http')
+                    ? contact.linkedin_url
+                    : `https://${contact.linkedin_url}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-[3px] text-[12px] font-medium text-[#2563EB] hover:underline leading-tight dark:text-blue-400"
+              >
+                View profile <ExternalLink className="h-[10px] w-[10px]" />
+              </a>
+            </MetaItem>
+          )}
+          <MetaItem icon={Briefcase} label="Linked jobs">
+            <span className="text-[12px] font-medium text-[#374151] leading-tight dark:text-foreground/80">
+              {jobs.length}
+            </span>
+          </MetaItem>
         </div>
 
-        {/* Header card */}
-        <Card className="mb-6 overflow-hidden border-0 shadow-sm">
-          <div className="bg-primary h-1.5" />
-          <CardContent className="p-6">
-            <TypographyH1 className="text-2xl font-bold tracking-tight">
-              {contact.name}
-            </TypographyH1>
-            {contact.role && (
-              <p className="text-muted-foreground mt-1 text-base">
-                {contact.role}
-              </p>
-            )}
+        {/* Notes */}
+        {contact.notes && (
+          <>
+            <div className="border-t border-[#F3F4F6] mt-[16px] mb-[14px] dark:border-border/60" />
+            <p className="text-[13px] text-[#374151] leading-[1.6] whitespace-pre-wrap dark:text-foreground/80">
+              {contact.notes}
+            </p>
+          </>
+        )}
+      </div>
 
-            <div className="mt-6 flex flex-wrap gap-6 border-t pt-5">
-              {contact.organisation && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300 flex size-9 items-center justify-center rounded-lg">
-                    <Building2 className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Organisation</p>
-                    <Link
-                      to={`/organisations/${contact.organisation.id}`}
-                      className="text-sm font-medium hover:underline"
-                    >
-                      {contact.organisation.name}
-                    </Link>
-                  </div>
-                </div>
-              )}
-              {contact.email && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300 flex size-9 items-center justify-center rounded-lg">
-                    <Mail className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Email</p>
-                    <a
-                      href={`mailto:${contact.email}`}
-                      className="text-sm font-medium hover:underline"
-                    >
-                      {contact.email}
-                    </a>
-                  </div>
-                </div>
-              )}
-              {contact.phone && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 flex size-9 items-center justify-center rounded-lg">
-                    <Phone className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Phone</p>
-                    <p className="text-sm font-medium">{contact.phone}</p>
-                  </div>
-                </div>
-              )}
-              {contact.linkedin_url && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 flex size-9 items-center justify-center rounded-lg">
-                    <ExternalLink className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">LinkedIn</p>
-                    <a
-                      href={
-                        contact.linkedin_url.startsWith('http')
-                          ? contact.linkedin_url
-                          : `https://${contact.linkedin_url}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-sm font-medium hover:underline"
-                    >
-                      View profile <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
-                </div>
-              )}
-              {jobs.length > 0 && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300 flex size-9 items-center justify-center rounded-lg">
-                    <Briefcase className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Linked jobs</p>
-                    <p className="text-sm font-medium">{jobs.length}</p>
-                  </div>
-                </div>
-              )}
-            </div>
+      {/* Tabs card */}
+      <div className="rounded-[10px] border border-[#E5E7EB] bg-card overflow-hidden dark:border-border">
+        {/* Tab bar */}
+        <div className="overflow-x-auto border-b border-[#E5E7EB] px-[16px] flex scrollbar-hide dark:border-border">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'flex shrink-0 items-center gap-[5px] whitespace-nowrap border-b-2 -mb-px px-[12px] py-[11px] text-[12px] cursor-pointer transition-colors',
+                  isActive
+                    ? 'border-[#2563EB] text-[#2563EB] font-medium dark:text-blue-400 dark:border-blue-400'
+                    : 'border-transparent text-[#6B7280] hover:text-foreground dark:text-muted-foreground'
+                )}
+              >
+                {tab.label}
+                {tab.count != null && tab.count > 0 && (
+                  <span
+                    className={cn(
+                      'rounded-full px-[5px] py-[1px] text-[10px] leading-tight',
+                      isActive
+                        ? 'bg-[#DBEAFE] text-[#1D4ED8] dark:bg-blue-950/50 dark:text-blue-300'
+                        : 'bg-[#F3F4F6] text-[#6B7280] dark:bg-muted dark:text-muted-foreground'
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
 
-            {contact.notes && (
-              <>
-                <Separator className="my-4" />
-                <p className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed">
-                  {contact.notes}
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Tabs */}
-        <Card className="overflow-hidden border-0 shadow-sm">
-          <Tabs defaultValue="interactions" className="w-full">
-            <div className="px-6 pt-2">
-              <TabsList className="h-auto w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
-                <TabsTrigger
-                  value="interactions"
-                  className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 text-sm shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Interactions
-                  {interactions.length > 0 && (
-                    <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
-                      {interactions.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="jobs"
-                  className="data-[state=active]:border-primary gap-1.5 rounded-none border-b-2 border-transparent px-1 pb-3 pt-3 text-sm shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Jobs
-                  {jobs.length > 0 && (
-                    <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-xs font-medium">
-                      {jobs.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <div className="p-6">
-              <TabsContent value="interactions" className="mt-0">
-                <InteractionsTab
-                  contactId={contact.id}
-                  interactions={interactions}
-                />
-              </TabsContent>
-              <TabsContent value="jobs" className="mt-0">
-                <JobsTab jobs={jobs} />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </Card>
+        {/* Tab content */}
+        <div className="p-[16px_20px]">
+          {activeTab === 'interactions' && (
+            <InteractionsTab
+              contactId={contact.id}
+              interactions={interactions}
+            />
+          )}
+          {activeTab === 'jobs' && <JobsTab jobs={jobs} />}
+        </div>
       </div>
     </div>
   )

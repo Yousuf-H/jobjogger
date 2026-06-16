@@ -61,6 +61,18 @@ export async function createInteraction(
   return response.data
 }
 
+export async function updateInteraction(
+  contactId: number,
+  interactionId: number,
+  data: Partial<Pick<ContactInteraction, 'interaction_type' | 'notes' | 'occurred_at'>>
+): Promise<ContactInteraction> {
+  const response = await apiClient.patch(
+    `/contacts/${contactId}/contact_interactions/${interactionId}`,
+    { contact_interaction: data }
+  )
+  return response.data
+}
+
 export async function deleteInteraction(
   contactId: number,
   interactionId: number

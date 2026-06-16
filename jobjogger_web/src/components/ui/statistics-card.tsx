@@ -33,7 +33,7 @@ const StatisticsCard = ({
       <div className="flex items-center gap-3">
         <div
           className={cn(
-            'flex size-9 shrink-0 items-center justify-center rounded-full lg:size-11',
+            'flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[7px]',
             iconClassName ?? 'bg-primary/10 text-primary'
           )}
         >
