@@ -43,7 +43,7 @@ export default function DataTable<TData, TValue>({
                 return (
                   <TableHead
                     key={header.id}
-                    className="text-[11px] font-medium text-gray-400 dark:text-muted-foreground uppercase tracking-wide h-[36px] py-0"
+                    className="text-[11px] font-medium text-gray-400 dark:text-muted-foreground uppercase tracking-wide h-[36px] py-0 first:pl-6"
                   >
                     {header.isPlaceholder
                       ? null
@@ -67,7 +67,7 @@ export default function DataTable<TData, TValue>({
                 onClick={() => onRowClick?.(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="py-[11px]">
+                  <TableCell key={cell.id} className="py-[11px] first:pl-6">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

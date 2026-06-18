@@ -3,6 +3,7 @@ import CreateJobDialog from '@/components/job/CreateJobDialog'
 import DataTable from '@/components/job/DataTable'
 import { ExtensionBanner } from '@/components/job/ExtensionBanner'
 import { JobsToolbar } from '@/components/job/JobsToolbar'
+import { StatusBadge } from '@/components/job/StatusBadge'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { Card } from '@/components/ui/card'
@@ -12,6 +13,23 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Job, JobFilters } from '@/types/job'
 import { useCallback, useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
+
+function JobMobileRow({ job, onClick }: { job: Job; onClick: () => void }) {
+  return (
+    <div
+      className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0"
+      onClick={onClick}
+    >
+      <div className="min-w-0">
+        <span className="font-medium text-sm block">{job.company_name}</span>
+        <span className="text-xs text-muted-foreground mt-0.5 block">{job.job_title}</span>
+      </div>
+      <div onClick={(e) => e.stopPropagation()}>
+        <StatusBadge job={job} />
+      </div>
+    </div>
+  )
+}
 
 export default function JobsPage() {
   usePageTitle('Jobs')
@@ -76,11 +94,28 @@ export default function JobsPage() {
             <PageError message={error.message} />
           </div>
         ) : (
-          <DataTable
-            columns={tableColumns}
-            data={data || []}
-            onRowClick={(row) => handleView((row as Job).id)}
-          />
+          <>
+            <div className="hidden sm:block">
+              <DataTable
+                columns={tableColumns}
+                data={data || []}
+                onRowClick={(row) => handleView((row as Job).id)}
+              />
+            </div>
+            <div className="sm:hidden">
+              {(data || []).length > 0 ? (
+                (data || []).map((job) => (
+                  <JobMobileRow
+                    key={job.id}
+                    job={job}
+                    onClick={() => handleView(job.id)}
+                  />
+                ))
+              ) : (
+                <p className="p-4 text-center text-sm text-muted-foreground">No results.</p>
+              )}
+            </div>
+          </>
         )}
       </Card>
     </div>

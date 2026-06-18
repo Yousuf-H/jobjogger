@@ -2,9 +2,9 @@ import {
   OrganisationForm,
   type OrganisationFormValues,
 } from '@/components/organisation/OrganisationForm'
+import { OrgDataTable } from '@/components/organisation/OrgDataTable'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -16,23 +16,46 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { TypographyH1 } from '@/components/ui/typography'
 import { useOrganisationActions } from '@/hooks/useOrganisationActions'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { cn } from '@/lib/utils'
 import type { Organisation } from '@/types/organisation'
+import type { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
-  Briefcase,
   Building2,
   ExternalLink,
   Plus,
   Star,
-  Users,
   X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+const PILL_BASE =
+  'inline-flex items-center gap-1.5 h-8 rounded-full border px-3 text-xs font-normal whitespace-nowrap transition-colors cursor-pointer shrink-0'
+const PILL_INACTIVE =
+  'bg-background text-muted-foreground border-border hover:text-foreground hover:bg-muted/60'
+const PILL_ACTIVE =
+  'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800'
+
+const AVATAR_COLORS = [
+  'bg-avatar-1/15 text-avatar-1',
+  'bg-avatar-2/15 text-avatar-2',
+  'bg-avatar-3/15 text-avatar-3',
+  'bg-avatar-4/15 text-avatar-4',
+  'bg-avatar-5/15 text-avatar-5',
+  'bg-avatar-6/15 text-avatar-6',
+]
+
+function avatarColorClasses(org: Organisation) {
+  return AVATAR_COLORS[org.id % AVATAR_COLORS.length]
+}
+
+function primaryIndustry(industry: string) {
+  return industry.split(/[/,]/)[0].trim()
+}
 
 const WELCOME_DISMISSED_KEY = 'jobjogger_orgs_welcome_dismissed'
 
@@ -87,36 +110,7 @@ function WelcomeBanner() {
   )
 }
 
-function OrgRating({ rating }: { rating?: number | null }) {
-  if (rating == null) return null
-  return (
-    <div className="flex items-center gap-1">
-      <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((s) => {
-          const fill = Math.min(Math.max(rating - (s - 1), 0), 1)
-          return (
-            <span key={s} className="relative h-3 w-3">
-              <Star className="h-3 w-3 text-muted-foreground/30" />
-              {fill > 0 && (
-                <span
-                  className="absolute inset-0 overflow-hidden"
-                  style={{ width: `${fill * 100}%` }}
-                >
-                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                </span>
-              )}
-            </span>
-          )
-        })}
-      </div>
-      <span className="text-muted-foreground text-xs tabular-nums">
-        {rating % 1 === 0 ? `${rating}.0` : rating}
-      </span>
-    </div>
-  )
-}
-
-function CreateOrganisationDialog({ className }: { className?: string }) {
+function CreateOrganisationDialog() {
   const [open, setOpen] = useState(false)
   const { createMutation } = useOrganisationActions()
 
@@ -127,10 +121,10 @@ function CreateOrganisationDialog({ className }: { className?: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="success" className={`min-w-36 ${className ?? ''}`}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          New Organisation
-        </Button>
+        <button className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700">
+          <Plus className="h-4 w-4" />
+          New organisation
+        </button>
       </DialogTrigger>
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
@@ -150,96 +144,65 @@ function CreateOrganisationDialog({ className }: { className?: string }) {
   )
 }
 
-interface OrgCardProps {
-  org: Organisation
-  onClick: () => void
-}
-
-function OrgCard({ org, onClick }: OrgCardProps) {
-  const activeCount = org.active_jobs_count ?? 0
+function OrgMobileRow({ org, onClick }: { org: Organisation; onClick: () => void }) {
+  const initial = org.name.charAt(0).toUpperCase()
   const totalCount = org.total_jobs_count ?? 0
-  const inactiveCount = totalCount - activeCount
+
   return (
-    <Card
-      className="hover:border-primary/30 cursor-pointer border-0 shadow-sm transition-all hover:shadow-md"
+    <div
+      className="flex items-start gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0"
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="mb-3 flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-lg">
-              <Building2 className="h-4 w-4" />
-            </div>
-            <p className="truncate font-semibold leading-tight">{org.name}</p>
-          </div>
+      <div
+        className={cn(
+          'flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold mt-0.5',
+          avatarColorClasses(org)
+        )}
+      >
+        {initial}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-medium text-sm truncate">{org.name}</span>
           {org.needs_review && (
-            <Badge
-              variant="outline"
-              className="border-amber-300 bg-amber-50 text-amber-700 shrink-0 gap-1 dark:bg-amber-900/20 dark:text-amber-400"
-            >
-              <AlertTriangle className="h-3 w-3" />
-              Review
-            </Badge>
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-blue-500 dark:text-blue-400" />
           )}
         </div>
-
-        <div className="text-muted-foreground space-y-1.5 text-sm">
-          {org.industry && (
-            <p className="truncate">{org.industry}</p>
-          )}
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            {org.size && (
-              <span className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {org.size}
-              </span>
-            )}
-            {totalCount === 0 ? (
-              <span className="flex items-center gap-1">
-                <Briefcase className="h-3 w-3" />
-                0 jobs
-              </span>
-            ) : inactiveCount > 0 ? (
-              <>
-                <span className="flex items-center gap-1">
-                  <Briefcase className="h-3 w-3" />
-                  {activeCount} active
-                </span>
-                <span>{inactiveCount} inactive</span>
-              </>
-            ) : (
-              <span className="flex items-center gap-1">
-                <Briefcase className="h-3 w-3" />
-                {activeCount} {activeCount === 1 ? 'job' : 'jobs'}
-              </span>
-            )}
-            {org.website && (
-              <a
-                href={
-                  org.website.startsWith('http')
-                    ? org.website
-                    : `https://${org.website}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1 text-sky-600 hover:underline dark:text-sky-400"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Website
-              </a>
-            )}
-          </div>
-
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+          {org.industry && <span>{primaryIndustry(org.industry)}</span>}
+          {org.size && <span>{org.size}</span>}
+          <span>
+            {totalCount} {totalCount === 1 ? 'job' : 'jobs'}
+          </span>
           {org.rating != null && (
-            <OrgRating rating={org.rating} />
+            <span className="inline-flex items-center gap-0.5">
+              <Star className="h-3 w-3" />
+              {org.rating % 1 === 0 ? `${org.rating}.0` : org.rating}
+            </span>
+          )}
+          {org.website && (
+            <a
+              href={
+                org.website.startsWith('http')
+                  ? org.website
+                  : `https://${org.website}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-brand flex items-center gap-0.5 hover:underline"
+            >
+              <ExternalLink className="h-3 w-3" />
+              Site
+            </a>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
+
+const DEFAULT_SORT = [{ id: 'name', desc: false }]
 
 export default function OrganisationsPage() {
   usePageTitle('Organisations')
@@ -258,45 +221,113 @@ export default function OrganisationsPage() {
     return true
   })
 
+  const tableColumns = useMemo<ColumnDef<Organisation>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Organisation',
+        cell: ({ row }) => (
+          <span className="font-medium text-sm">{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: 'industry',
+        header: 'Industry',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const industry = row.getValue<string | null>('industry')
+          if (!industry)
+            return <span className="text-muted-foreground/40 text-sm">—</span>
+          return (
+            <span className="border-border bg-muted text-muted-foreground inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium whitespace-nowrap">
+              {primaryIndustry(industry)}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: 'total_jobs_count',
+        header: 'Linked jobs',
+        cell: ({ row }) => {
+          const count = (row.getValue<number | undefined>('total_jobs_count')) ?? 0
+          return <span className="text-sm tabular-nums">{count}</span>
+        },
+      },
+      {
+        accessorKey: 'rating',
+        header: 'Rating',
+        cell: ({ row }) => {
+          const rating = row.getValue<number | null>('rating')
+          if (rating == null)
+            return <span className="text-muted-foreground/40 text-sm">—</span>
+          return (
+            <span className="inline-flex items-center gap-1 text-sm tabular-nums text-foreground">
+              <Star className="h-3.5 w-3.5 text-muted-foreground" />
+              {rating % 1 === 0 ? `${rating}.0` : rating}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: 'needs_review',
+        header: '',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const needsReview = row.getValue<boolean>('needs_review')
+          if (!needsReview) return null
+          return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-xs text-blue-600 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800 whitespace-nowrap">
+              <AlertTriangle className="h-3 w-3" />
+              Needs review
+            </span>
+          )
+        },
+      },
+    ],
+    []
+  )
+
+  const handleOrgClick = (org: Organisation) =>
+    navigate(`/organisations/${org.id}`)
+
   return (
-    <div className="page-container space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-[14px]">
+      <div className="flex items-start justify-between">
         <div>
-          <TypographyH1 className="text-2xl font-bold tracking-tight">
-            Organisations
-          </TypographyH1>
-          <p className="text-muted-foreground text-sm">
+          <h1 className="text-[18px] font-semibold tracking-tight text-foreground">Organisations</h1>
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
             Track companies across your job applications.
           </p>
         </div>
-        <CreateOrganisationDialog className="w-full sm:w-auto" />
+        <CreateOrganisationDialog />
       </div>
 
       {hasOrganisations && <WelcomeBanner />}
 
       {hasOrganisations && (
         <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap items-center gap-2">
+          <CardContent className="space-y-3 p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Input
                 placeholder="Search organisations…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-8 w-full text-sm sm:w-[200px] lg:w-[280px]"
+                className="h-8 w-full shrink-0 text-sm sm:w-[200px] lg:w-[260px]"
               />
-              <Button
-                type="button"
-                variant={reviewOnly ? 'default' : 'outline'}
-                size="sm"
-                className="h-8 text-xs"
-                onClick={() => setReviewOnly((v) => !v)}
-              >
-                <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
-                Needs review
-              </Button>
-              <span className="text-muted-foreground sm:ml-auto text-xs font-medium">
-                {filtered.length} {filtered.length === 1 ? 'organisation' : 'organisations'}
-              </span>
+              <div className="flex items-center justify-between gap-2 sm:contents">
+                <button
+                  type="button"
+                  onClick={() => setReviewOnly((v) => !v)}
+                  className={cn(PILL_BASE, reviewOnly ? PILL_ACTIVE : PILL_INACTIVE)}
+                >
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  Needs review
+                </button>
+                <span className="text-muted-foreground text-xs font-medium sm:ml-auto">
+                  {filtered.length}{' '}
+                  {filtered.length === 1 ? 'organisation' : 'organisations'}
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -307,9 +338,9 @@ export default function OrganisationsPage() {
       ) : error ? (
         <PageError message={error.message} />
       ) : !hasOrganisations ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="shadow-sm">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+            <div className="bg-brand/10 text-brand mb-4 rounded-full p-4">
               <Building2 className="h-6 w-6" />
             </div>
             <p className="font-semibold">No organisations yet</p>
@@ -324,15 +355,25 @@ export default function OrganisationsPage() {
           No organisations match your search.
         </p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((org) => (
-            <OrgCard
-              key={org.id}
-              org={org}
-              onClick={() => navigate(`/organisations/${org.id}`)}
+        <Card className="overflow-hidden border-0 p-0 shadow-sm">
+          <div className="hidden sm:block">
+            <OrgDataTable
+              columns={tableColumns}
+              data={filtered}
+              onRowClick={handleOrgClick}
+              defaultSort={DEFAULT_SORT}
             />
-          ))}
-        </div>
+          </div>
+          <div className="sm:hidden">
+            {filtered.map((org) => (
+              <OrgMobileRow
+                key={org.id}
+                org={org}
+                onClick={() => handleOrgClick(org)}
+              />
+            ))}
+          </div>
+        </Card>
       )}
     </div>
   )

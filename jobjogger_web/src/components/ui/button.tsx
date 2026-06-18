@@ -24,6 +24,7 @@ const buttonVariants = cva(
         warning:
           'bg-warning text-warning-foreground shadow hover:bg-warning/90',
         info: 'bg-info text-info-foreground shadow hover:bg-info/90',
+        brand: 'bg-brand text-brand-foreground shadow hover:bg-brand/90',
       },
       size: {
         default: 'h-9 px-4 py-2',
