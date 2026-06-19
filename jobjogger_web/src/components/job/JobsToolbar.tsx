@@ -167,7 +167,7 @@ export function JobsToolbar({
   return (
     <Card className="border-0 shadow-sm">
       <CardContent className="space-y-3 p-4">
-        {/* Search + filter pills */}
+        {/* Search + filter pills + count */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Input
             placeholder="Search jobs..."
@@ -176,9 +176,8 @@ export function JobsToolbar({
             className="h-8 w-full shrink-0 text-sm sm:w-[200px] lg:w-[260px]"
           />
 
-          {/* Scrollable pills row */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-1.5 min-w-max">
+          {/* Filter pills */}
+          <div className="flex flex-1 flex-wrap items-center gap-1.5">
               <FacetedFilter
                 title="Status"
                 options={STATUS_OPTIONS}
@@ -197,8 +196,6 @@ export function JobsToolbar({
                 selected={selectedSources}
                 onSelectionChange={setSelectedSources}
               />
-
-              <div className="h-4 w-px bg-border mx-1 shrink-0" />
 
               <button
                 type="button"
@@ -226,47 +223,42 @@ export function JobsToolbar({
                 <Archive className="h-3.5 w-3.5 shrink-0" />
                 Archived
               </button>
-            </div>
           </div>
-        </div>
 
-        {/* Result count + active chips */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-muted-foreground text-xs font-medium">
+          <span className="shrink-0 text-muted-foreground text-xs font-medium">
             {resultCount} {resultCount === 1 ? 'job' : 'jobs'}
           </span>
-
-          {activeChips.length > 0 && (
-            <>
-              <div className="h-4 w-px bg-border" />
-
-              {activeChips.map((chip) => (
-                <Badge
-                  key={chip.key}
-                  variant="secondary"
-                  className="gap-1 pr-1 text-xs font-normal"
-                >
-                  {chip.label}
-                  <button
-                    type="button"
-                    onClick={chip.onRemove}
-                    className="hover:bg-muted-foreground/20 ml-0.5 cursor-pointer rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="text-muted-foreground hover:text-foreground cursor-pointer text-xs"
-              >
-                Clear all
-              </button>
-            </>
-          )}
         </div>
+
+        {/* Active filter chips */}
+        {activeChips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {activeChips.map((chip) => (
+              <Badge
+                key={chip.key}
+                variant="secondary"
+                className="gap-1 pr-1 text-xs font-normal"
+              >
+                {chip.label}
+                <button
+                  type="button"
+                  onClick={chip.onRemove}
+                  className="hover:bg-muted-foreground/20 ml-0.5 cursor-pointer rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="text-muted-foreground hover:text-foreground cursor-pointer text-xs"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

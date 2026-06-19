@@ -184,7 +184,7 @@ export default function ContactsPage() {
       </div>
 
       <Card className="border-0 shadow-sm">
-        <CardContent className="space-y-3 p-4">
+        <CardContent className="p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Input
               placeholder="Search by name, role or email…"
@@ -192,9 +192,7 @@ export default function ContactsPage() {
               onChange={(e) => setSearch(e.target.value)}
               className={`h-8 w-full shrink-0 text-sm sm:w-[200px] lg:w-[260px] transition-opacity ${isFetching && !isLoading ? 'opacity-60' : ''}`}
             />
-          </div>
-          <div className="flex items-center">
-            <span className="text-muted-foreground text-xs font-medium">
+            <span className="text-muted-foreground text-xs font-medium sm:ml-auto">
               {contacts?.length ?? 0}{' '}
               {contacts?.length === 1 ? 'contact' : 'contacts'}
             </span>
