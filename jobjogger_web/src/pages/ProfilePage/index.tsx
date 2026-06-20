@@ -125,7 +125,17 @@ export default function ProfilePage() {
       }
       if (emailChanging) payload.current_password = emailPassword
       const response = await updateProfile(payload)
-      updateUser(response.user)
+      // Merge only profile fields — the server snapshot may predate a concurrent
+      // notification toggle PATCH, so we preserve current auth state for everything else.
+      updateUser({
+        ...(latestUser.current ?? response.user),
+        name: response.user.name,
+        email: response.user.email,
+        phone: response.user.phone,
+        location: response.user.location,
+        job_title: response.user.job_title,
+        linkedin_url: response.user.linkedin_url,
+      })
       setEmailPassword('')
       toast.success('Profile updated')
     } catch (err: unknown) {
