@@ -27,8 +27,16 @@ interface JobMobileRowProps {
 function JobMobileRow({ job, onClick, onView, onArchive, onUnarchive, onDelete }: JobMobileRowProps) {
   return (
     <div
-      className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0"
+      role="button"
+      tabIndex={0}
+      className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0 focus-visible:outline-none focus-visible:bg-blue-50 dark:focus-visible:bg-blue-900/20"
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
     >
       <div className="min-w-0">
         <span className="font-medium text-sm block">{job.company_name}</span>

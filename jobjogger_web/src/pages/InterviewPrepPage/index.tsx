@@ -334,11 +334,19 @@ function FlashCard({
   return (
     <>
       <div
+        role="button"
+        tabIndex={0}
         className={cn(
-          'flex min-h-[160px] flex-col rounded-[10px] border cursor-pointer select-none transition-colors',
+          'flex min-h-[160px] flex-col rounded-[10px] border cursor-pointer select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           flipped ? 'bg-muted border-border' : 'bg-card border-border'
         )}
         onClick={() => setFlipped((v) => !v)}
+        onKeyDown={(e) => {
+          if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+            e.preventDefault()
+            setFlipped((v) => !v)
+          }
+        }}
       >
         {!flipped ? (
           <>
