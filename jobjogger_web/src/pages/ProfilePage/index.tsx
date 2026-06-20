@@ -93,6 +93,9 @@ export default function ProfilePage() {
   const latestFollowUpRef = useRef(user?.notify_follow_up_reminders ?? true)
   const latestInterviewRef = useRef(user?.notify_interview_reminders ?? true)
 
+  // Avatar removal
+  const [avatarRemoving, setAvatarRemoving] = useState(false)
+
   // Delete account
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -245,16 +248,21 @@ export default function ProfilePage() {
   }
 
   const handleRemoveAvatar = async () => {
+    if (avatarRemoving) return
+    setAvatarRemoving(true)
     try {
       const data = await deleteAvatar()
       updateUser(data.user)
       toast.success('Avatar removed')
     } catch {
       toast.error('Failed to remove avatar')
+    } finally {
+      setAvatarRemoving(false)
     }
   }
 
   const handleUnlinkGoogle = async () => {
+    if (googleLoading) return
     setGoogleLoading(true)
     try {
       const data = await unlinkGoogle()
@@ -274,6 +282,7 @@ export default function ProfilePage() {
   }
 
   const handleDeleteAccount = async () => {
+    if (deleteLoading) return
     setDeleteLoading(true)
     setDeleteError('')
     try {
@@ -300,7 +309,7 @@ export default function ProfilePage() {
       <div className="bg-card border border-border rounded-[10px] overflow-hidden">
         {/* Top section — display */}
         <div className="p-[22px] bg-gradient-to-b from-primary/[0.04] to-card flex items-center gap-[16px]">
-          <AvatarUpload user={user} onUpdate={updateUser} onRemove={handleRemoveAvatar} disabled={isDemo} />
+          <AvatarUpload user={user} onUpdate={updateUser} onRemove={handleRemoveAvatar} disabled={isDemo || avatarRemoving} />
 
           <div className="flex-1 min-w-0">
             <p className="text-[18px] font-semibold text-foreground truncate">
@@ -427,7 +436,7 @@ export default function ProfilePage() {
                   isDemo ||
                   (emailChanging && !emailPassword)
                 }
-                className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 rounded-[8px] bg-brand px-[14px] py-[8px] text-[13px] font-medium text-brand-foreground transition-colors hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="h-4 w-4" />
                 {profileLoading ? 'Saving...' : 'Save changes'}
@@ -440,8 +449,8 @@ export default function ProfilePage() {
       {/* ── Notifications card ──────────────────────────────────────────────── */}
       <div className="bg-card border border-border rounded-[10px] p-[20px_22px]">
         <div className="flex items-start gap-[10px] mb-[16px]">
-          <div className="w-[26px] h-[26px] rounded-[7px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-[1px]">
-            <Bell className="w-[14px] h-[14px]" />
+          <div className="w-[26px] h-[26px] rounded-[7px] bg-purple-500/10 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-[1px]">
+            <Bell className="w-[14px] h-[14px]" aria-hidden="true" />
           </div>
           <div>
             <h2 className="text-[14px] font-semibold text-foreground">Notifications</h2>
@@ -454,7 +463,7 @@ export default function ProfilePage() {
         <div className="ml-[36px] space-y-[14px]">
           <div className="flex items-center justify-between gap-[16px]">
             <div>
-              <p className="text-[13px] font-medium text-foreground">Follow-up reminders</p>
+              <p id="label-follow-up" className="text-[13px] font-medium text-foreground">Follow-up reminders</p>
               <p className="text-[11px] text-muted-foreground mt-[2px]">
                 Notify you when a scheduled follow-up is due on an active application.
               </p>
@@ -463,12 +472,13 @@ export default function ProfilePage() {
               checked={notifyFollowUp}
               onCheckedChange={handleFollowUpToggle}
               disabled={isDemo}
+              aria-labelledby="label-follow-up"
             />
           </div>
 
           <div className="flex items-center justify-between gap-[16px]">
             <div>
-              <p className="text-[13px] font-medium text-foreground">Interview reminders</p>
+              <p id="label-interview" className="text-[13px] font-medium text-foreground">Interview reminders</p>
               <p className="text-[11px] text-muted-foreground mt-[2px]">
                 Notify you 24 hours before an upcoming interview.
               </p>
@@ -477,6 +487,7 @@ export default function ProfilePage() {
               checked={notifyInterview}
               onCheckedChange={handleInterviewToggle}
               disabled={isDemo}
+              aria-labelledby="label-interview"
             />
           </div>
         </div>
@@ -488,8 +499,8 @@ export default function ProfilePage() {
         {/* Password card */}
         <div className="flex-1 bg-card border border-border rounded-[10px] p-[20px_22px]">
           <div className="flex items-start gap-[10px] mb-[16px]">
-            <div className="w-[26px] h-[26px] rounded-[7px] bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-[1px]">
-              <Lock className="w-[13px] h-[13px]" />
+            <div className="w-[26px] h-[26px] rounded-[7px] bg-info/10 text-info flex items-center justify-center shrink-0 mt-[1px]">
+              <Lock className="w-[13px] h-[13px]" aria-hidden="true" />
             </div>
             <div>
               <h2 className="text-[14px] font-semibold text-foreground">
@@ -589,7 +600,7 @@ export default function ProfilePage() {
                   !newPassword ||
                   !confirmPassword
                 }
-                className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 rounded-[8px] bg-brand px-[14px] py-[8px] text-[13px] font-medium text-brand-foreground transition-colors hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {passwordLoading
                   ? user?.has_password !== false
@@ -606,8 +617,8 @@ export default function ProfilePage() {
         {/* Connected Accounts card */}
         <div className="flex-1 bg-card border border-border rounded-[10px] p-[20px_22px]">
           <div className="flex items-start gap-[10px] mb-[16px]">
-            <div className="w-[26px] h-[26px] rounded-[7px] bg-green-500/10 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0 mt-[1px]">
-              <Link2 className="w-[13px] h-[13px]" />
+            <div className="w-[26px] h-[26px] rounded-[7px] bg-success/10 text-success flex items-center justify-center shrink-0 mt-[1px]">
+              <Link2 className="w-[13px] h-[13px]" aria-hidden="true" />
             </div>
             <div>
               <h2 className="text-[14px] font-semibold text-foreground">
@@ -721,7 +732,7 @@ export default function ProfilePage() {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-[12px]">
           <div className="flex items-start gap-[12px]">
-            <TriangleAlert className="h-[18px] w-[18px] text-destructive shrink-0 mt-[1px]" />
+            <TriangleAlert className="h-[18px] w-[18px] text-destructive shrink-0 mt-[1px]" aria-hidden="true" />
             <div>
               <h2 className="text-[14px] font-semibold text-destructive">
                 Delete your account

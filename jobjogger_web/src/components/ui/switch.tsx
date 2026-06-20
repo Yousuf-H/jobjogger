@@ -5,15 +5,17 @@ interface SwitchProps {
   onCheckedChange: (checked: boolean) => void
   disabled?: boolean
   id?: string
+  'aria-labelledby'?: string
 }
 
-export function Switch({ checked, onCheckedChange, disabled = false, id }: SwitchProps) {
+export function Switch({ checked, onCheckedChange, disabled = false, id, 'aria-labelledby': ariaLabelledBy }: SwitchProps) {
   return (
     <button
       type="button"
       role="switch"
       id={id}
       aria-checked={checked}
+      aria-labelledby={ariaLabelledBy}
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
@@ -25,7 +27,7 @@ export function Switch({ checked, onCheckedChange, disabled = false, id }: Switc
     >
       <span
         className={cn(
-          'absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white shadow-sm transition-transform duration-200',
+          'absolute top-[2px] w-[16px] h-[16px] rounded-full bg-background shadow-sm transition-transform duration-200',
           checked ? 'translate-x-[16px]' : 'translate-x-[2px]'
         )}
       />
