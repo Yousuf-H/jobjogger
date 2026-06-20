@@ -90,6 +90,8 @@ export default function ProfilePage() {
   const [notifyInterview, setNotifyInterview] = useState(
     user?.notify_interview_reminders ?? true
   )
+  const latestFollowUpRef = useRef(user?.notify_follow_up_reminders ?? true)
+  const latestInterviewRef = useRef(user?.notify_interview_reminders ?? true)
 
   // Delete account
   const [deletePassword, setDeletePassword] = useState('')
@@ -201,27 +203,29 @@ export default function ProfilePage() {
   }
 
   const handleFollowUpToggle = async (value: boolean) => {
+    latestFollowUpRef.current = value
     setNotifyFollowUp(value)
     try {
       await updateNotificationPrefs({ notify_follow_up_reminders: value })
-      if (latestUser.current) {
+      if (latestFollowUpRef.current === value && latestUser.current) {
         updateUser({ ...latestUser.current, notify_follow_up_reminders: value })
       }
     } catch {
-      setNotifyFollowUp(!value)
+      if (latestFollowUpRef.current === value) setNotifyFollowUp(!value)
       toast.error('Failed to save preferences')
     }
   }
 
   const handleInterviewToggle = async (value: boolean) => {
+    latestInterviewRef.current = value
     setNotifyInterview(value)
     try {
       await updateNotificationPrefs({ notify_interview_reminders: value })
-      if (latestUser.current) {
+      if (latestInterviewRef.current === value && latestUser.current) {
         updateUser({ ...latestUser.current, notify_interview_reminders: value })
       }
     } catch {
-      setNotifyInterview(!value)
+      if (latestInterviewRef.current === value) setNotifyInterview(!value)
       toast.error('Failed to save preferences')
     }
   }
