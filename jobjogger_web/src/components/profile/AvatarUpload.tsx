@@ -1,12 +1,13 @@
 import { uploadAvatar } from '@/services/api/user'
 import type { AvatarUploadProps } from '@/types/avatarUpload'
-import { Camera } from 'lucide-react'
+import { Camera, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 export function AvatarUpload({
   user,
   onUpdate,
+  onRemove,
   disabled = false,
 }: AvatarUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -54,6 +55,7 @@ export function AvatarUpload({
         </div>
       )}
 
+      {/* Upload badge — always visible at bottom-right */}
       <button
         type="button"
         onClick={() => !disabled && !uploading && fileInputRef.current?.click()}
@@ -63,6 +65,19 @@ export function AvatarUpload({
       >
         <Camera className="w-[11px] h-[11px] text-foreground/70" />
       </button>
+
+      {/* Remove badge — only when an avatar is set */}
+      {user?.avatar_url && onRemove && (
+        <button
+          type="button"
+          onClick={() => !disabled && !uploading && onRemove()}
+          disabled={uploading || disabled}
+          aria-label="Remove avatar"
+          className="absolute top-0 right-0 w-[20px] h-[20px] rounded-full bg-card border border-border flex items-center justify-center shadow-sm transition-opacity hover:opacity-80 disabled:pointer-events-none disabled:opacity-50"
+        >
+          <Trash2 className="w-[9px] h-[9px] text-destructive" />
+        </button>
+      )}
 
       <input
         ref={fileInputRef}

@@ -19,6 +19,7 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import { submitGoogleOAuthForm } from '@/services/api/client'
 import {
   deleteAccount,
+  deleteAvatar,
   setInitialPassword,
   unlinkGoogle,
   updateNotificationPrefs,
@@ -34,7 +35,7 @@ import {
   TriangleAlert,
   Unlink,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -44,6 +45,8 @@ const labelCls = 'block text-[11px] font-medium text-muted-foreground mb-[5px]'
 export default function ProfilePage() {
   usePageTitle('Profile')
   const { user, updateUser, signout } = useAuth()
+  const latestUser = useRef(user)
+  latestUser.current = user
   const navigate = useNavigate()
   const isDemo = user?.demo ?? false
   const [searchParams] = useSearchParams()
@@ -200,8 +203,10 @@ export default function ProfilePage() {
   const handleFollowUpToggle = async (value: boolean) => {
     setNotifyFollowUp(value)
     try {
-      const data = await updateNotificationPrefs({ notify_follow_up_reminders: value })
-      updateUser(data.user)
+      await updateNotificationPrefs({ notify_follow_up_reminders: value })
+      if (latestUser.current) {
+        updateUser({ ...latestUser.current, notify_follow_up_reminders: value })
+      }
     } catch {
       setNotifyFollowUp(!value)
       toast.error('Failed to save preferences')
@@ -211,11 +216,23 @@ export default function ProfilePage() {
   const handleInterviewToggle = async (value: boolean) => {
     setNotifyInterview(value)
     try {
-      const data = await updateNotificationPrefs({ notify_interview_reminders: value })
-      updateUser(data.user)
+      await updateNotificationPrefs({ notify_interview_reminders: value })
+      if (latestUser.current) {
+        updateUser({ ...latestUser.current, notify_interview_reminders: value })
+      }
     } catch {
       setNotifyInterview(!value)
       toast.error('Failed to save preferences')
+    }
+  }
+
+  const handleRemoveAvatar = async () => {
+    try {
+      const data = await deleteAvatar()
+      updateUser(data.user)
+      toast.success('Avatar removed')
+    } catch {
+      toast.error('Failed to remove avatar')
     }
   }
 
@@ -265,7 +282,7 @@ export default function ProfilePage() {
       <div className="bg-card border border-border rounded-[10px] overflow-hidden">
         {/* Top section — display */}
         <div className="p-[22px] bg-gradient-to-b from-primary/[0.04] to-card flex items-center gap-[16px]">
-          <AvatarUpload user={user} onUpdate={updateUser} disabled={isDemo} />
+          <AvatarUpload user={user} onUpdate={updateUser} onRemove={handleRemoveAvatar} disabled={isDemo} />
 
           <div className="flex-1 min-w-0">
             <p className="text-[18px] font-semibold text-foreground truncate">
