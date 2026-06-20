@@ -10,6 +10,7 @@ import ContactDetailPage from '@/pages/ContactDetailPage'
 import ContactsPage from '@/pages/ContactsPage'
 import InterviewPrepPage from '@/pages/InterviewPrepPage'
 import ResumePage from '@/pages/ResumePage'
+import ResumeDetailPage from '@/pages/ResumeDetailPage'
 import DashboardPage from '@/pages/DashboardPage'
 import JobDetailPage from '@/pages/JobDetailPage'
 import JobsPage from '@/pages/JobsPage'
@@ -54,6 +55,7 @@ function App() {
           <Route path="/contacts/:id" element={<ContactDetailPage />} />
           <Route path="/interview-prep" element={<InterviewPrepPage />} />
           <Route path="/resume" element={<ResumePage />} />
+          <Route path="/resume/:id" element={<ResumeDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route

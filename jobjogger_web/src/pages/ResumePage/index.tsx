@@ -1,11 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
-import { FileText, Plus, Pencil, Trash2, ChevronRight, ExternalLink } from 'lucide-react'
+import { useState, useRef, useMemo } from 'react'
+import { FileText, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -13,47 +11,46 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { PageError } from '@/components/layout/PageError'
-import { TypographyH1 } from '@/components/ui/typography'
-import { useResumeTemplates, useResumeTemplate } from '@/hooks/useResumeTemplates'
+import { useResumeTemplates } from '@/hooks/useResumeTemplates'
+import { useAllResumeVariants } from '@/hooks/useResumeVariants'
 import { useResumeTemplateActions } from '@/hooks/useResumeTemplateActions'
-import { useResumeVariantActions } from '@/hooks/useResumeVariantActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
-import type { ResumeTemplate, ResumeVariant } from '@/types/resume'
+import { cn } from '@/lib/utils'
+import { useNavigate } from 'react-router-dom'
+import type { ResumeTemplate } from '@/types/resume'
 
-// ── Template form ─────────────────────────────────────────────────────────────
+// Deterministic per-template colour, same avatar palette used across the app
+const TEMPLATE_COLORS = [
+  'bg-avatar-1/15 text-avatar-1',
+  'bg-avatar-2/15 text-avatar-2',
+  'bg-avatar-3/15 text-avatar-3',
+  'bg-avatar-4/15 text-avatar-4',
+  'bg-avatar-5/15 text-avatar-5',
+  'bg-avatar-6/15 text-avatar-6',
+]
+const templateColor = (id: number) => TEMPLATE_COLORS[id % TEMPLATE_COLORS.length]
+const companyColor = (name: string) => TEMPLATE_COLORS[name.charCodeAt(0) % TEMPLATE_COLORS.length]
 
-interface TemplateFormDialogProps {
+// ── Create-template dialog ────────────────────────────────────────────────────
+
+function TemplateCreateDialog({
+  open,
+  onOpenChange,
+}: {
   open: boolean
   onOpenChange: (v: boolean) => void
-  template?: ResumeTemplate
-}
-
-function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialogProps) {
-  const { createMutation, updateMutation } = useResumeTemplateActions()
-  const [name, setName] = useState(template?.name ?? '')
-  const [notes, setNotes] = useState(template?.notes ?? '')
+}) {
+  const { createMutation } = useResumeTemplateActions()
+  const [name, setName] = useState('')
+  const [notes, setNotes] = useState('')
   const [pdf, setPdf] = useState<File | undefined>()
   const fileRef = useRef<HTMLInputElement>(null)
-  const isEditing = !!template
-
-  const isPending = createMutation.isPending || updateMutation.isPending
 
   function reset() {
-    setName(template?.name ?? '')
-    setNotes(template?.notes ?? '')
+    setName('')
+    setNotes('')
     setPdf(undefined)
     if (fileRef.current) fileRef.current.value = ''
   }
@@ -66,25 +63,17 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
-
-    if (isEditing) {
-      updateMutation.mutate(
-        { id: template.id, data: { name: name.trim(), notes: notes.trim(), pdf } },
-        { onSuccess: () => handleOpenChange(false) }
-      )
-    } else {
-      createMutation.mutate(
-        { name: name.trim(), notes: notes.trim() || undefined, pdf },
-        { onSuccess: () => handleOpenChange(false) }
-      )
-    }
+    createMutation.mutate(
+      { name: name.trim(), notes: notes.trim() || undefined, pdf },
+      { onSuccess: () => handleOpenChange(false) }
+    )
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit template' : 'New resume template'}</DialogTitle>
+          <DialogTitle>New resume template</DialogTitle>
           <DialogDescription>
             A template is your base resume. You'll create tailored variants from it.
           </DialogDescription>
@@ -111,12 +100,7 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-pdf">
-              {template?.pdf_filename ? 'Replace PDF (optional)' : 'Upload PDF (optional)'}
-            </Label>
-            {template?.pdf_filename && (
-              <p className="text-muted-foreground text-xs">Current: {template.pdf_filename}</p>
-            )}
+            <Label htmlFor="t-pdf">Upload PDF (optional)</Label>
             <Input
               id="t-pdf"
               type="file"
@@ -129,8 +113,8 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!name.trim() || isPending}>
-              {isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Create template'}
+            <Button type="submit" disabled={!name.trim() || createMutation.isPending}>
+              {createMutation.isPending ? 'Creating…' : 'Create template'}
             </Button>
           </div>
         </form>
@@ -139,415 +123,81 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
   )
 }
 
-// ── Variant form ──────────────────────────────────────────────────────────────
+// ── Template grid card ────────────────────────────────────────────────────────
 
-interface VariantFormDialogProps {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  templateId: number
-  variant?: ResumeVariant
-}
-
-function VariantFormDialog({ open, onOpenChange, templateId, variant }: VariantFormDialogProps) {
-  const { createMutation, updateMutation } = useResumeVariantActions(templateId)
-  const [notes, setNotes] = useState(variant?.notes ?? '')
-  const [pdf, setPdf] = useState<File | undefined>()
-  const fileRef = useRef<HTMLInputElement>(null)
-  const isEditing = !!variant
-
-  const isPending = createMutation.isPending || updateMutation.isPending
-
-  function reset() {
-    setNotes(variant?.notes ?? '')
-    setPdf(undefined)
-    if (fileRef.current) fileRef.current.value = ''
-  }
-
-  function handleOpenChange(v: boolean) {
-    if (!v) reset()
-    onOpenChange(v)
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (isEditing) {
-      updateMutation.mutate(
-        { id: variant.id, data: { notes: notes.trim(), pdf } },
-        { onSuccess: () => handleOpenChange(false) }
-      )
-    } else {
-      createMutation.mutate(
-        { notes: notes.trim() || undefined, pdf },
-        { onSuccess: () => handleOpenChange(false) }
-      )
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit variant' : 'New variant'}</DialogTitle>
-          <DialogDescription>
-            A variant is a tailored version of your base template for a specific application.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="v-notes">Notes (optional)</Label>
-            <Textarea
-              id="v-notes"
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="e.g. Emphasised leadership experience for this role"
-              rows={3}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="v-pdf">
-              {variant?.pdf_filename ? 'Replace PDF (optional)' : 'Upload PDF (optional)'}
-            </Label>
-            {variant?.pdf_filename && (
-              <p className="text-muted-foreground text-xs">Current: {variant.pdf_filename}</p>
-            )}
-            <Input
-              id="v-pdf"
-              type="file"
-              accept="application/pdf"
-              ref={fileRef}
-              onChange={e => setPdf(e.target.files?.[0])}
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Create variant'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-// ── Variant row ───────────────────────────────────────────────────────────────
-
-function VariantRow({
-  variant,
-  templateId,
-  onDeletingId,
-  deletingId,
+function TemplateCard({
+  template,
+  companies,
 }: {
-  variant: ResumeVariant
-  templateId: number
-  onDeletingId: (id: number | null) => void
-  deletingId: number | null
+  template: ResumeTemplate
+  companies: string[]
 }) {
-  const { deleteMutation } = useResumeVariantActions(templateId)
-  const [editOpen, setEditOpen] = useState(false)
-  const [notesExpanded, setNotesExpanded] = useState(false)
-  const [isClamped, setIsClamped] = useState(false)
-  const notesRef = useRef<HTMLParagraphElement>(null)
-
-  useEffect(() => {
-    const el = notesRef.current
-    if (!el || notesExpanded) return
-    const measure = () => setIsClamped(el.scrollHeight > el.clientHeight)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [notesExpanded, variant.notes])
-
-  const MAX_JOB_BADGES = 2
-  const visibleJobs = variant.linked_jobs.slice(0, MAX_JOB_BADGES)
-  const hiddenCount = variant.linked_jobs.length - MAX_JOB_BADGES
+  const navigate = useNavigate()
+  const MAX_AVATARS = 3
+  const visible = companies.slice(0, MAX_AVATARS)
+  const overflow = companies.length - MAX_AVATARS
 
   return (
-    <>
-      <div className="flex items-start gap-2 rounded-md border bg-background px-3 py-2.5 text-sm">
-        {/* Notes — takes remaining space */}
-        <div className="min-w-0 flex-1">
-          {variant.notes ? (
-            <div>
-              <p
-                ref={notesRef}
-                className={notesExpanded ? 'break-words text-sm' : 'line-clamp-2 break-words text-sm sm:line-clamp-none'}
-              >
-                {variant.notes}
-              </p>
-              {isClamped && (
-                <button
-                  className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
-                  onClick={() => setNotesExpanded(v => !v)}
-                >
-                  {notesExpanded ? 'Show less' : 'Show more'}
-                </button>
-              )}
-            </div>
-          ) : variant.pdf_filename ? (
-            <p className="text-muted-foreground truncate text-sm">{variant.pdf_filename}</p>
-          ) : (
-            <p className="text-muted-foreground/50 text-xs italic">No notes</p>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate(`/resume/${template.id}`)}
+      onKeyDown={e => e.key === 'Enter' && navigate(`/resume/${template.id}`)}
+      className="flex cursor-pointer flex-col rounded-[10px] border border-border bg-card p-[14px] transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {/* Header row */}
+      <div className="mb-[8px] flex items-center gap-[8px]">
+        <div
+          className={cn(
+            'flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[7px] text-[12px] font-semibold',
+            templateColor(template.id)
           )}
+        >
+          {template.name.charAt(0).toUpperCase()}
         </div>
-
-        {/* Job badges — w-36 matches header */}
-        <div className="hidden w-36 shrink-0 items-center gap-1 sm:flex">
-          {variant.linked_jobs.length === 0 ? (
-            <span className="text-muted-foreground/50 text-xs">Not linked</span>
-          ) : (
-            <>
-              {visibleJobs.map(j => (
-                <Badge key={j.id} variant="secondary" className="text-xs font-normal">
-                  {j.company_name}
-                </Badge>
-              ))}
-              {hiddenCount > 0 && (
-                <span className="text-muted-foreground text-xs">+{hiddenCount}</span>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* PDF chip — w-14 matches header */}
-        <div className="hidden w-14 shrink-0 sm:block">
-          {variant.pdf_filename ? (
-            <Badge className="border-emerald-200 bg-emerald-100 text-xs font-normal text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-              PDF
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="text-muted-foreground/50 text-xs font-normal">
-              No PDF
-            </Badge>
-          )}
-        </div>
-
-        {/* Actions — w-20 matches header */}
-        <div className="flex w-20 shrink-0 items-center justify-end gap-0.5">
-          {variant.pdf_url && (
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" asChild>
-              <a href={variant.pdf_url} target="_blank" rel="noopener noreferrer" title="View PDF">
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            </Button>
-          )}
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setEditOpen(true)}>
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
-                disabled={deletingId === variant.id}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete variant?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This removes the variant permanently. Any job that references it will have its
-                  resume link cleared.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    onDeletingId(variant.id)
-                    deleteMutation.mutate(variant.id, { onSettled: () => onDeletingId(null) })
-                  }}
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+        <span className="truncate text-[13px] font-semibold text-foreground">
+          {template.name}
+        </span>
       </div>
-      <VariantFormDialog
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        templateId={templateId}
-        variant={variant}
-      />
-    </>
-  )
-}
 
-// ── Template card ─────────────────────────────────────────────────────────────
+      {/* Description — always rendered to keep card heights consistent */}
+      <p className="mb-[10px] line-clamp-2 text-[11px] leading-[1.5] text-muted-foreground">
+        {template.notes ? template.notes : <span className="italic">No description yet.</span>}
+      </p>
 
-function TemplateCard({ template }: { template: ResumeTemplate }) {
-  const [expanded, setExpanded] = useState(false)
-  const [notesExpanded, setNotesExpanded] = useState(false)
-  const [isClamped, setIsClamped] = useState(false)
-  const notesRef = useRef<HTMLParagraphElement>(null)
-  const [editOpen, setEditOpen] = useState(false)
-
-  useEffect(() => {
-    const el = notesRef.current
-    if (!el || notesExpanded) return
-    const measure = () => setIsClamped(el.scrollHeight > el.clientHeight)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [notesExpanded, template.notes])
-  const [addVariantOpen, setAddVariantOpen] = useState(false)
-  const [deletingVariantId, setDeletingVariantId] = useState<number | null>(null)
-  const { deleteMutation } = useResumeTemplateActions()
-
-  const { data: full } = useResumeTemplate(expanded ? template.id : undefined)
-
-  return (
-    <>
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3 pt-4">
-          <div className="flex min-w-0 items-center gap-3">
-            {/* Expand toggle — chevron + name only */}
-            <button
-              className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
-              onClick={() => setExpanded(e => !e)}
-            >
-              <ChevronRight
-                className={`text-muted-foreground h-4 w-4 shrink-0 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
-              />
-              <p className="truncate font-medium leading-snug">{template.name}</p>
-            </button>
-
-            {/* Badges + actions */}
-            <div className="flex shrink-0 items-center gap-1.5">
-              <Badge variant="secondary" className="text-xs font-normal">
-                {template.variant_count} {template.variant_count === 1 ? 'variant' : 'variants'}
-              </Badge>
-              {template.pdf_filename && (
-                <Badge className="border-emerald-200 bg-emerald-100 text-xs font-normal text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                  PDF
-                </Badge>
-              )}
-              {template.pdf_url && (
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" asChild>
-                  <a href={template.pdf_url} target="_blank" rel="noopener noreferrer" title="View base PDF">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              )}
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setEditOpen(true)}>
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete template?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This deletes the template and all its variants permanently.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteMutation.mutate(template.id)}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
-
-          {/* Notes — separate row so "Show more" can be a proper button */}
-          {template.notes && (
-            <div className="pl-6">
-              <p
-                ref={notesRef}
-                className={notesExpanded ? 'break-words text-muted-foreground text-xs' : 'line-clamp-2 break-words text-muted-foreground text-xs sm:line-clamp-none'}
+      {/* Footer row — mt-auto pins it to the bottom of the card */}
+      <div className="mt-auto flex items-center justify-between">
+        {/* Company avatar stack */}
+        {visible.length > 0 ? (
+          <div className="flex items-center">
+            {visible.map((name, i) => (
+              <div
+                key={name}
+                className={cn(
+                  'flex h-[18px] w-[18px] items-center justify-center rounded-full border-[1.5px] border-card text-[7px] font-semibold',
+                  i > 0 && '-ml-[6px]',
+                  companyColor(name)
+                )}
               >
-                {template.notes}
-              </p>
-              {isClamped && (
-                <button
-                  className="mt-0.5 text-xs text-muted-foreground/70 underline sm:hidden"
-                  onClick={() => setNotesExpanded(v => !v)}
-                >
-                  {notesExpanded ? 'Show less' : 'Show more'}
-                </button>
-              )}
-            </div>
-          )}
-        </CardHeader>
-
-        <div className={`grid transition-all duration-200 ease-in-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-          <div className="min-h-0 overflow-hidden">
-          <CardContent className="pt-0">
-            {full ? (
-              <div className="space-y-2">
-                {/* Column headers — hidden on mobile */}
-                {full.variants.length > 0 && (
-                  <div className="hidden items-center gap-2 px-3 sm:flex">
-                    <span className="flex-1" />
-                    <span className="w-36 text-xs font-medium text-muted-foreground">Linked to</span>
-                    <span className="w-14 text-xs font-medium text-muted-foreground">File</span>
-                    <span className="w-20" />
-                  </div>
-                )}
-
-                {full.variants.length === 0 ? (
-                  <p className="text-muted-foreground py-2 text-sm">
-                    No variants yet — add one below.
-                  </p>
-                ) : (
-                  full.variants.map(v => (
-                    <VariantRow
-                      key={v.id}
-                      variant={v}
-                      templateId={template.id}
-                      deletingId={deletingVariantId}
-                      onDeletingId={setDeletingVariantId}
-                    />
-                  ))
-                )}
-
-                <div className="pt-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => setAddVariantOpen(true)}
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Add variant
-                  </Button>
-                </div>
+                {name.charAt(0).toUpperCase()}
               </div>
-            ) : (
-              <p className="text-muted-foreground py-2 text-sm">Loading…</p>
+            ))}
+            {overflow > 0 && (
+              <div className="-ml-[6px] flex h-[18px] w-[18px] items-center justify-center rounded-full border-[1.5px] border-card bg-muted text-[7px] font-medium text-muted-foreground">
+                +{overflow}
+              </div>
             )}
-          </CardContent>
           </div>
-        </div>
-      </Card>
+        ) : (
+          <span className="text-[10px] text-muted-foreground/40">No variants</span>
+        )}
 
-      <TemplateFormDialog open={editOpen} onOpenChange={setEditOpen} template={template} />
-      <VariantFormDialog
-        open={addVariantOpen}
-        onOpenChange={setAddVariantOpen}
-        templateId={template.id}
-      />
-    </>
+        <span className="text-[10px] text-muted-foreground">
+          {template.variant_count}{' '}
+          {template.variant_count === 1 ? 'version' : 'versions'}
+        </span>
+      </div>
+    </div>
   )
 }
 
@@ -556,51 +206,71 @@ function TemplateCard({ template }: { template: ResumeTemplate }) {
 export default function ResumePage() {
   usePageTitle('Resumes')
   const { data: templates, isLoading, isError } = useResumeTemplates()
+  const { data: allVariants } = useAllResumeVariants()
   const [createOpen, setCreateOpen] = useState(false)
+
+  // Build templateId → unique company names from linked jobs across all variants
+  const templateCompanies = useMemo(() => {
+    const map = new Map<number, string[]>()
+    allVariants?.forEach(v => {
+      const prev = map.get(v.resume_template_id) ?? []
+      v.linked_jobs.forEach(j => {
+        if (!prev.includes(j.company_name)) prev.push(j.company_name)
+      })
+      map.set(v.resume_template_id, prev)
+    })
+    return map
+  }, [allVariants])
 
   if (isLoading) return <PageLoading />
   if (isError) return <PageError />
 
+  const count = templates?.length ?? 0
+
   return (
-    <div className="page-container space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-[14px]">
+      {/* Page header */}
+      <div className="flex items-start justify-between">
         <div>
-          <TypographyH1 className="text-2xl font-bold tracking-tight">Resumes</TypographyH1>
-          <p className="text-muted-foreground text-sm">
-            Manage your base resumes and tailored variants for each application.
+          <h1 className="text-[18px] font-semibold tracking-tight text-foreground">Resumes</h1>
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
+            {count} {count === 1 ? 'template' : 'templates'}
           </p>
         </div>
-        <Button
-          variant="success"
-          size="sm"
-          className="w-full min-w-36 sm:w-auto"
+        <button
+          type="button"
+          className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700"
           onClick={() => setCreateOpen(true)}
         >
-          <Plus className="mr-1.5 h-4 w-4" />
+          <Plus className="h-4 w-4" />
           New template
-        </Button>
+        </button>
       </div>
 
-      {templates && templates.length === 0 ? (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
-              <FileText className="h-6 w-6" />
-            </div>
-            <p className="font-semibold">No resume templates yet</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Create a template for your base resume, then add tailored variants for each
-              application.
-            </p>
-          </CardContent>
-        </Card>
+      {/* Empty state */}
+      {count === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-[10px] border border-border bg-card py-16 text-center">
+          <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+            <FileText className="h-6 w-6" />
+          </div>
+          <p className="font-semibold">No resume templates yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create a template for your base resume, then add tailored variants for each application.
+          </p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {templates?.map(t => <TemplateCard key={t.id} template={t} />)}
+        <div className="grid grid-cols-1 gap-[12px] sm:grid-cols-2 lg:grid-cols-3">
+          {templates?.map(t => (
+            <TemplateCard
+              key={t.id}
+              template={t}
+              companies={templateCompanies.get(t.id) ?? []}
+            />
+          ))}
         </div>
       )}
 
-      <TemplateFormDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <TemplateCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   )
 }
