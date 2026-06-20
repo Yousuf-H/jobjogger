@@ -6,8 +6,8 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
   respond_to :json
   skip_before_action :authenticate_scope!, raise: false
-  before_action :authenticate_user!, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google ]
-  before_action :prevent_demo_changes, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google ]
+  before_action :authenticate_user!, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google, :update_notification_prefs ]
+  before_action :prevent_demo_changes, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google, :update_notification_prefs ]
 
   def create
     build_resource(sign_up_params)
@@ -185,6 +185,21 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     }, status: :ok
   end
 
+  def update_notification_prefs
+    if current_user.update(notification_pref_params)
+      render json: {
+        status: { code: 200, message: 'Notification preferences updated.' },
+        user: user_payload(current_user)
+      }, status: :ok
+    else
+      render json: {
+        status: {
+          message: "Couldn't update preferences. #{current_user.errors.full_messages.to_sentence}"
+        }
+      }, status: :unprocessable_content
+    end
+  end
+
   private
 
   def sign_up_params
@@ -196,7 +211,11 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def profile_params
-    params.require(:user).permit(:email, :name)
+    params.require(:user).permit(:email, :name, :phone, :location, :linkedin_url, :job_title)
+  end
+
+  def notification_pref_params
+    params.require(:user).permit(:notify_follow_up_reminders, :notify_interview_reminders)
   end
 
   def email_changing?
@@ -213,6 +232,12 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       id: user.id,
       email: user.email,
       name: user.name,
+      job_title: user.job_title,
+      phone: user.phone,
+      location: user.location,
+      linkedin_url: user.linkedin_url,
+      notify_follow_up_reminders: user.notify_follow_up_reminders,
+      notify_interview_reminders: user.notify_interview_reminders,
       avatar_url: avatar_url,
       demo: user.demo?,
       admin: user.admin?,

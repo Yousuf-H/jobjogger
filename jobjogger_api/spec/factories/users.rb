@@ -25,5 +25,13 @@ FactoryBot.define do
     trait :google do
       google_uid { SecureRandom.hex(16) }
     end
+
+    trait :follow_up_reminders_off do
+      notify_follow_up_reminders { false }
+    end
+
+    trait :interview_reminders_off do
+      notify_interview_reminders { false }
+    end
   end
 end

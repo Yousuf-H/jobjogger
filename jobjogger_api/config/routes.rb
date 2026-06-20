@@ -31,6 +31,7 @@ Rails.application.routes.draw do
         patch 'users/avatar', to: 'users/registrations#update_avatar'
         delete 'users/avatar', to: 'users/registrations#delete_avatar'
         delete 'users/google', to: 'users/registrations#unlink_google'
+        patch 'users/notifications', to: 'users/registrations#update_notification_prefs'
       end
 
       # Admin

@@ -58,6 +58,15 @@ RSpec.describe Notifications::FollowUpDueEvaluator do
       end
     end
 
+    context "when the user has opted out of follow-up reminders" do
+      let(:user) { create(:user, :follow_up_reminders_off) }
+      let!(:due_job) { create(:job, :applied, user: user, follow_up_date: Date.current) }
+
+      it "does not create any notification" do
+        expect { evaluator.call }.not_to change { Notification.count }
+      end
+    end
+
     context "deduplication" do
       let!(:due_job) do
         create(:job, :applied, user: user, follow_up_date: Date.current)

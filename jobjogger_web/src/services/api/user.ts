@@ -4,8 +4,20 @@ export async function updateProfile(data: {
   name: string
   email: string
   current_password?: string
+  phone?: string | null
+  location?: string | null
+  linkedin_url?: string | null
+  job_title?: string | null
 }) {
   const response = await apiClient.patch('/users', { user: data })
+  return response.data
+}
+
+export async function updateNotificationPrefs(data: {
+  notify_follow_up_reminders?: boolean
+  notify_interview_reminders?: boolean
+}) {
+  const response = await apiClient.patch('/users/notifications', { user: data })
   return response.data
 }
 

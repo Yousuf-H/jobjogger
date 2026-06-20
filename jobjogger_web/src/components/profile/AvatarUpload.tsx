@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/button'
-import { deleteAvatar, uploadAvatar } from '@/services/api/user'
+import { uploadAvatar } from '@/services/api/user'
 import type { AvatarUploadProps } from '@/types/avatarUpload'
 import { Camera, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -8,18 +7,17 @@ import { toast } from 'sonner'
 export function AvatarUpload({
   user,
   onUpdate,
+  onRemove,
   disabled = false,
 }: AvatarUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
-  const initials =
+  const initial =
     user?.name
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || '?'
+      ?.trim()
+      .charAt(0)
+      .toUpperCase() || '?'
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -43,71 +41,43 @@ export function AvatarUpload({
     }
   }
 
-  const handleRemove = async () => {
-    setUploading(true)
-    try {
-      const response = await deleteAvatar()
-      onUpdate(response.user)
-      toast.success('Avatar removed')
-    } catch {
-      toast.error('Failed to remove avatar')
-    } finally {
-      setUploading(false)
-    }
-  }
-
   return (
-    <div className="flex items-center gap-5">
-      <div className="relative">
-        {user?.avatar_url ? (
-          <img
-            src={user.avatar_url}
-            alt={user.name}
-            className="size-20 rounded-full object-cover"
-          />
-        ) : (
-          <div className="bg-primary/10 text-primary flex size-20 items-center justify-center rounded-full text-xl font-semibold">
-            {initials}
-          </div>
-        )}
+    <div className="relative w-[72px] h-[72px] shrink-0">
+      {user?.avatar_url ? (
+        <img
+          src={user.avatar_url}
+          alt={user.name}
+          className="w-[72px] h-[72px] rounded-full object-cover"
+        />
+      ) : (
+        <div className="w-[72px] h-[72px] rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[26px] font-semibold select-none">
+          {initial}
+        </div>
+      )}
 
+      {/* Upload badge — always visible at bottom-right */}
+      <button
+        type="button"
+        onClick={() => !disabled && !uploading && fileInputRef.current?.click()}
+        disabled={uploading || disabled}
+        aria-label="Upload avatar"
+        className="absolute bottom-0 right-0 w-[24px] h-[24px] rounded-full bg-card border border-border flex items-center justify-center shadow-sm transition-opacity hover:opacity-80 disabled:pointer-events-none disabled:opacity-50"
+      >
+        <Camera className="w-[11px] h-[11px] text-foreground/70" />
+      </button>
+
+      {/* Remove badge — only when an avatar is set */}
+      {user?.avatar_url && onRemove && (
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => !disabled && !uploading && onRemove()}
           disabled={uploading || disabled}
-          className="bg-primary text-primary-foreground absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-full shadow-sm transition-opacity hover:opacity-90"
+          aria-label="Remove avatar"
+          className="absolute top-0 right-0 w-[20px] h-[20px] rounded-full bg-card border border-border flex items-center justify-center shadow-sm transition-opacity hover:opacity-80 disabled:pointer-events-none disabled:opacity-50"
         >
-          <Camera className="h-3.5 w-3.5" />
+          <Trash2 className="w-[9px] h-[9px] text-destructive" />
         </button>
-      </div>
-
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading || disabled}
-          >
-            {uploading ? 'Uploading...' : 'Upload photo'}
-          </Button>
-          {user?.avatar_url && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleRemove}
-              disabled={uploading || disabled}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-        <p className="text-muted-foreground text-xs">
-          PNG, JPEG, or WebP. Max 5MB.
-        </p>
-      </div>
+      )}
 
       <input
         ref={fileInputRef}

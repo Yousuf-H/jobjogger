@@ -5,6 +5,8 @@ module Notifications
     LOOKAHEAD_HOURS = 24
 
     def call
+      return unless @user.notify_interview_reminders?
+
       upcoming_interviews.each do |interview|
         job = interview.job
         hours = ((interview.scheduled_at - Time.current) / 1.hour).ceil
