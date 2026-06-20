@@ -44,6 +44,15 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+
+  --color-avatar-1: var(--avatar-1);
+  --color-avatar-2: var(--avatar-2);
+  --color-avatar-3: var(--avatar-3);
+  --color-avatar-4: var(--avatar-4);
+  --color-avatar-5: var(--avatar-5);
+  --color-avatar-6: var(--avatar-6);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -58,6 +67,17 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Question category colour tokens */
+  --color-qcat-behavioural-bg: var(--qcat-behavioural-bg);
+  --color-qcat-behavioural-border: var(--qcat-behavioural-border);
+  --color-qcat-behavioural-fg: var(--qcat-behavioural-fg);
+  --color-qcat-technical-bg: var(--qcat-technical-bg);
+  --color-qcat-technical-border: var(--qcat-technical-border);
+  --color-qcat-technical-fg: var(--qcat-technical-fg);
+  --color-qcat-ask-bg: var(--qcat-ask-bg);
+  --color-qcat-ask-border: var(--qcat-ask-border);
+  --color-qcat-ask-fg: var(--qcat-ask-fg);
 }
 
 :root {
@@ -96,6 +116,18 @@
   --info: oklch(0.6 0.15 250);
   --info-foreground: oklch(0.985 0 0);
 
+  /* Brand: accent blue used for primary CTAs/links app-wide (matches Tailwind blue-600) */
+  --brand: oklch(0.546 0.245 262.881);
+  --brand-foreground: oklch(0.985 0 0);
+
+  /* Avatar palette: fixed hue set for deterministic initial-avatar colouring */
+  --avatar-1: oklch(0.55 0.18 295);
+  --avatar-2: oklch(0.58 0.19 350);
+  --avatar-3: oklch(0.55 0.11 195);
+  --avatar-4: oklch(0.62 0.17 70);
+  --avatar-5: oklch(0.55 0.15 155);
+  --avatar-6: oklch(0.55 0.14 230);
+
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -112,6 +144,17 @@
   --sidebar-accent-foreground: #2563EB;
   --sidebar-border: #E5E7EB;
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Question category colour tokens */
+  --qcat-behavioural-bg: oklch(0.95 0.035 295);
+  --qcat-behavioural-border: oklch(0.82 0.08 295);
+  --qcat-behavioural-fg: oklch(0.43 0.18 295);
+  --qcat-technical-bg: oklch(0.96 0.02 250);
+  --qcat-technical-border: oklch(0.82 0.07 250);
+  --qcat-technical-fg: oklch(0.42 0.18 250);
+  --qcat-ask-bg: oklch(0.97 0.045 75);
+  --qcat-ask-border: oklch(0.84 0.12 75);
+  --qcat-ask-fg: oklch(0.48 0.16 70);
 
   /* Status colours */
   --status-wishlist: oklch(0.68 0.02 260);
@@ -160,6 +203,18 @@
   --info: oklch(0.7 0.15 250);
   --info-foreground: oklch(0.145 0 0);
 
+  /* Brand: lighter accent blue for dark mode (matches Tailwind blue-400) */
+  --brand: oklch(0.707 0.165 254.624);
+  --brand-foreground: oklch(0.145 0 0);
+
+  /* Avatar palette: lightened for dark-mode contrast, same hues as light mode */
+  --avatar-1: oklch(0.72 0.16 295);
+  --avatar-2: oklch(0.72 0.15 350);
+  --avatar-3: oklch(0.72 0.11 195);
+  --avatar-4: oklch(0.78 0.16 70);
+  --avatar-5: oklch(0.72 0.15 155);
+  --avatar-6: oklch(0.72 0.13 230);
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -176,6 +231,17 @@
   --sidebar-accent-foreground: oklch(0.85 0.1 250);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Question category colour tokens */
+  --qcat-behavioural-bg: oklch(0.28 0.04 295);
+  --qcat-behavioural-border: oklch(0.42 0.09 295);
+  --qcat-behavioural-fg: oklch(0.78 0.13 295);
+  --qcat-technical-bg: oklch(0.27 0.03 250);
+  --qcat-technical-border: oklch(0.40 0.08 250);
+  --qcat-technical-fg: oklch(0.76 0.12 250);
+  --qcat-ask-bg: oklch(0.28 0.04 80);
+  --qcat-ask-border: oklch(0.42 0.10 80);
+  --qcat-ask-fg: oklch(0.82 0.13 80);
 
   /* Status colours */
   --status-wishlist: oklch(0.65 0.025 265);

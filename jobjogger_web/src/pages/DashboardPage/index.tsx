@@ -46,8 +46,8 @@ function StatCard({ label, value, subLabel, icon: Icon, iconContainerClass, icon
     <div className="rounded-[10px] border border-border bg-card" style={{ padding: '14px 16px' }}>
       <div className="flex items-center justify-between">
         <span className="text-[12px] text-muted-foreground">{label}</span>
-        <div className={cn('flex h-[30px] w-[30px] items-center justify-center rounded-[7px]', iconContainerClass)}>
-          <Icon className={cn('h-[18px] w-[18px]', iconColor)} />
+        <div className={cn('flex h-[36px] w-[36px] items-center justify-center rounded-full', iconContainerClass)}>
+          <Icon className={cn('h-[16px] w-[16px]', iconColor)} />
         </div>
       </div>
       <p className="mt-2 text-[26px] font-semibold leading-none tracking-tight text-foreground">
@@ -65,7 +65,7 @@ function DashboardStatCards({ data }: { data: SummaryStats }) {
       value: String(data.total_applied),
       subLabel: 'Applications sent',
       icon: Send,
-      iconContainerClass: 'bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800',
+      iconContainerClass: 'bg-blue-50 border border-blue-200 dark:bg-blue-500/20 dark:border-blue-500/40',
       iconColor: 'text-blue-600 dark:text-blue-400',
     },
     {
@@ -73,7 +73,7 @@ function DashboardStatCards({ data }: { data: SummaryStats }) {
       value: `${data.response_rate}%`,
       subLabel: 'Got a reply back',
       icon: MailOpen,
-      iconContainerClass: 'bg-green-50 border border-green-200 dark:bg-green-950/40 dark:border-green-800',
+      iconContainerClass: 'bg-green-50 border border-green-200 dark:bg-green-500/20 dark:border-green-500/40',
       iconColor: 'text-green-600 dark:text-green-400',
     },
     {
@@ -81,7 +81,7 @@ function DashboardStatCards({ data }: { data: SummaryStats }) {
       value: `${data.interview_rate}%`,
       subLabel: 'Made it to interview',
       icon: Mic,
-      iconContainerClass: 'bg-amber-50 border border-amber-200 dark:bg-amber-950/40 dark:border-amber-800',
+      iconContainerClass: 'bg-amber-50 border border-amber-200 dark:bg-amber-500/20 dark:border-amber-500/40',
       iconColor: 'text-amber-600 dark:text-amber-400',
     },
     {
@@ -89,7 +89,7 @@ function DashboardStatCards({ data }: { data: SummaryStats }) {
       value: data.avg_days_to_respond !== null ? String(data.avg_days_to_respond) : '—',
       subLabel: 'Time to first reply',
       icon: Clock,
-      iconContainerClass: 'bg-purple-50 border border-purple-200 dark:bg-purple-950/40 dark:border-purple-800',
+      iconContainerClass: 'bg-purple-50 border border-purple-200 dark:bg-purple-500/20 dark:border-purple-500/40',
       iconColor: 'text-purple-600 dark:text-purple-400',
     },
   ]

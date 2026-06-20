@@ -16,14 +16,25 @@ export const columns = (
     {
       accessorKey: 'company_name',
       header: 'Company',
+      enableSorting: false,
+      cell: ({ row }) => (
+        <span className="font-medium text-sm">{row.original.company_name}</span>
+      ),
     },
     {
       accessorKey: 'job_title',
       header: 'Role',
+      enableSorting: false,
+      cell: ({ row }) => {
+        const title = row.original.job_title
+        if (!title) return <span className="text-muted-foreground/40 text-sm">—</span>
+        return <span className="text-sm text-muted-foreground">{title}</span>
+      },
     },
     {
       accessorKey: 'status',
       header: 'Status',
+      enableSorting: false,
       cell: ({ row }) => (
         <div onClick={(e) => e.stopPropagation()}>
           <StatusBadge job={row.original} />
@@ -36,16 +47,17 @@ export const columns = (
     cols.push({
       accessorKey: 'follow_up_date',
       header: 'Follow-up',
+      enableSorting: false,
       cell: ({ row }) => {
         const date = row.getValue('follow_up_date') as string
-        if (!date) return null
+        if (!date) return <span className="text-muted-foreground/40 text-sm">—</span>
         const [year, month, day] = date.split('T')[0].split('-').map(Number)
         const followUpDay = new Date(year, month - 1, day)
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         const isOverdue = followUpDay < today
         return (
-          <span className={isOverdue ? 'text-destructive font-medium' : 'text-foreground/80'}>
+          <span className={isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'}>
             {format(parseISO(date.split('T')[0]), 'd MMM yyyy')}
           </span>
         )
@@ -57,13 +69,14 @@ export const columns = (
     cols.push({
       accessorKey: 'next_interview_at',
       header: 'Next Interview',
+      enableSorting: false,
       cell: ({ row }) => {
         const job = row.original
-        if (!job.next_interview_at) return null
+        if (!job.next_interview_at) return <span className="text-muted-foreground/40 text-sm">—</span>
         const date = new Date(job.next_interview_at)
-        if (!isFuture(date)) return null
+        if (!isFuture(date)) return <span className="text-muted-foreground/40 text-sm">—</span>
         return (
-          <span className="text-violet-600 dark:text-violet-400 font-medium text-xs">
+          <span className="text-violet-600 dark:text-violet-400 font-medium text-sm">
             {formatDistanceToNow(date, { addSuffix: true })}
           </span>
         )
