@@ -3,6 +3,8 @@
 module Notifications
   class FollowUpDueEvaluator < BaseEvaluator
     def call
+      return unless @user.notify_follow_up_reminders?
+
       due_jobs.each do |job|
         create_notification!(
           job,
