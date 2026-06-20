@@ -92,6 +92,8 @@ export default function ProfilePage() {
   )
   const followUpGenRef = useRef(0)
   const interviewGenRef = useRef(0)
+  const [followUpSaving, setFollowUpSaving] = useState(false)
+  const [interviewSaving, setInterviewSaving] = useState(false)
 
   // Avatar removal
   const [avatarRemoving, setAvatarRemoving] = useState(false)
@@ -208,6 +210,7 @@ export default function ProfilePage() {
   const handleFollowUpToggle = async (value: boolean) => {
     const gen = ++followUpGenRef.current
     setNotifyFollowUp(value)
+    setFollowUpSaving(true)
     try {
       await updateNotificationPrefs({ notify_follow_up_reminders: value })
       if (followUpGenRef.current === gen && latestUser.current) {
@@ -221,12 +224,15 @@ export default function ProfilePage() {
         }
       }
       toast.error('Failed to save preferences')
+    } finally {
+      setFollowUpSaving(false)
     }
   }
 
   const handleInterviewToggle = async (value: boolean) => {
     const gen = ++interviewGenRef.current
     setNotifyInterview(value)
+    setInterviewSaving(true)
     try {
       await updateNotificationPrefs({ notify_interview_reminders: value })
       if (interviewGenRef.current === gen && latestUser.current) {
@@ -240,6 +246,8 @@ export default function ProfilePage() {
         }
       }
       toast.error('Failed to save preferences')
+    } finally {
+      setInterviewSaving(false)
     }
   }
 
@@ -467,7 +475,7 @@ export default function ProfilePage() {
             <Switch
               checked={notifyFollowUp}
               onCheckedChange={handleFollowUpToggle}
-              disabled={isDemo}
+              disabled={isDemo || followUpSaving}
               aria-labelledby="label-follow-up"
             />
           </div>
@@ -482,7 +490,7 @@ export default function ProfilePage() {
             <Switch
               checked={notifyInterview}
               onCheckedChange={handleInterviewToggle}
-              disabled={isDemo}
+              disabled={isDemo || interviewSaving}
               aria-labelledby="label-interview"
             />
           </div>
