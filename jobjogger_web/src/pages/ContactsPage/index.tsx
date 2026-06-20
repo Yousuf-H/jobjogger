@@ -1,4 +1,4 @@
-import { OrgDataTable } from '@/components/organisation/OrgDataTable'
+import { DataTable } from '@/components/ui/DataTable'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
 import type { ContactFormValues } from '@/lib/validations/contact'
 import type { Contact } from '@/types/contact'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Building2, Plus, Users } from 'lucide-react'
+import { Building2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -204,34 +204,32 @@ export default function ContactsPage() {
         <PageLoading variant="default" />
       ) : error ? (
         <PageError message={error.message} />
-      ) : contacts && contacts.length > 0 ? (
+      ) : (
         <Card className="overflow-hidden border-0 p-0 shadow-sm">
           <div className="hidden sm:block">
-            <OrgDataTable
+            <DataTable
               columns={tableColumns}
-              data={contacts}
+              data={contacts ?? []}
               onRowClick={handleContactClick}
+              emptyMessage={search ? 'No contacts match your search.' : 'No contacts yet. Add your first one.'}
             />
           </div>
           <div className="sm:hidden">
-            {contacts.map((contact) => (
-              <ContactMobileRow
-                key={contact.id}
-                contact={contact}
-                onClick={() => handleContactClick(contact)}
-              />
-            ))}
+            {(contacts ?? []).length > 0 ? (
+              contacts!.map((contact) => (
+                <ContactMobileRow
+                  key={contact.id}
+                  contact={contact}
+                  onClick={() => handleContactClick(contact)}
+                />
+              ))
+            ) : (
+              <p className="p-4 text-center text-sm text-muted-foreground">
+                {search ? 'No contacts match your search.' : 'No contacts yet. Add your first one.'}
+              </p>
+            )}
           </div>
         </Card>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <Users className="text-muted-foreground/40 mb-4 h-12 w-12" />
-          <p className="text-muted-foreground text-sm">
-            {search
-              ? 'No contacts match your search.'
-              : 'No contacts yet. Add your first one.'}
-          </p>
-        </div>
       )}
     </div>
   )

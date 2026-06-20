@@ -1,6 +1,7 @@
 import { columns as createColumns } from '@/components/job/columns'
+import ActionsCell from '@/components/job/ActionsCell'
 import CreateJobDialog from '@/components/job/CreateJobDialog'
-import DataTable from '@/components/job/DataTable'
+import { DataTable } from '@/components/ui/DataTable'
 import { ExtensionBanner } from '@/components/job/ExtensionBanner'
 import { JobsToolbar } from '@/components/job/JobsToolbar'
 import { StatusBadge } from '@/components/job/StatusBadge'
@@ -14,7 +15,16 @@ import type { Job, JobFilters } from '@/types/job'
 import { useCallback, useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
 
-function JobMobileRow({ job, onClick }: { job: Job; onClick: () => void }) {
+interface JobMobileRowProps {
+  job: Job
+  onClick: () => void
+  onView: (id: number) => void
+  onArchive: (id: number) => void
+  onUnarchive: (id: number) => void
+  onDelete: (id: number) => void
+}
+
+function JobMobileRow({ job, onClick, onView, onArchive, onUnarchive, onDelete }: JobMobileRowProps) {
   return (
     <div
       className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0"
@@ -24,8 +34,16 @@ function JobMobileRow({ job, onClick }: { job: Job; onClick: () => void }) {
         <span className="font-medium text-sm block">{job.company_name}</span>
         <span className="text-xs text-muted-foreground mt-0.5 block">{job.job_title}</span>
       </div>
-      <div onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
         <StatusBadge job={job} />
+        <ActionsCell
+          jobId={job.id}
+          isArchived={Boolean(job.archived_at)}
+          onView={onView}
+          onArchive={onArchive}
+          onUnarchive={onUnarchive}
+          onDelete={onDelete}
+        />
       </div>
     </div>
   )
@@ -109,6 +127,10 @@ export default function JobsPage() {
                     key={job.id}
                     job={job}
                     onClick={() => handleView(job.id)}
+                    onView={handleView}
+                    onArchive={archiveMutation.mutate}
+                    onUnarchive={unarchiveMutation.mutate}
+                    onDelete={deleteMutation.mutate}
                   />
                 ))
               ) : (

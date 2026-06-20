@@ -2,7 +2,7 @@ import {
   OrganisationForm,
   type OrganisationFormValues,
 } from '@/components/organisation/OrganisationForm'
-import { OrgDataTable } from '@/components/organisation/OrgDataTable'
+import { DataTable } from '@/components/ui/DataTable'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { Button } from '@/components/ui/button'
@@ -24,7 +24,6 @@ import type { Organisation } from '@/types/organisation'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
-  Building2,
   ExternalLink,
   Plus,
   Star,
@@ -246,14 +245,6 @@ export default function OrganisationsPage() {
         },
       },
       {
-        accessorKey: 'total_jobs_count',
-        header: 'Linked jobs',
-        cell: ({ row }) => {
-          const count = (row.getValue<number | undefined>('total_jobs_count')) ?? 0
-          return <span className="text-sm tabular-nums">{count}</span>
-        },
-      },
-      {
         accessorKey: 'rating',
         header: 'Rating',
         cell: ({ row }) => {
@@ -283,6 +274,14 @@ export default function OrganisationsPage() {
           )
         },
       },
+      {
+        accessorKey: 'total_jobs_count',
+        header: 'Linked jobs',
+        cell: ({ row }) => {
+          const count = (row.getValue<number | undefined>('total_jobs_count')) ?? 0
+          return <span className="text-sm tabular-nums">{count}</span>
+        },
+      },
     ],
     []
   )
@@ -304,74 +303,62 @@ export default function OrganisationsPage() {
 
       {hasOrganisations && <WelcomeBanner />}
 
-      {hasOrganisations && (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="space-y-3 p-4">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Input
-                placeholder="Search organisations…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="h-8 w-full shrink-0 text-sm sm:w-[200px] lg:w-[260px]"
-              />
-              <div className="flex items-center justify-between gap-2 sm:contents">
-                <button
-                  type="button"
-                  onClick={() => setReviewOnly((v) => !v)}
-                  className={cn(PILL_BASE, reviewOnly ? PILL_ACTIVE : PILL_INACTIVE)}
-                >
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  Needs review
-                </button>
-                <span className="text-muted-foreground text-xs font-medium sm:ml-auto">
-                  {filtered.length}{' '}
-                  {filtered.length === 1 ? 'organisation' : 'organisations'}
-                </span>
-              </div>
+      <Card className="border-0 shadow-sm">
+        <CardContent className="space-y-3 p-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
+              placeholder="Search organisations…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-8 w-full shrink-0 text-sm sm:w-[200px] lg:w-[260px]"
+            />
+            <div className="flex items-center justify-between gap-2 sm:contents">
+              <button
+                type="button"
+                onClick={() => setReviewOnly((v) => !v)}
+                className={cn(PILL_BASE, reviewOnly ? PILL_ACTIVE : PILL_INACTIVE)}
+              >
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                Needs review
+              </button>
+              <span className="text-muted-foreground text-xs font-medium sm:ml-auto">
+                {filtered.length}{' '}
+                {filtered.length === 1 ? 'organisation' : 'organisations'}
+              </span>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </CardContent>
+      </Card>
 
       {isLoading ? (
         <PageLoading variant="default" />
       ) : error ? (
         <PageError message={error.message} />
-      ) : !hasOrganisations ? (
-        <Card className="shadow-sm">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="bg-brand/10 text-brand mb-4 rounded-full p-4">
-              <Building2 className="h-6 w-6" />
-            </div>
-            <p className="font-semibold">No organisations yet</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Organisations are created automatically when you add jobs, or you
-              can add them manually.
-            </p>
-          </CardContent>
-        </Card>
-      ) : filtered.length === 0 ? (
-        <p className="text-muted-foreground py-4 text-sm">
-          No organisations match your search.
-        </p>
       ) : (
         <Card className="overflow-hidden border-0 p-0 shadow-sm">
           <div className="hidden sm:block">
-            <OrgDataTable
+            <DataTable
               columns={tableColumns}
               data={filtered}
               onRowClick={handleOrgClick}
               defaultSort={DEFAULT_SORT}
+              emptyMessage={search || reviewOnly ? 'No organisations match your search.' : 'No organisations yet. They are created automatically when you add jobs.'}
             />
           </div>
           <div className="sm:hidden">
-            {filtered.map((org) => (
-              <OrgMobileRow
-                key={org.id}
-                org={org}
-                onClick={() => handleOrgClick(org)}
-              />
-            ))}
+            {filtered.length > 0 ? (
+              filtered.map((org) => (
+                <OrgMobileRow
+                  key={org.id}
+                  org={org}
+                  onClick={() => handleOrgClick(org)}
+                />
+              ))
+            ) : (
+              <p className="p-4 text-center text-sm text-muted-foreground">
+                {search || reviewOnly ? 'No organisations match your search.' : 'No organisations yet. They are created automatically when you add jobs.'}
+              </p>
+            )}
           </div>
         </Card>
       )}

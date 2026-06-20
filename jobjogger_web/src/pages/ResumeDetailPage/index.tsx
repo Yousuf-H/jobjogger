@@ -60,7 +60,7 @@ const templateColor = (id: number) => TEMPLATE_COLORS[id % TEMPLATE_COLORS.lengt
 
 function variantLabel(variant: ResumeVariant): string {
   const primary = variant.linked_jobs[0]
-  return primary ? `Tailored for ${primary.company_name}` : 'General version'
+  return primary ? `Tailored for ${primary.company_name}` : 'General variant'
 }
 
 // ── Edit-template dialog ──────────────────────────────────────────────────────
@@ -496,7 +496,7 @@ export default function ResumeDetailPage() {
       {/* Version history */}
       <div className="rounded-[10px] border border-border bg-card p-[16px_18px]">
         <h2 className="mb-[14px] text-[13px] font-semibold text-foreground">
-          Versions
+          Variants
           <span className="ml-[6px] text-[12px] font-normal text-muted-foreground">
             {template.variants.length}
           </span>
@@ -508,7 +508,7 @@ export default function ResumeDetailPage() {
 
           {template.variants.length === 0 && (
             <p className="mb-[12px] pl-[44px] text-[13px] text-muted-foreground">
-              No versions yet — add one below.
+              No variants yet — add one below.
             </p>
           )}
 
@@ -532,7 +532,7 @@ export default function ResumeDetailPage() {
               <Plus className="h-3.5 w-3.5 text-muted-foreground" />
             </div>
             <span className="text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground">
-              Add a new tailored version
+              Add a new tailored variant
             </span>
           </button>
         </div>
