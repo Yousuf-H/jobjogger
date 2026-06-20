@@ -200,10 +200,7 @@ export default function ProfilePage() {
   const handleFollowUpToggle = async (value: boolean) => {
     setNotifyFollowUp(value)
     try {
-      const data = await updateNotificationPrefs({
-        notify_follow_up_reminders: value,
-        notify_interview_reminders: notifyInterview,
-      })
+      const data = await updateNotificationPrefs({ notify_follow_up_reminders: value })
       updateUser(data.user)
     } catch {
       setNotifyFollowUp(!value)
@@ -214,10 +211,7 @@ export default function ProfilePage() {
   const handleInterviewToggle = async (value: boolean) => {
     setNotifyInterview(value)
     try {
-      const data = await updateNotificationPrefs({
-        notify_follow_up_reminders: notifyFollowUp,
-        notify_interview_reminders: value,
-      })
+      const data = await updateNotificationPrefs({ notify_interview_reminders: value })
       updateUser(data.user)
     } catch {
       setNotifyInterview(!value)

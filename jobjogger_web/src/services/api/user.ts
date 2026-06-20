@@ -14,8 +14,8 @@ export async function updateProfile(data: {
 }
 
 export async function updateNotificationPrefs(data: {
-  notify_follow_up_reminders: boolean
-  notify_interview_reminders: boolean
+  notify_follow_up_reminders?: boolean
+  notify_interview_reminders?: boolean
 }) {
   const response = await apiClient.patch('/users/notifications', { user: data })
   return response.data
