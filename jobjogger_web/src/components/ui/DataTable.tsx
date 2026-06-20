@@ -87,7 +87,7 @@ export function DataTable<TData, TValue>({
                 onClick={() => onRowClick?.(row.original)}
                 tabIndex={onRowClick ? 0 : undefined}
                 onKeyDown={(e) => {
-                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                  if (onRowClick && (e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
                     e.preventDefault()
                     onRowClick(row.original)
                   }
