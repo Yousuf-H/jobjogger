@@ -201,7 +201,7 @@ export default function ProfilePage() {
         password: newPassword,
         password_confirmation: confirmPassword,
       })
-      updateUser(data.user)
+      updateUser({ ...(latestUser.current ?? data.user), has_password: data.user.has_password })
       setNewPassword('')
       setConfirmPassword('')
       toast.success('Password set successfully')
@@ -266,7 +266,7 @@ export default function ProfilePage() {
     setAvatarRemoving(true)
     try {
       const data = await deleteAvatar()
-      updateUser(data.user)
+      updateUser({ ...(latestUser.current ?? data.user), avatar_url: data.user.avatar_url })
       toast.success('Avatar removed')
     } catch {
       toast.error('Failed to remove avatar')
@@ -280,7 +280,7 @@ export default function ProfilePage() {
     setGoogleLoading(true)
     try {
       const data = await unlinkGoogle()
-      updateUser(data.user)
+      updateUser({ ...(latestUser.current ?? data.user), google_linked: data.user.google_linked, has_password: data.user.has_password })
       toast.success('Google account unlinked')
     } catch (err: unknown) {
       const axiosError = err as {
