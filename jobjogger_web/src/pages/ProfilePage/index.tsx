@@ -261,6 +261,10 @@ export default function ProfilePage() {
     }
   }
 
+  const handleAvatarUpdate: typeof updateUser = (uploaded) => {
+    updateUser({ ...(latestUser.current ?? uploaded), avatar_url: uploaded.avatar_url })
+  }
+
   const handleRemoveAvatar = async () => {
     if (avatarRemoving) return
     setAvatarRemoving(true)
@@ -323,7 +327,7 @@ export default function ProfilePage() {
       <div className="bg-card border border-border rounded-[10px] overflow-hidden">
         {/* Top section — display */}
         <div className="p-[22px] bg-gradient-to-b from-primary/[0.04] to-card flex items-center gap-[16px]">
-          <AvatarUpload user={user} onUpdate={updateUser} onRemove={handleRemoveAvatar} disabled={isDemo || avatarRemoving} />
+          <AvatarUpload user={user} onUpdate={handleAvatarUpdate} onRemove={handleRemoveAvatar} disabled={isDemo || avatarRemoving} />
 
           <div className="flex-1 min-w-0">
             <p className="text-[18px] font-semibold text-foreground truncate">
