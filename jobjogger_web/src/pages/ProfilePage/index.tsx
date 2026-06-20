@@ -211,7 +211,14 @@ export default function ProfilePage() {
         updateUser({ ...latestUser.current, notify_follow_up_reminders: value })
       }
     } catch {
-      if (latestFollowUpRef.current === value) setNotifyFollowUp(!value)
+      if (latestFollowUpRef.current === value) {
+        const reverted = !value
+        latestFollowUpRef.current = reverted
+        setNotifyFollowUp(reverted)
+        if (latestUser.current) {
+          updateUser({ ...latestUser.current, notify_follow_up_reminders: reverted })
+        }
+      }
       toast.error('Failed to save preferences')
     }
   }
@@ -225,7 +232,14 @@ export default function ProfilePage() {
         updateUser({ ...latestUser.current, notify_interview_reminders: value })
       }
     } catch {
-      if (latestInterviewRef.current === value) setNotifyInterview(!value)
+      if (latestInterviewRef.current === value) {
+        const reverted = !value
+        latestInterviewRef.current = reverted
+        setNotifyInterview(reverted)
+        if (latestUser.current) {
+          updateUser({ ...latestUser.current, notify_interview_reminders: reverted })
+        }
+      }
       toast.error('Failed to save preferences')
     }
   }
