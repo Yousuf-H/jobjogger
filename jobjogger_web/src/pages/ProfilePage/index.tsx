@@ -90,8 +90,8 @@ export default function ProfilePage() {
   const [notifyInterview, setNotifyInterview] = useState(
     user?.notify_interview_reminders ?? true
   )
-  const latestFollowUpRef = useRef(user?.notify_follow_up_reminders ?? true)
-  const latestInterviewRef = useRef(user?.notify_interview_reminders ?? true)
+  const followUpGenRef = useRef(0)
+  const interviewGenRef = useRef(0)
 
   // Avatar removal
   const [avatarRemoving, setAvatarRemoving] = useState(false)
@@ -206,20 +206,18 @@ export default function ProfilePage() {
   }
 
   const handleFollowUpToggle = async (value: boolean) => {
-    latestFollowUpRef.current = value
+    const gen = ++followUpGenRef.current
     setNotifyFollowUp(value)
     try {
       await updateNotificationPrefs({ notify_follow_up_reminders: value })
-      if (latestFollowUpRef.current === value && latestUser.current) {
+      if (followUpGenRef.current === gen && latestUser.current) {
         updateUser({ ...latestUser.current, notify_follow_up_reminders: value })
       }
     } catch {
-      if (latestFollowUpRef.current === value) {
-        const reverted = !value
-        latestFollowUpRef.current = reverted
-        setNotifyFollowUp(reverted)
+      if (followUpGenRef.current === gen) {
+        setNotifyFollowUp(!value)
         if (latestUser.current) {
-          updateUser({ ...latestUser.current, notify_follow_up_reminders: reverted })
+          updateUser({ ...latestUser.current, notify_follow_up_reminders: !value })
         }
       }
       toast.error('Failed to save preferences')
@@ -227,20 +225,18 @@ export default function ProfilePage() {
   }
 
   const handleInterviewToggle = async (value: boolean) => {
-    latestInterviewRef.current = value
+    const gen = ++interviewGenRef.current
     setNotifyInterview(value)
     try {
       await updateNotificationPrefs({ notify_interview_reminders: value })
-      if (latestInterviewRef.current === value && latestUser.current) {
+      if (interviewGenRef.current === gen && latestUser.current) {
         updateUser({ ...latestUser.current, notify_interview_reminders: value })
       }
     } catch {
-      if (latestInterviewRef.current === value) {
-        const reverted = !value
-        latestInterviewRef.current = reverted
-        setNotifyInterview(reverted)
+      if (interviewGenRef.current === gen) {
+        setNotifyInterview(!value)
         if (latestUser.current) {
-          updateUser({ ...latestUser.current, notify_interview_reminders: reverted })
+          updateUser({ ...latestUser.current, notify_interview_reminders: !value })
         }
       }
       toast.error('Failed to save preferences')
