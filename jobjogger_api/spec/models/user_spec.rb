@@ -151,6 +151,20 @@ RSpec.describe User, type: :model do
     end
   end
 
+  # ── Notification preference defaults ─────────────────────────────────────────
+
+  describe "notification preference defaults" do
+    subject(:user) { create(:user) }
+
+    it "defaults notify_follow_up_reminders to true" do
+      expect(user.notify_follow_up_reminders).to be(true)
+    end
+
+    it "defaults notify_interview_reminders to true" do
+      expect(user.notify_interview_reminders).to be(true)
+    end
+  end
+
   # ── Persistence ──────────────────────────────────────────────────────────────
 
   describe "persistence" do

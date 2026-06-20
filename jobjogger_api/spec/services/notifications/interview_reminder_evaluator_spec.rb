@@ -61,6 +61,15 @@ RSpec.describe Notifications::InterviewReminderEvaluator do
       end
     end
 
+    context "when the user has opted out of interview reminders" do
+      let(:user) { create(:user, :interview_reminders_off) }
+      let!(:upcoming_interview) { create(:interview, job: create(:job, :applied, user: user), scheduled_at: 6.hours.from_now) }
+
+      it "does not create any notification" do
+        expect { evaluator.call }.not_to change { Notification.count }
+      end
+    end
+
     context "deduplication" do
       let!(:upcoming_interview) do
         create(:interview, job: job, scheduled_at: 6.hours.from_now)
