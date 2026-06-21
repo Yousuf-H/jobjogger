@@ -185,7 +185,7 @@ export default function SigninForm({
 
       <p className="text-center text-muted-foreground" style={{ fontSize: 13 }}>
         Don&apos;t have an account?{' '}
-        <Link to="/signup" className="font-bold hover:underline" style={{ color: '#185FA5' }}>
+        <Link to="/signup" className="text-primary font-bold hover:underline">
           Create one
         </Link>
       </p>

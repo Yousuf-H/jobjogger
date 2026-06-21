@@ -194,8 +194,7 @@ export default function SignupForm({
             I agree to the{' '}
             <Link
               to="/terms"
-              className="font-bold hover:underline"
-              style={{ color: '#185FA5' }}
+              className="text-primary font-bold hover:underline"
               target="_blank"
             >
               Terms &amp; Conditions
@@ -203,8 +202,7 @@ export default function SignupForm({
             and{' '}
             <Link
               to="/privacy-policy"
-              className="font-bold hover:underline"
-              style={{ color: '#185FA5' }}
+              className="text-primary font-bold hover:underline"
               target="_blank"
             >
               Privacy Policy
@@ -262,8 +260,7 @@ export default function SignupForm({
           By continuing with Google, you agree to our{' '}
           <Link
             to="/terms"
-            className="hover:underline"
-            style={{ color: '#185FA5' }}
+            className="text-primary hover:underline"
             target="_blank"
           >
             Terms &amp; Conditions
@@ -271,8 +268,7 @@ export default function SignupForm({
           and{' '}
           <Link
             to="/privacy-policy"
-            className="hover:underline"
-            style={{ color: '#185FA5' }}
+            className="text-primary hover:underline"
             target="_blank"
           >
             Privacy Policy
@@ -284,8 +280,7 @@ export default function SignupForm({
         Already have an account?{' '}
         <Link
           to="/signin"
-          className="font-bold hover:underline"
-          style={{ color: '#185FA5' }}
+          className="text-primary font-bold hover:underline"
         >
           Sign in
         </Link>
