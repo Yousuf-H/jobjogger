@@ -32,6 +32,7 @@ export default function SettingsPage() {
   const isDemo = user?.demo ?? false
 
   const { theme, setTheme } = useTheme()
+  const themeGenRef = useRef(0)
 
   // ── Notification toggle state ───────────────────────────────────────────────
   const [notifyFollowUp,   setNotifyFollowUp]   = useState(user?.notify_follow_up_reminders ?? true)
@@ -59,10 +60,11 @@ export default function SettingsPage() {
   // ── Handlers ───────────────────────────────────────────────────────────────
 
   const handleThemeSelect = async (value: string) => {
+    const gen = ++themeGenRef.current
     setTheme(value)
     try {
       const response = await updatePreferences({ theme: value })
-      if (latestUser.current) {
+      if (themeGenRef.current === gen && latestUser.current) {
         updateUser({ ...latestUser.current, theme: response.user.theme })
       }
     } catch {
@@ -124,7 +126,7 @@ export default function SettingsPage() {
   const parsedDays = parseInt(followUpDays, 10)
   const followUpDaysChanged = !isNaN(parsedDays) && parsedDays >= 0 &&
     parsedDays !== (user?.default_follow_up_days ?? 7)
-  const followUpDaysInvalid = isNaN(parsedDays) || parsedDays < 0
+  const followUpDaysInvalid = isNaN(parsedDays) || parsedDays < 0 || parsedDays > 365
 
   const notifRows = [
     {
