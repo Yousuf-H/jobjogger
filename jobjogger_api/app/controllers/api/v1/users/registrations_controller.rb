@@ -6,8 +6,8 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
   respond_to :json
   skip_before_action :authenticate_scope!, raise: false
-  before_action :authenticate_user!, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google, :update_notification_prefs ]
-  before_action :prevent_demo_changes, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google, :update_notification_prefs ]
+  before_action :authenticate_user!, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google, :update_notification_prefs, :update_preferences ]
+  before_action :prevent_demo_changes, only: [ :update, :update_password, :set_initial_password, :destroy, :update_avatar, :delete_avatar, :unlink_google, :update_notification_prefs, :update_preferences ]
 
   def create
     build_resource(sign_up_params)
@@ -200,6 +200,21 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     end
   end
 
+  def update_preferences
+    if current_user.update(preferences_params)
+      render json: {
+        status: { code: 200, message: 'Preferences updated.' },
+        user: user_payload(current_user)
+      }, status: :ok
+    else
+      render json: {
+        status: {
+          message: "Couldn't update preferences. #{current_user.errors.full_messages.to_sentence}"
+        }
+      }, status: :unprocessable_content
+    end
+  end
+
   private
 
   def sign_up_params
@@ -215,7 +230,16 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def notification_pref_params
-    params.require(:user).permit(:notify_follow_up_reminders, :notify_interview_reminders)
+    params.require(:user).permit(
+      :notify_follow_up_reminders,
+      :notify_interview_reminders,
+      :notify_stage_stall,
+      :notify_deadline_reminder
+    )
+  end
+
+  def preferences_params
+    params.require(:user).permit(:theme, :default_follow_up_days)
   end
 
   def email_changing?
@@ -238,6 +262,10 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       linkedin_url: user.linkedin_url,
       notify_follow_up_reminders: user.notify_follow_up_reminders,
       notify_interview_reminders: user.notify_interview_reminders,
+      notify_stage_stall: user.notify_stage_stall,
+      notify_deadline_reminder: user.notify_deadline_reminder,
+      theme: user.theme,
+      default_follow_up_days: user.default_follow_up_days,
       avatar_url: avatar_url,
       demo: user.demo?,
       admin: user.admin?,

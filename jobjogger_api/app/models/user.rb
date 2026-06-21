@@ -13,6 +13,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   validates :name, presence: true, length: { minimum: 2 }
+  validates :default_follow_up_days, numericality: { only_integer: true, in: 0..365 }
   validates :terms_agreed_at, presence: true, on: :create
   validates :name, format: {
     with: /\A[^[:space:]]+.*[^[:space:]]+\z/,

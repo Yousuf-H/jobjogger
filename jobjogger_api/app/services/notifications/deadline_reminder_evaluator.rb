@@ -5,6 +5,8 @@ module Notifications
     LOOKAHEAD_HOURS = 48
 
     def call
+      return unless @user.notify_deadline_reminder?
+
       upcoming_jobs.each do |job|
         hours = hours_until_deadline(job)
         create_notification!(

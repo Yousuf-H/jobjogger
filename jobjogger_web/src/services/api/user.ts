@@ -16,8 +16,18 @@ export async function updateProfile(data: {
 export async function updateNotificationPrefs(data: {
   notify_follow_up_reminders?: boolean
   notify_interview_reminders?: boolean
+  notify_stage_stall?: boolean
+  notify_deadline_reminder?: boolean
 }) {
   const response = await apiClient.patch('/users/notifications', { user: data })
+  return response.data
+}
+
+export async function updatePreferences(data: {
+  theme?: string
+  default_follow_up_days?: number
+}) {
+  const response = await apiClient.patch('/users/preferences', { user: data })
   return response.data
 }
 

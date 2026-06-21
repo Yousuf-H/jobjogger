@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
 import { useAuth } from '@/hooks/useAuth'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { submitGoogleOAuthForm } from '@/services/api/client'
@@ -22,12 +21,10 @@ import {
   deleteAvatar,
   setInitialPassword,
   unlinkGoogle,
-  updateNotificationPrefs,
   updatePassword,
   updateProfile,
 } from '@/services/api/user'
 import {
-  Bell,
   Link2,
   Lock,
   Save,
@@ -82,18 +79,6 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [passwordError, setPasswordError] = useState('')
-
-  // Notification prefs
-  const [notifyFollowUp, setNotifyFollowUp] = useState(
-    user?.notify_follow_up_reminders ?? true
-  )
-  const [notifyInterview, setNotifyInterview] = useState(
-    user?.notify_interview_reminders ?? true
-  )
-  const followUpGenRef = useRef(0)
-  const interviewGenRef = useRef(0)
-  const [followUpSaving, setFollowUpSaving] = useState(false)
-  const [interviewSaving, setInterviewSaving] = useState(false)
 
   // Avatar removal
   const [avatarRemoving, setAvatarRemoving] = useState(false)
@@ -214,50 +199,6 @@ export default function ProfilePage() {
       )
     } finally {
       setPasswordLoading(false)
-    }
-  }
-
-  const handleFollowUpToggle = async (value: boolean) => {
-    const gen = ++followUpGenRef.current
-    setNotifyFollowUp(value)
-    setFollowUpSaving(true)
-    try {
-      await updateNotificationPrefs({ notify_follow_up_reminders: value })
-      if (followUpGenRef.current === gen && latestUser.current) {
-        updateUser({ ...latestUser.current, notify_follow_up_reminders: value })
-      }
-    } catch {
-      if (followUpGenRef.current === gen) {
-        setNotifyFollowUp(!value)
-        if (latestUser.current) {
-          updateUser({ ...latestUser.current, notify_follow_up_reminders: !value })
-        }
-      }
-      toast.error('Failed to save preferences')
-    } finally {
-      setFollowUpSaving(false)
-    }
-  }
-
-  const handleInterviewToggle = async (value: boolean) => {
-    const gen = ++interviewGenRef.current
-    setNotifyInterview(value)
-    setInterviewSaving(true)
-    try {
-      await updateNotificationPrefs({ notify_interview_reminders: value })
-      if (interviewGenRef.current === gen && latestUser.current) {
-        updateUser({ ...latestUser.current, notify_interview_reminders: value })
-      }
-    } catch {
-      if (interviewGenRef.current === gen) {
-        setNotifyInterview(!value)
-        if (latestUser.current) {
-          updateUser({ ...latestUser.current, notify_interview_reminders: !value })
-        }
-      }
-      toast.error('Failed to save preferences')
-    } finally {
-      setInterviewSaving(false)
     }
   }
 
@@ -461,53 +402,6 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
-        </div>
-      </div>
-
-      {/* ── Notifications card ──────────────────────────────────────────────── */}
-      <div className="bg-card border border-border rounded-[10px] p-[20px_22px]">
-        <div className="flex items-start gap-[10px] mb-[16px]">
-          <div className="w-[26px] h-[26px] rounded-[7px] bg-purple-500/10 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-[1px]">
-            <Bell className="w-[14px] h-[14px]" aria-hidden="true" />
-          </div>
-          <div>
-            <h2 className="text-[14px] font-semibold text-foreground">Notifications</h2>
-            <p className="text-[12px] text-muted-foreground mt-[2px]">
-              Choose what you want to be reminded about.
-            </p>
-          </div>
-        </div>
-
-        <div className="ml-[36px] space-y-[14px]">
-          <div className="flex items-center justify-between gap-[16px]">
-            <div>
-              <p id="label-follow-up" className="text-[13px] font-medium text-foreground">Follow-up reminders</p>
-              <p className="text-[11px] text-muted-foreground mt-[2px]">
-                Notify you when a scheduled follow-up is due on an active application.
-              </p>
-            </div>
-            <Switch
-              checked={notifyFollowUp}
-              onCheckedChange={handleFollowUpToggle}
-              disabled={isDemo || followUpSaving}
-              aria-labelledby="label-follow-up"
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-[16px]">
-            <div>
-              <p id="label-interview" className="text-[13px] font-medium text-foreground">Interview reminders</p>
-              <p className="text-[11px] text-muted-foreground mt-[2px]">
-                Notify you 24 hours before an upcoming interview.
-              </p>
-            </div>
-            <Switch
-              checked={notifyInterview}
-              onCheckedChange={handleInterviewToggle}
-              disabled={isDemo || interviewSaving}
-              aria-labelledby="label-interview"
-            />
-          </div>
         </div>
       </div>
 

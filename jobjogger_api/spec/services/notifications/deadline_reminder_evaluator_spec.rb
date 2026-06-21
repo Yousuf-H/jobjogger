@@ -85,5 +85,16 @@ RSpec.describe Notifications::DeadlineReminderEvaluator do
         expect { evaluator.call }.not_to change { Notification.count }
       end
     end
+
+    context "when the user has opted out of deadline alerts" do
+      let(:user) { create(:user, notify_deadline_reminder: false) }
+      let!(:urgent_job) do
+        create(:job, :applied, user: user, application_deadline: Date.current + 1)
+      end
+
+      it "does not create a notification" do
+        expect { evaluator.call }.not_to change { Notification.count }
+      end
+    end
   end
 end

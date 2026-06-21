@@ -19,6 +19,21 @@ Sentry.init({
 
 initPostHog()
 
+// Sync the user's server-stored theme into next-themes' localStorage key before
+// ThemeProvider initialises so the correct theme is applied on first render.
+// This makes theme roam across devices: sign in on any device and get your theme.
+try {
+  const storedUser = localStorage.getItem('user')
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser) as { theme?: string }
+    if (parsedUser?.theme) {
+      localStorage.setItem('theme', parsedUser.theme)
+    }
+  }
+} catch {
+  // ignore parse errors — next-themes will fall back to system
+}
+
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(

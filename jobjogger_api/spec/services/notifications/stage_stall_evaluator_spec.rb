@@ -113,5 +113,14 @@ RSpec.describe Notifications::StageStallEvaluator do
         expect { evaluator.call }.not_to change { Notification.count }
       end
     end
+
+    context "when the user has opted out of stalled application alerts" do
+      let(:user) { create(:user, notify_stage_stall: false) }
+      let!(:stalled_job) { create(:job, :applied, user: user, date_applied: 30.days.ago.to_date) }
+
+      it "does not create a notification" do
+        expect { evaluator.call }.not_to change { Notification.count }
+      end
+    end
   end
 end
