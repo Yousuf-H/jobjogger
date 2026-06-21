@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_20_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -241,6 +241,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000001) do
   create_table "users", force: :cascade do |t|
     t.boolean "admin", default: false, null: false
     t.datetime "created_at", null: false
+    t.integer "default_follow_up_days", default: 7, null: false
     t.boolean "demo", default: false, null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -250,13 +251,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000001) do
     t.string "linkedin_url"
     t.string "location"
     t.string "name", default: "", null: false
+    t.boolean "notify_deadline_reminder", default: true, null: false
     t.boolean "notify_follow_up_reminders", default: true, null: false
     t.boolean "notify_interview_reminders", default: true, null: false
+    t.boolean "notify_stage_stall", default: true, null: false
     t.string "phone"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.datetime "terms_agreed_at"
+    t.string "theme", default: "system", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true

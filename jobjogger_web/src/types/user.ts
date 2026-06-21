@@ -8,6 +8,10 @@ export interface User {
   linkedin_url: string | null
   notify_follow_up_reminders: boolean
   notify_interview_reminders: boolean
+  notify_stage_stall: boolean
+  notify_deadline_reminder: boolean
+  theme: string
+  default_follow_up_days: number
   avatar_url?: string | null
   demo: boolean
   admin: boolean

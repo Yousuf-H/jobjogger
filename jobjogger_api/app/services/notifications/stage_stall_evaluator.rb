@@ -5,6 +5,8 @@ module Notifications
     STALL_DAYS = 14
 
     def call
+      return unless @user.notify_stage_stall?
+
       stalled_jobs.each do |job|
         days = days_since_status_change(job)
         create_notification!(

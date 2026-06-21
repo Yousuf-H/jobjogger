@@ -17,6 +17,11 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   def create
     job = current_user.jobs.build(job_params)
 
+    if job.follow_up_date.blank?
+      base_date = job.date_applied.presence || Date.current
+      job.follow_up_date = base_date + current_user.default_follow_up_days.days
+    end
+
     ActiveRecord::Base.transaction do
       organisation = Organisations::FindOrCreate.new(
         user: current_user,
