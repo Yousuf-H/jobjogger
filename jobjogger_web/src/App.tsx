@@ -2,6 +2,9 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AdminRoute } from '@/components/auth/AdminRoute'
 import { PostHogPageView } from '@/components/PostHogPageView'
+import { useAuth } from '@/hooks/useAuth'
+import { useTheme } from 'next-themes'
+import { useEffect } from 'react'
 import Layout from '@/components/layout/Layout'
 import ActivityPage from '@/pages/ActivityPage'
 import AdminPage from '@/pages/AdminPage'
@@ -24,9 +27,19 @@ import OAuthCallbackPage from '@/pages/OAuthCallbackPage'
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage'
 import TermsPage from '@/pages/TermsPage'
 
+function ThemeSync() {
+  const { user } = useAuth()
+  const { setTheme } = useTheme()
+  useEffect(() => {
+    if (user?.theme) setTheme(user.theme)
+  }, [user?.theme, setTheme])
+  return null
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ThemeSync />
       <PostHogPageView />
       <Routes>
         {/* Public routes */}
