@@ -137,7 +137,7 @@ class Job < ApplicationRecord
   def create_initial_timeline_entry
     return if wishlist?
 
-    timestamp = date_applied.present? ? date_applied.beginning_of_day : created_at.beginning_of_day
+    timestamp = date_applied.present? ? date_applied.beginning_of_day : created_at
 
     if applied?
       # Simple case: job created as applied
