@@ -1,10 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  type ChartConfig,
-} from '@/components/ui/chart'
+import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
 import type { SourcePerformanceDataPoint } from '@/types/analytics'
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from 'recharts'
 
@@ -16,14 +10,17 @@ function formatSource(source: string): string {
   return source.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
+const APPLIED_COLOR = '#185FA5'
+const INTERVIEW_COLOR = '#85B7EB'
+
 const chartConfig = {
   applied: {
     label: 'Applied',
-    color: 'var(--status-applied)',
+    color: APPLIED_COLOR,
   },
   got_interview: {
     label: 'Got interview',
-    color: 'var(--status-phone-screen)',
+    color: INTERVIEW_COLOR,
   },
 } satisfies ChartConfig
 
@@ -37,47 +34,57 @@ export function SourcePerformance({ data }: SourcePerformanceProps) {
   const hasData = data.some((d) => d.applied > 0 || d.got_interview > 0)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Response rate by source</CardTitle>
-        <CardDescription>Which sources lead to interviews</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="rounded-[10px] border border-border bg-card">
+      <div className="px-5 py-4">
+        <h2 className="text-[14px] font-semibold text-foreground">Response rate by source</h2>
+        <p className="mt-0.5 text-[12px] text-muted-foreground">Which sources lead to interviews</p>
+      </div>
+
+      <div className="px-5 pb-5">
         {!hasData ? (
           <div className="flex h-[200px] items-center justify-center">
-            <p className="text-muted-foreground text-sm">No data yet</p>
+            <p className="text-[13px] text-muted-foreground">No data yet</p>
           </div>
         ) : (
-          <ChartContainer config={chartConfig}>
-            <BarChart accessibilityLayer data={chartData}>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="source"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey="applied" fill="var(--color-applied)" radius={4} barSize={24}>
-                <LabelList
-                  dataKey="applied"
-                  position="top"
-                  fontSize={11}
-                  offset={4}
-                />
-              </Bar>
-              <Bar dataKey="got_interview" fill="var(--color-got_interview)" radius={4} barSize={24}>
-                <LabelList
-                  dataKey="got_interview"
-                  position="top"
-                  fontSize={11}
-                  offset={4}
-                />
-              </Bar>
-            </BarChart>
-          </ChartContainer>
+          <>
+            {/* Horizontally scrollable on mobile so bars/labels don't squish */}
+            <div className="overflow-x-auto">
+              <div style={{ minWidth: Math.max(chartData.length * 100, 320) }}>
+                <ChartContainer config={chartConfig} className="h-[240px] w-full">
+                  <BarChart accessibilityLayer data={chartData} margin={{ top: 16, right: 8, left: 0, bottom: 4 }}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="source"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      fontSize={11}
+                    />
+                    <Bar dataKey="applied" fill={APPLIED_COLOR} radius={4} barSize={24}>
+                      <LabelList dataKey="applied" position="top" fontSize={11} offset={4} />
+                    </Bar>
+                    <Bar dataKey="got_interview" fill={INTERVIEW_COLOR} radius={4} barSize={24}>
+                      <LabelList dataKey="got_interview" position="top" fontSize={11} offset={4} />
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </div>
+
+            {/* Custom legend — squares, no dot circles */}
+            <div className="mt-3 flex items-center gap-5">
+              <div className="flex items-center gap-1.5">
+                <div className="h-[10px] w-[10px] rounded-[2px]" style={{ background: APPLIED_COLOR }} />
+                <span className="text-[11px] text-muted-foreground">Applied</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="h-[10px] w-[10px] rounded-[2px]" style={{ background: INTERVIEW_COLOR }} />
+                <span className="text-[11px] text-muted-foreground">Got interview</span>
+              </div>
+            </div>
+          </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

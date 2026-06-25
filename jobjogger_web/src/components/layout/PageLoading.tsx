@@ -13,7 +13,7 @@ interface PageLoadingProps {
 
 export function PageLoading({ variant = 'default' }: PageLoadingProps) {
   return (
-    <div className="page-container space-y-6">
+    <div className="space-y-[14px]">
       {variant === 'dashboard' && <DashboardSkeleton />}
       {variant === 'analytics' && <AnalyticsSkeleton />}
       {variant === 'detail' && <DetailSkeleton />}
@@ -51,18 +51,20 @@ function AnalyticsSkeleton() {
   return (
     <>
       <div>
-        <Skeleton className="h-7 w-32 rounded-md" />
-        <Skeleton className="mt-2 h-4 w-56 rounded-md" />
+        <Skeleton className="h-5 w-28 rounded-md" />
+        <Skeleton className="mt-1.5 h-4 w-52 rounded-md" />
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-[14px] lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-28 rounded-lg" />
+          <Skeleton key={i} className="h-[88px] rounded-[10px]" />
         ))}
       </div>
-      <Skeleton className="h-[300px] rounded-lg" />
-      <Skeleton className="h-[320px] rounded-lg" />
-      <Skeleton className="h-[280px] rounded-lg" />
-      <Skeleton className="h-[240px] rounded-lg" />
+      <Skeleton className="h-[300px] rounded-[10px]" />
+      <div className="grid grid-cols-1 gap-[14px] lg:grid-cols-2">
+        <Skeleton className="h-[260px] rounded-[10px]" />
+        <Skeleton className="h-[260px] rounded-[10px]" />
+      </div>
+      <Skeleton className="h-[220px] rounded-[10px]" />
     </>
   )
 }

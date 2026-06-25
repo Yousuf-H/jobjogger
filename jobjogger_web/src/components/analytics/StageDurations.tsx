@@ -1,8 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  ChartContainer,
-  type ChartConfig,
-} from '@/components/ui/chart'
+import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
 import type { StageDurationDataPoint } from '@/types/analytics'
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts'
 
@@ -13,7 +9,7 @@ interface StageDurationsProps {
 const chartConfig = {
   avg_days: {
     label: 'Avg. days',
-    color: 'var(--chart-4)',
+    color: '#185FA5',
   },
 } satisfies ChartConfig
 
@@ -26,15 +22,20 @@ export function StageDurations({ data }: StageDurationsProps) {
     }))
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Average time between stages</CardTitle>
-        <CardDescription>Days from one stage to the next</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="rounded-[10px] border border-border bg-card">
+      <div className="px-5 py-4">
+        <h2 className="text-[14px] font-semibold text-foreground">
+          Average time between stages
+        </h2>
+        <p className="mt-0.5 text-[12px] text-muted-foreground">
+          Days from one stage to the next
+        </p>
+      </div>
+
+      <div className="px-5 pb-5">
         {chartData.length === 0 ? (
           <div className="flex h-[180px] items-center justify-center">
-            <p className="text-muted-foreground text-sm">
+            <p className="text-[13px] text-muted-foreground">
               Not enough status transitions to calculate
             </p>
           </div>
@@ -57,13 +58,13 @@ export function StageDurations({ data }: StageDurationsProps) {
                 tickLine={false}
                 axisLine={false}
                 fontSize={11}
-                width={90}
+                width={140}
               />
               <Bar
                 dataKey="avg_days"
                 fill="var(--color-avg_days)"
                 radius={5}
-                barSize={24}
+                barSize={20}
               >
                 <LabelList
                   dataKey="avg_days"
@@ -76,7 +77,7 @@ export function StageDurations({ data }: StageDurationsProps) {
             </BarChart>
           </ChartContainer>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

@@ -6,38 +6,34 @@ import { SummaryCards } from '@/components/analytics/SummaryCards'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
 import { useAnalytics } from '@/hooks/useAnalytics'
-import { TypographyH1 } from '@/components/ui/typography'
 import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function AnalyticsPage() {
   usePageTitle('Analytics')
   const { data, isLoading, error } = useAnalytics()
 
-  if (error)
-    return (
-      <PageError title="Failed to load analytics" message={error.message} />
-    )
+  if (isLoading) return <PageLoading variant="analytics" />
+  if (error) return <PageError title="Failed to load analytics" message={error.message} />
 
   return (
-    <div className="page-container space-y-6">
-      <div>
-        <TypographyH1 className="text-2xl font-semibold tracking-tight">Analytics</TypographyH1>
-        <p className="text-muted-foreground text-sm">
-          Insights into your job search progress
-        </p>
+    <div className="space-y-[14px]">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-[18px] font-semibold tracking-tight text-foreground">Analytics</h1>
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
+            Insights into your job search progress
+          </p>
+        </div>
       </div>
 
-      {isLoading || !data ? (
-        <PageLoading variant="analytics" />
-      ) : (
+      {data && (
         <>
           <SummaryCards data={data.summary_stats} />
-          <ActivityChart
-            weekly={data.activity.weekly}
-            monthly={data.activity.monthly}
-          />
-          <PipelineFunnel data={data.funnel_data} />
-          <SourcePerformance data={data.source_performance} />
+          <ActivityChart weekly={data.activity.weekly} monthly={data.activity.monthly} />
+          <div className="grid grid-cols-1 gap-[14px] min-[1440px]:grid-cols-2">
+            <PipelineFunnel data={data.funnel_data} />
+            <SourcePerformance data={data.source_performance} />
+          </div>
           <StageDurations data={data.stage_durations} />
         </>
       )}

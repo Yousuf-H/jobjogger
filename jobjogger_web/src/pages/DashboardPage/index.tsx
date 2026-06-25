@@ -47,7 +47,7 @@ function StatCard({ label, value, subLabel, icon: Icon, iconContainerClass, icon
       <div className="flex items-center justify-between">
         <span className="text-[12px] text-muted-foreground">{label}</span>
         <div className={cn('flex h-[36px] w-[36px] items-center justify-center rounded-full', iconContainerClass)}>
-          <Icon className={cn('h-[16px] w-[16px]', iconColor)} />
+          <Icon className={cn('h-[18px] w-[18px]', iconColor)} />
         </div>
       </div>
       <p className="mt-2 text-[26px] font-semibold leading-none tracking-tight text-foreground">
