@@ -143,11 +143,6 @@ function TimelineEntryItem({
 export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end gap-2">
-        <TimelineHelpDialog />
-        <AddTimelineEntryDialog jobId={job.id} />
-      </div>
-
       {timelineEntries.length === 0 ? (
         <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
           <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
@@ -158,8 +153,16 @@ export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
             Timeline events will appear here as you track status changes,
             interviews, recruiter contact, and other job activity.
           </p>
+          <div className="mt-5">
+            <AddTimelineEntryDialog jobId={job.id} />
+          </div>
         </div>
       ) : (
+        <>
+        <div className="flex items-center justify-end gap-2">
+          <TimelineHelpDialog />
+          <AddTimelineEntryDialog jobId={job.id} />
+        </div>
         <div className="relative">
           <div
             className="absolute w-[1.5px] bg-[#E5E7EB] dark:bg-border"
@@ -171,6 +174,7 @@ export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
             ))}
           </div>
         </div>
+        </>
       )}
     </div>
   )
