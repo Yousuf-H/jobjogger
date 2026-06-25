@@ -39,7 +39,7 @@ class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
 
   def funnel_data
     statuses = %w[wishlist applied phone_screen interviewing offer accepted rejected ghosted withdrawn]
-    counts = jobs.group(:status).count
+    counts = jobs.where(archived_at: nil).group(:status).count
 
     statuses.map do |s|
       { status: s, count: counts.fetch(s, 0) }
