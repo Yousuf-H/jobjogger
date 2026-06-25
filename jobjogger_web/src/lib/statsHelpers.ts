@@ -32,5 +32,4 @@ export function calculateStatusBreakdown(jobs: Job[]): StatusBreakdown[] {
       count,
       fill: STATUS_CONFIG[status as JobStatus]?.color ?? '#94a3b8',
     }))
-    .filter((item) => item.count > 0)
 }
