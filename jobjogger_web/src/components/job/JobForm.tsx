@@ -35,7 +35,7 @@ interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement
 }
 
 function DateInput({ value, onChange, ...props }: DateInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
@@ -47,13 +47,12 @@ function DateInput({ value, onChange, ...props }: DateInputProps) {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={wrapperRef}>
       <CalendarIcon
         className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 cursor-pointer"
-        onClick={() => inputRef.current?.showPicker?.()}
+        onClick={() => wrapperRef.current?.querySelector('input')?.showPicker?.()}
       />
       <Input
-        ref={inputRef}
         type="date"
         className="pl-9 cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
         value={value}
