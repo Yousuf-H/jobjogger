@@ -1,6 +1,6 @@
 class Job < ApplicationRecord
   belongs_to :user
-  has_many :timeline_entries, -> { order(occurred_at: :desc) }, dependent: :destroy
+  has_many :timeline_entries, -> { order(occurred_at: :desc, created_at: :desc) }, dependent: :destroy
   belongs_to :organisation, optional: true
   belongs_to :resume_variant, optional: true
   has_many :contact_jobs, dependent: :destroy
@@ -77,7 +77,7 @@ class Job < ApplicationRecord
   scope :due_this_week, -> { where(follow_up_date: Date.current..Date.current.end_of_week(:sunday)) }
 
   before_save :normalise_tags
-  before_update :set_date_applied_if_needed
+  before_save :set_date_applied_if_needed
   after_create_commit :create_initial_timeline_entry
   after_update_commit :auto_create_timeline_entry
 

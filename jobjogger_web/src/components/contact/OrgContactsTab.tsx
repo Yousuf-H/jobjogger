@@ -7,13 +7,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { useContactActions } from '@/hooks/useContactActions'
 import { useContacts } from '@/hooks/useContacts'
 import type { ContactFormValues } from '@/lib/validations/contact'
 import type { Contact } from '@/types/contact'
-import { Briefcase, Mail, Plus, Phone } from 'lucide-react'
+import { Briefcase, Mail, Plus, Phone, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -75,46 +74,59 @@ export function OrgContactsTab({ organisationId, organisationName }: OrgContacts
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">
-          {isLoading
-            ? 'Loading...'
-            : contacts.length === 0
-              ? 'No contacts at this organisation yet.'
-              : `${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`}
-        </p>
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" variant="default">
+      {contacts.length > 0 && (
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-muted-foreground text-sm">
+            {contacts.length} contact{contacts.length !== 1 ? 's' : ''}
+          </p>
+          <Button size="sm" variant="default" onClick={() => setCreateOpen(true)}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            Add contact
+          </Button>
+        </div>
+      )}
+
+      {!isLoading && contacts.length === 0 ? (
+        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
+          <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
+            <Users className="h-5 w-5" />
+          </div>
+          <p className="text-[14px] font-semibold text-foreground">No contacts at this organisation yet</p>
+          <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
+            Add people you've spoken to or connected with at this company.
+          </p>
+          <div className="mt-5">
+            <Button size="sm" onClick={() => setCreateOpen(true)}>
               <Plus className="mr-1.5 h-3.5 w-3.5" />
               Add contact
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[95vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add contact</DialogTitle>
-              <DialogDescription className="sr-only">
-                Fill in the details to add a new contact to this organisation.
-              </DialogDescription>
-            </DialogHeader>
-            <ContactForm
-              key={createOpen ? 'open' : 'closed'}
-              onSubmit={handleCreate}
-              isSubmitting={createMutation.isPending}
-              organisationId={organisationId}
-              organisationName={organisationName}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {contacts.length > 0 && (
+          </div>
+        </div>
+      ) : contacts.length > 0 ? (
         <div className="-mx-6 -mb-6">
           {contacts.map((contact) => (
             <ContactRow key={contact.id} contact={contact} />
           ))}
         </div>
-      )}
+      ) : null}
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add contact</DialogTitle>
+            <DialogDescription className="sr-only">
+              Fill in the details to add a new contact to this organisation.
+            </DialogDescription>
+          </DialogHeader>
+          <ContactForm
+            key={createOpen ? 'open' : 'closed'}
+            onSubmit={handleCreate}
+            isSubmitting={createMutation.isPending}
+            organisationId={organisationId}
+            organisationName={organisationName}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

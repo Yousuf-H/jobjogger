@@ -583,7 +583,6 @@ export default function InterviewPrepPage() {
         </div>
         <Button
           variant="default"
-          size="sm"
           onClick={() => setCreateOpen(true)}
         >
           <Plus className="h-4 w-4" />

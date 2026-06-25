@@ -11,8 +11,7 @@ interface StatusChartProps {
 }
 
 export function StatusChart({ data }: StatusChartProps) {
-  const chartData = data.filter((item) => item.count > 0)
-  const total = chartData.reduce((sum, item) => sum + item.count, 0)
+  const total = data.reduce((sum, item) => sum + item.count, 0)
 
   return (
     <div className="flex flex-col gap-4 rounded-[10px] border border-border bg-card p-5">
@@ -23,48 +22,46 @@ export function StatusChart({ data }: StatusChartProps) {
         </p>
       </div>
 
-      {chartData.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-muted-foreground">No applications to display</p>
-      ) : (
-        <>
-          <div
-            className="overflow-hidden rounded-[8px]"
-            style={{ display: 'flex', height: 8 }}
-          >
-            {chartData.map((item) => (
-              <div
-                key={item.status}
-                style={{
-                  width: `${(item.count / total) * 100}%`,
-                  backgroundColor: item.fill,
-                }}
-              />
-            ))}
-          </div>
+      <div
+        className="overflow-hidden rounded-[8px]"
+        style={{ display: 'flex', height: 8 }}
+      >
+        {total === 0 ? (
+          <div className="w-full rounded-[8px] bg-border" />
+        ) : (
+          data.filter((item) => item.count > 0).map((item) => (
+            <div
+              key={item.status}
+              style={{
+                width: `${(item.count / total) * 100}%`,
+                backgroundColor: item.fill,
+              }}
+            />
+          ))
+        )}
+      </div>
 
-          <div className="flex flex-col">
-            {chartData.map((item, i) => {
-              const label = getStatusConfig(item.status).label
-              const pct = Math.round((item.count / total) * 100)
-              const isLast = i === chartData.length - 1
-              return (
-                <div
-                  key={item.status}
-                  className={`flex items-center gap-3 py-2.5 ${isLast ? '' : 'border-b border-border/60'}`}
-                >
-                  <div
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: item.fill }}
-                  />
-                  <span className="flex-1 text-[12px] text-foreground/80">{label}</span>
-                  <span className="text-[12px] font-medium text-foreground">{item.count}</span>
-                  <span className="w-9 text-right text-[11px] text-muted-foreground">{pct}%</span>
-                </div>
-              )
-            })}
-          </div>
-        </>
-      )}
+      <div className="flex flex-col">
+        {data.map((item, i) => {
+          const label = getStatusConfig(item.status).label
+          const pct = total > 0 ? Math.round((item.count / total) * 100) : 0
+          const isLast = i === data.length - 1
+          return (
+            <div
+              key={item.status}
+              className={`flex items-center gap-3 py-2.5 ${isLast ? '' : 'border-b border-border/60'}`}
+            >
+              <div
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: item.fill }}
+              />
+              <span className="flex-1 text-[12px] text-foreground/80">{label}</span>
+              <span className="text-[12px] font-medium text-foreground">{item.count}</span>
+              <span className="w-9 text-right text-[11px] text-muted-foreground">{pct}%</span>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -372,9 +372,6 @@ function OverviewTab({ org }: { org: Organisation }) {
   return (
     <div>
       <div>
-        <h3 className="text-[12px] font-semibold text-[#111827] mb-[6px] dark:text-foreground">
-          Notes
-        </h3>
         {org.notes ? (
           <p className="text-[13px] text-[#374151] leading-[1.6] whitespace-pre-wrap dark:text-foreground/80">
             {org.notes}
@@ -585,9 +582,9 @@ export default function OrganisationDetailPage() {
       </div>
 
       {/* Tabs card */}
-      <div className="rounded-[10px] border border-[#E5E7EB] bg-card overflow-hidden dark:border-border">
+      <div className="rounded-[10px] border border-border bg-card overflow-hidden">
         {/* Tab bar */}
-        <div className="overflow-x-auto border-b border-[#E5E7EB] px-[16px] flex scrollbar-hide dark:border-border">
+        <div className="overflow-x-auto border-b border-border px-[16px] flex scrollbar-hide">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.key
             return (
@@ -598,7 +595,7 @@ export default function OrganisationDetailPage() {
                   'flex shrink-0 items-center gap-[5px] whitespace-nowrap border-b-2 -mb-px px-[12px] py-[11px] text-[12px] cursor-pointer transition-colors',
                   isActive
                     ? 'border-[#2563EB] text-[#2563EB] font-medium dark:text-blue-400 dark:border-blue-400'
-                    : 'border-transparent text-[#6B7280] hover:text-foreground dark:text-muted-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 )}
               >
                 {tab.label}
@@ -607,8 +604,8 @@ export default function OrganisationDetailPage() {
                     className={cn(
                       'rounded-full px-[5px] py-[1px] text-[10px] leading-tight',
                       isActive
-                        ? 'bg-[#DBEAFE] text-[#1D4ED8] dark:bg-blue-950/50 dark:text-blue-300'
-                        : 'bg-[#F3F4F6] text-[#6B7280] dark:bg-muted dark:text-muted-foreground'
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300'
+                        : 'bg-muted text-muted-foreground'
                     )}
                   >
                     {tab.count}

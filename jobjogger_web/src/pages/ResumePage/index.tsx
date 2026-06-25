@@ -234,11 +234,10 @@ export default function ResumePage() {
         <div>
           <h1 className="text-[18px] font-semibold tracking-tight text-foreground">Resumes</h1>
           <p className="mt-0.5 text-[13px] text-muted-foreground">
-            {count} {count === 1 ? 'template' : 'templates'}
+            Your base resumes and tailored variants for each application.
           </p>
         </div>
         <Button
-          size="sm"
           variant="default"
           onClick={() => setCreateOpen(true)}
         >

@@ -1,4 +1,3 @@
-import EmptyTabState from '@/components/job/EmptyTabState'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,8 +20,10 @@ import { useResumeVariantActions } from '@/hooks/useResumeVariantActions'
 import { useAllResumeVariants, useResumeVariant } from '@/hooks/useResumeVariants'
 import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import type { ResumeVariant } from '@/types/resume'
+import { IconFileOff, IconPaperclip } from '@tabler/icons-react'
 import { ExternalLink, FileText, Link2Off, Pencil } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function VariantPickerDialog({
   open,
@@ -37,6 +38,7 @@ function VariantPickerDialog({
 }) {
   const { data: variants = [], isLoading } = useAllResumeVariants()
   const { linkMutation } = useResumeVariantActions()
+  const navigate = useNavigate()
 
   const byTemplate = variants.reduce<Record<string, ResumeVariant[]>>((acc, v) => {
     const key = v.template_name
@@ -56,7 +58,7 @@ function VariantPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Link Resume</DialogTitle>
+          <DialogTitle>Link a resume</DialogTitle>
           <DialogDescription className="sr-only">
             Choose a resume variant to link to this job application.
           </DialogDescription>
@@ -65,14 +67,17 @@ function VariantPickerDialog({
         {isLoading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>
         ) : variants.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            No resume variants yet. Create one in the Resume Library.
-          </p>
+          <div className="flex flex-col items-center gap-2 py-6">
+            <IconFileOff className="h-8 w-8 text-muted-foreground/50" />
+            <p className="text-center text-sm text-muted-foreground">
+              No resume variants yet. Create one in the Resume Library.
+            </p>
+          </div>
         ) : (
           <div className="max-h-80 space-y-4 overflow-y-auto pr-1">
             {Object.entries(byTemplate).map(([templateName, tvariants]) => (
               <div key={templateName}>
-                <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="mb-1.5 text-xs font-medium text-muted-foreground">
                   {templateName}
                 </p>
                 <div className="space-y-1">
@@ -90,11 +95,11 @@ function VariantPickerDialog({
                             : 'bg-background hover:bg-muted/50 hover:border-muted-foreground/30'
                         }`}
                       >
-                        <span className="font-medium">
-                          {v.pdf_filename ?? (v.notes ? v.notes.slice(0, 40) : 'Unnamed variant')}
+                        <span className="block truncate font-medium">
+                          {v.pdf_filename ?? 'Unnamed variant'}
                         </span>
-                        {v.notes && v.pdf_filename && (
-                          <span className="mt-0.5 block text-xs text-muted-foreground line-clamp-1">
+                        {v.notes && (
+                          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                             {v.notes}
                           </span>
                         )}
@@ -110,10 +115,20 @@ function VariantPickerDialog({
           </div>
         )}
 
-        <div className="flex justify-end pt-1">
+        <div className="flex justify-end gap-2 pt-1">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
+          {!isLoading && variants.length === 0 && (
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+                navigate('/resume')
+              }}
+            >
+              Go to Resume Library
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -145,13 +160,20 @@ export function ResumeTab({ jobId, status, resumeVariantId }: ResumeTabProps) {
   if (!variant) {
     return (
       <>
-        <EmptyTabState
-          icon={FileText}
-          title="No resume linked"
-          description="Link the resume variant you submitted or plan to submit for this job."
-          actionLabel={!readOnly ? 'Link Resume' : undefined}
-          onAction={!readOnly ? () => setPickerOpen(true) : undefined}
-        />
+        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
+          <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
+            <IconPaperclip className="h-5 w-5" />
+          </div>
+          <p className="text-[14px] font-semibold text-foreground">No resume linked</p>
+          <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
+            Link the resume variant you submitted or plan to submit for this job.
+          </p>
+          {!readOnly && (
+            <Button onClick={() => setPickerOpen(true)} className="mt-5">
+              Link Resume
+            </Button>
+          )}
+        </div>
         <VariantPickerDialog
           open={pickerOpen}
           onOpenChange={setPickerOpen}

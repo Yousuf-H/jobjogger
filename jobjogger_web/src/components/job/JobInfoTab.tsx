@@ -127,7 +127,7 @@ export function JobInfoTab({ job }: { job: Job }) {
           </div>
         ) : (
           <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
-            <div className="mb-4 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+            <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
               <FileText className="h-5 w-5" />
             </div>
             <p className="text-[14px] font-semibold text-foreground">No job description yet</p>

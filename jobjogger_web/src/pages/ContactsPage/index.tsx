@@ -106,7 +106,7 @@ export default function ContactsPage() {
       {
         accessorKey: 'name',
         header: 'Name',
-        enableSorting: false,
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="font-medium text-sm">{row.original.name}</span>
         ),
@@ -114,7 +114,7 @@ export default function ContactsPage() {
       {
         accessorKey: 'role',
         header: 'Role',
-        enableSorting: false,
+        enableSorting: true,
         cell: ({ row }) => {
           const role = row.getValue<string | null>('role')
           if (!role) return <span className="text-muted-foreground/40 text-sm">—</span>
@@ -124,7 +124,8 @@ export default function ContactsPage() {
       {
         id: 'organisation',
         header: 'Organisation',
-        enableSorting: false,
+        enableSorting: true,
+        accessorFn: (row) => row.organisation?.name ?? '',
         cell: ({ row }) => {
           const org = row.original.organisation
           if (!org) return <span className="text-muted-foreground/40 text-sm">—</span>
@@ -139,7 +140,7 @@ export default function ContactsPage() {
       {
         accessorKey: 'email',
         header: 'Email',
-        enableSorting: false,
+        enableSorting: true,
         cell: ({ row }) => {
           const email = row.getValue<string | null>('email')
           if (!email) return <span className="text-muted-foreground/40 text-sm">—</span>
@@ -149,7 +150,8 @@ export default function ContactsPage() {
       {
         id: 'linked_jobs',
         header: 'Linked jobs',
-        enableSorting: false,
+        enableSorting: true,
+        accessorFn: (row) => row.jobs?.length ?? 0,
         cell: ({ row }) => {
           const count = row.original.jobs?.length ?? 0
           return <span className="text-sm tabular-nums">{count}</span>
@@ -175,7 +177,7 @@ export default function ContactsPage() {
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="default">
+            <Button variant="default">
               <Plus className="h-4 w-4" />
               New contact
             </Button>
@@ -224,6 +226,7 @@ export default function ContactsPage() {
               columns={tableColumns}
               data={contacts ?? []}
               onRowClick={handleContactClick}
+              defaultSort={[{ id: 'name', desc: false }]}
               emptyMessage={search ? 'No contacts match your search.' : 'No contacts yet. Add your first one.'}
             />
           </div>

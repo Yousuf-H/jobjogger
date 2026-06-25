@@ -98,7 +98,7 @@ export function NotesTab({ job }: NotesTabProps) {
           </div>
         ) : (
           <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
-            <div className="mb-4 rounded-full bg-amber-100 p-3 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300">
+            <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
               <PenLine className="h-5 w-5" />
             </div>
             <p className="text-[14px] font-semibold text-foreground">No notes yet</p>

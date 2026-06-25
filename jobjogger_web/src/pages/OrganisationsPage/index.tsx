@@ -120,7 +120,7 @@ function CreateOrganisationDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="default">
+        <Button variant="default">
           <Plus className="h-4 w-4" />
           New organisation
         </Button>
