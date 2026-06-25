@@ -13,6 +13,7 @@ import { StatusBadge } from '@/components/job/StatusBadge'
 import { cn } from '@/lib/utils'
 import type { SummaryStats } from '@/types/analytics'
 import type { Job } from '@/types/job'
+import { format, formatDistanceToNow, isFuture, parseISO } from 'date-fns'
 import { Clock, MailOpen, Mic, Plus, Send } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -105,82 +106,111 @@ function DashboardStatCards({ data }: { data: SummaryStats }) {
 
 // ─── Recent jobs table ────────────────────────────────────────────────────────
 
-function formatFollowUp(date: string | undefined): string {
-  if (!date) return '—'
-  const [year, month, day] = date.split('T')[0].split('-')
-  return `${day}/${month}/${year}`
+function makeDashboardColumns(hasDateApplied: boolean, hasFollowUp: boolean, hasNextInterview: boolean): ColumnDef<Job>[] {
+  const cols: ColumnDef<Job>[] = [
+    {
+      accessorKey: 'company_name',
+      header: 'Company',
+      cell: ({ row }) => (
+        <span className="text-[12px] font-semibold text-foreground">
+          {row.getValue('company_name')}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'job_title',
+      header: 'Role',
+      cell: ({ row }) => (
+        <span className="text-[12px] text-foreground/80">{row.getValue('job_title')}</span>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <StatusBadge job={row.original} />
+        </div>
+      ),
+    },
+  ]
+
+  if (hasDateApplied) {
+    cols.push({
+      accessorKey: 'date_applied',
+      header: 'Applied',
+      cell: ({ row }) => {
+        const date = row.getValue('date_applied') as string
+        if (!date) return <span className="text-[12px] text-muted-foreground/40">—</span>
+        return (
+          <span className="text-[12px] text-foreground/80">
+            {format(parseISO(date.split('T')[0]), 'd MMM yyyy')}
+          </span>
+        )
+      },
+    })
+  }
+
+  if (hasFollowUp) {
+    cols.push({
+      accessorKey: 'follow_up_date',
+      header: 'Follow-up',
+      cell: ({ row }) => {
+        const date = row.getValue('follow_up_date') as string
+        if (!date) return <span className="text-[12px] text-muted-foreground/40">—</span>
+        const [year, month, day] = date.split('T')[0].split('-')
+        const followUpDay = new Date(Number(year), Number(month) - 1, Number(day))
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const isOverdue = followUpDay < today
+        return (
+          <span className={`text-[12px] ${isOverdue ? 'text-destructive font-medium' : 'text-foreground/80'}`}>
+            {format(parseISO(date.split('T')[0]), 'd MMM yyyy')}
+          </span>
+        )
+      },
+    })
+  }
+
+  if (hasNextInterview) {
+    cols.push({
+      accessorKey: 'next_interview_at',
+      header: 'Next Interview',
+      cell: ({ row }) => {
+        const job = row.original
+        if (!job.next_interview_at) return <span className="text-[12px] text-muted-foreground/40">—</span>
+        const date = new Date(job.next_interview_at)
+        if (!isFuture(date)) return <span className="text-[12px] text-muted-foreground/40">—</span>
+        return (
+          <span className="text-[12px] text-violet-600 dark:text-violet-400 font-medium">
+            {formatDistanceToNow(date, { addSuffix: true })}
+          </span>
+        )
+      },
+    })
+  }
+
+  return cols
 }
 
-const dashboardColumns: ColumnDef<Job>[] = [
-  {
-    accessorKey: 'company_name',
-    header: 'Company',
-    cell: ({ row }) => (
-      <span className="text-[12px] font-semibold text-foreground">
-        {row.getValue('company_name')}
-      </span>
-    ),
-  },
-  {
-    accessorKey: 'job_title',
-    header: 'Role',
-    cell: ({ row }) => (
-      <span className="text-[12px] text-foreground/80">{row.getValue('job_title')}</span>
-    ),
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => (
-      <div onClick={(e) => e.stopPropagation()}>
-        <StatusBadge job={row.original} />
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'location',
-    header: 'Location',
-    cell: ({ row }) => (
-      <span className="text-[12px] text-foreground/80">{row.getValue('location') || '—'}</span>
-    ),
-  },
-  {
-    accessorKey: 'priority',
-    header: 'Priority',
-    cell: ({ row }) => {
-      const priority = row.getValue('priority') as string
-      if (!priority) return <span className="text-[12px] text-muted-foreground">—</span>
-      const classes: Record<string, string> = {
-        high: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400',
-        medium: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
-        low: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-      }
-      const labels: Record<string, string> = { high: 'High', medium: 'Med', low: 'Low' }
-      return (
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${classes[priority] ?? 'text-muted-foreground'}`}
-        >
-          {labels[priority] ?? priority}
-        </span>
-      )
-    },
-  },
-  {
-    accessorKey: 'follow_up_date',
-    header: 'Follow-up',
-    cell: ({ row }) => (
-      <span className="text-[12px] text-foreground/80">
-        {formatFollowUp(row.getValue('follow_up_date'))}
-      </span>
-    ),
-  },
-]
-
-function RecentJobsTable({ jobs, onRowClick }: { jobs: Job[]; onRowClick: (id: number) => void }) {
+function RecentJobsTable({
+  jobs,
+  onRowClick,
+  hasDateApplied,
+  hasFollowUp,
+  hasNextInterview,
+}: {
+  jobs: Job[]
+  onRowClick: (id: number) => void
+  hasDateApplied: boolean
+  hasFollowUp: boolean
+  hasNextInterview: boolean
+}) {
+  const columns = makeDashboardColumns(hasDateApplied, hasFollowUp, hasNextInterview)
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: jobs,
-    columns: dashboardColumns,
+    columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -221,7 +251,7 @@ function RecentJobsTable({ jobs, onRowClick }: { jobs: Job[]; onRowClick: (id: n
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={dashboardColumns.length} className="h-24 text-center text-[13px] text-muted-foreground">
+            <TableCell colSpan={columns.length} className="h-24 text-center text-[13px] text-muted-foreground">
               No jobs yet.
             </TableCell>
           </TableRow>
@@ -246,6 +276,9 @@ export default function DashboardPage() {
   if (error) return <PageError title="Could not load dashboard" message={error.message} />
 
   const recentJobs = data?.slice(0, 5) ?? []
+  const hasDateApplied = recentJobs.some((j) => Boolean(j.date_applied))
+  const hasFollowUp = recentJobs.some((j) => Boolean(j.follow_up_date))
+  const hasNextInterview = recentJobs.some((j) => Boolean(j.next_interview_at))
   const statusBreakdown = calculateStatusBreakdown(data ?? [])
   const firstName = user?.name?.split(' ')[0] ?? 'there'
 
@@ -296,7 +329,13 @@ export default function DashboardPage() {
             View all →
           </button>
         </div>
-        <RecentJobsTable jobs={recentJobs} onRowClick={handleView} />
+        <RecentJobsTable
+          jobs={recentJobs}
+          onRowClick={handleView}
+          hasDateApplied={hasDateApplied}
+          hasFollowUp={hasFollowUp}
+          hasNextInterview={hasNextInterview}
+        />
       </div>
     </div>
   )
