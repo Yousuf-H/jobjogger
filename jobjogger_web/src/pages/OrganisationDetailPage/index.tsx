@@ -372,9 +372,6 @@ function OverviewTab({ org }: { org: Organisation }) {
   return (
     <div>
       <div>
-        <h3 className="text-[12px] font-semibold text-[#111827] mb-[6px] dark:text-foreground">
-          Notes
-        </h3>
         {org.notes ? (
           <p className="text-[13px] text-[#374151] leading-[1.6] whitespace-pre-wrap dark:text-foreground/80">
             {org.notes}
