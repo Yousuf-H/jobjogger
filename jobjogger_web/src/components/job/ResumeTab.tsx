@@ -77,7 +77,7 @@ function VariantPickerDialog({
           <div className="max-h-80 space-y-4 overflow-y-auto pr-1">
             {Object.entries(byTemplate).map(([templateName, tvariants]) => (
               <div key={templateName}>
-                <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="mb-1.5 text-xs font-medium text-muted-foreground">
                   {templateName}
                 </p>
                 <div className="space-y-1">
@@ -95,11 +95,11 @@ function VariantPickerDialog({
                             : 'bg-background hover:bg-muted/50 hover:border-muted-foreground/30'
                         }`}
                       >
-                        <span className="font-medium">
-                          {v.pdf_filename ?? (v.notes ? v.notes.slice(0, 40) : 'Unnamed variant')}
+                        <span className="block truncate font-medium">
+                          {v.pdf_filename ?? 'Unnamed variant'}
                         </span>
-                        {v.notes && v.pdf_filename && (
-                          <span className="mt-0.5 block text-xs text-muted-foreground line-clamp-1">
+                        {v.notes && (
+                          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                             {v.notes}
                           </span>
                         )}
