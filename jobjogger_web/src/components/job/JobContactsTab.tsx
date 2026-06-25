@@ -245,9 +245,9 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
     <div className="space-y-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-muted-foreground text-sm">
-          {jobContacts.length === 0
-            ? 'No contacts linked to this job.'
-            : `${jobContacts.length} contact${jobContacts.length !== 1 ? 's' : ''}`}
+          {jobContacts.length > 0
+            ? `${jobContacts.length} contact${jobContacts.length !== 1 ? 's' : ''}`
+            : ''}
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
           {linkableContacts.length > 0 && (
@@ -309,7 +309,17 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
         </div>
       </div>
 
-      {jobContacts.length > 0 && (
+      {jobContacts.length === 0 ? (
+        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
+          <div className="mb-4 rounded-full bg-teal-100 p-3 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">
+            <Users className="h-5 w-5" />
+          </div>
+          <p className="text-[14px] font-semibold text-foreground">No contacts linked</p>
+          <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
+            Link contacts to track who you've spoken to at this company.
+          </p>
+        </div>
+      ) : (
         <div className="divide-y">
           {jobContacts.map((contact) => (
             <ContactRow

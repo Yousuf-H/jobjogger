@@ -1113,23 +1113,20 @@ export function InterviewsTab({ jobId, status, organisationId }: InterviewsTabPr
 
       {/* Interview round cards or empty state */}
       {interviews.length === 0 ? (
-        <div className="rounded-[10px] border border-border bg-card p-[14px_16px]">
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <CalendarIcon className="mb-3 h-8 w-8 text-muted-foreground/40" />
-            <p className="text-[14px] font-medium text-foreground/80">No interviews logged yet</p>
-            <p className="mt-1 text-[12px] text-muted-foreground">
-              Add your first interview round to start tracking.
-            </p>
-            {!readOnly && (
-              <button
-                onClick={() => setDrawerOpen(true)}
-                className="mt-4 flex items-center gap-[6px] rounded-[7px] bg-primary px-[10px] py-[5px] text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                <Plus className="h-[13px] w-[13px]" />
-                Add interview
-              </button>
-            )}
+        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
+          <div className="mb-4 rounded-full bg-violet-100 p-3 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300">
+            <CalendarIcon className="h-5 w-5" />
           </div>
+          <p className="text-[14px] font-semibold text-foreground">No interviews logged yet</p>
+          <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
+            Add your first interview round to start tracking.
+          </p>
+          {!readOnly && (
+            <Button onClick={() => setDrawerOpen(true)} className="mt-5">
+              <Plus className="h-[13px] w-[13px]" />
+              Add interview
+            </Button>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

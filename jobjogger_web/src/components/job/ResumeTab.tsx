@@ -1,4 +1,3 @@
-import EmptyTabState from '@/components/job/EmptyTabState'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -161,13 +160,20 @@ export function ResumeTab({ jobId, status, resumeVariantId }: ResumeTabProps) {
   if (!variant) {
     return (
       <>
-        <EmptyTabState
-          icon={FileText}
-          title="No resume linked"
-          description="Link the resume variant you submitted or plan to submit for this job."
-          actionLabel={!readOnly ? 'Link Resume' : undefined}
-          onAction={!readOnly ? () => setPickerOpen(true) : undefined}
-        />
+        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
+          <div className="mb-4 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+            <FileText className="h-5 w-5" />
+          </div>
+          <p className="text-[14px] font-semibold text-foreground">No resume linked</p>
+          <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
+            Link the resume variant you submitted or plan to submit for this job.
+          </p>
+          {!readOnly && (
+            <Button onClick={() => setPickerOpen(true)} className="mt-5">
+              Link Resume
+            </Button>
+          )}
+        </div>
         <VariantPickerDialog
           open={pickerOpen}
           onOpenChange={setPickerOpen}
