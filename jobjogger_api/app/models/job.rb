@@ -137,7 +137,7 @@ class Job < ApplicationRecord
   def create_initial_timeline_entry
     return if wishlist?
 
-    timestamp = date_applied.present? ? date_applied.beginning_of_day : created_at
+    timestamp = date_applied.present? ? date_applied.beginning_of_day : created_at.beginning_of_day
 
     if applied?
       # Simple case: job created as applied
@@ -180,21 +180,21 @@ class Job < ApplicationRecord
       timeline_entries.create!(
         entry_type: "status_change",
         description: "Status changed from wishlist to applied",
-        occurred_at: updated_at,
+        occurred_at: updated_at.beginning_of_day,
         metadata: { from: "wishlist", to: "applied" }
       )
 
       timeline_entries.create!(
         entry_type: "status_change",
         description: "Status changed from applied to #{to_status}",
-        occurred_at: updated_at + 1.second,
+        occurred_at: updated_at.beginning_of_day + 1.second,
         metadata: { from: "applied", to: to_status }
       )
     else
       timeline_entries.create!(
         entry_type: "status_change",
         description: "Status changed from #{from_status} to #{to_status}",
-        occurred_at: updated_at,
+        occurred_at: updated_at.beginning_of_day,
         metadata: { from: from_status, to: to_status }
       )
     end
