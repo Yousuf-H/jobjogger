@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ChartContainer,
   type ChartConfig,
@@ -46,17 +45,18 @@ export function PipelineFunnel({ data }: PipelineFunnelProps) {
   ) satisfies ChartConfig
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Pipeline funnel</CardTitle>
-        <p className="text-muted-foreground text-sm">
+    <div className="rounded-[10px] border border-border bg-card">
+      <div className="px-5 py-4">
+        <h2 className="text-[14px] font-semibold text-foreground">Pipeline funnel</h2>
+        <p className="mt-0.5 text-[12px] text-muted-foreground">
           Current snapshot of jobs at each stage
         </p>
-      </CardHeader>
-      <CardContent>
+      </div>
+
+      <div className="px-5 pb-5">
         {total === 0 ? (
           <div className="flex h-[200px] items-center justify-center">
-            <p className="text-muted-foreground text-sm">No data yet</p>
+            <p className="text-[13px] text-muted-foreground">No data yet</p>
           </div>
         ) : (
           <ChartContainer
@@ -64,11 +64,7 @@ export function PipelineFunnel({ data }: PipelineFunnelProps) {
             className="w-full"
             style={{ height: Math.max(data.length * 40 + 20, 200) }}
           >
-            <BarChart
-              data={chartData}
-              layout="vertical"
-              margin={{ left: -10, right: 40 }}
-            >
+            <BarChart data={chartData} layout="vertical" margin={{ left: -10, right: 40 }}>
               <XAxis type="number" hide />
               <YAxis
                 dataKey="status"
@@ -79,12 +75,7 @@ export function PipelineFunnel({ data }: PipelineFunnelProps) {
                 fontSize={12}
               />
               <Bar dataKey="count" radius={5} barSize={24}>
-                <LabelList
-                  dataKey="count"
-                  position="right"
-                  fontSize={12}
-                  fontWeight={500}
-                />
+                <LabelList dataKey="count" position="right" fontSize={12} fontWeight={500} />
                 {chartData.map((entry) => (
                   <Cell
                     key={entry.rawStatus}
@@ -95,7 +86,7 @@ export function PipelineFunnel({ data }: PipelineFunnelProps) {
             </BarChart>
           </ChartContainer>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
