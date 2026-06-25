@@ -77,20 +77,25 @@ export function RecentActivity() {
             return (
               <li
                 key={entry.id}
-                className={`flex items-start gap-3 py-3 ${isLast ? '' : 'border-b border-border/60'}`}
+                className={isLast ? '' : 'border-b border-border/60'}
               >
-                <div
-                  className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: config.color }}
-                />
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[13px] text-foreground/80">
-                    {prefix}{bold ? <> <span className="font-semibold">{bold}</span> </> : ' '}{suffix}
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">
-                    {formatDistanceToNow(new Date(entry.occurred_at), { addSuffix: true })}
-                  </span>
-                </div>
+                <Link
+                  to={`/jobs/${entry.job_id}`}
+                  className="flex w-full items-start gap-3 rounded-md py-3 transition-colors hover:bg-muted/30"
+                >
+                  <div
+                    className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: config.color }}
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] text-foreground/80">
+                      {prefix}{bold ? <> <span className="font-semibold">{bold}</span> </> : ' '}{suffix}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {formatDistanceToNow(new Date(entry.occurred_at), { addSuffix: true })}
+                    </span>
+                  </div>
+                </Link>
               </li>
             )
           })}
