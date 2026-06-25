@@ -26,7 +26,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useContactActions } from '@/hooks/useContactActions'
@@ -243,81 +242,48 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-muted-foreground text-sm">
-          {jobContacts.length > 0
-            ? `${jobContacts.length} contact${jobContacts.length !== 1 ? 's' : ''}`
-            : ''}
-        </p>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          {linkableContacts.length > 0 && (
-            <Dialog open={addOpen} onOpenChange={setAddOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <UserPlus className="mr-1.5 h-3.5 w-3.5" />
-                  Link Existing
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Link a Contact</DialogTitle>
-                  <DialogDescription className="sr-only">
-                    Search and link an existing contact to this job.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <ContactCombobox
-                    contacts={linkableContacts}
-                    value={selectedContactId}
-                    onChange={setSelectedContactId}
-                  />
-                  <Button
-                    onClick={handleLink}
-                    disabled={!selectedContactId || linkMutation.isPending}
-                    variant="default"
-                    className="w-full"
-                  >
-                    {linkMutation.isPending ? 'Linking...' : 'Link contact'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-
-          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default" size="sm">
-                <Users className="mr-1.5 h-3.5 w-3.5" />
-                New contact
+      {/* Header row — only shown when contacts exist */}
+      {jobContacts.length > 0 && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-muted-foreground text-sm">
+            {jobContacts.length} contact{jobContacts.length !== 1 ? 's' : ''}
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {linkableContacts.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
+                <UserPlus className="mr-1.5 h-3.5 w-3.5" />
+                Link Existing
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[95vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Add contact</DialogTitle>
-              <DialogDescription className="sr-only">
-                Create a new contact and link them to this job.
-              </DialogDescription>
-              </DialogHeader>
-              <ContactForm
-                key={createOpen ? 'open' : 'closed'}
-                onSubmit={handleCreate}
-                isSubmitting={createMutation.isPending || linkMutation.isPending}
-                organisationId={organisationId}
-              />
-            </DialogContent>
-          </Dialog>
+            )}
+            <Button variant="default" size="sm" onClick={() => setCreateOpen(true)}>
+              <Users className="mr-1.5 h-3.5 w-3.5" />
+              New contact
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {jobContacts.length === 0 ? (
         <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
-          <div className="mb-4 rounded-full bg-teal-100 p-3 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">
+          <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
             <Users className="h-5 w-5" />
           </div>
           <p className="text-[14px] font-semibold text-foreground">No contacts linked</p>
           <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
             Link contacts to track who you've spoken to at this company.
           </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            {linkableContacts.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
+                <UserPlus className="mr-1.5 h-3.5 w-3.5" />
+                Link Existing
+              </Button>
+            )}
+            <Button variant="default" size="sm" onClick={() => setCreateOpen(true)}>
+              <Users className="mr-1.5 h-3.5 w-3.5" />
+              New contact
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="divide-y">
@@ -332,6 +298,52 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
           ))}
         </div>
       )}
+
+      {/* Controlled dialogs — opened from both header and empty state */}
+      {linkableContacts.length > 0 && (
+        <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Link a Contact</DialogTitle>
+              <DialogDescription className="sr-only">
+                Search and link an existing contact to this job.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <ContactCombobox
+                contacts={linkableContacts}
+                value={selectedContactId}
+                onChange={setSelectedContactId}
+              />
+              <Button
+                onClick={handleLink}
+                disabled={!selectedContactId || linkMutation.isPending}
+                variant="default"
+                className="w-full"
+              >
+                {linkMutation.isPending ? 'Linking...' : 'Link contact'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add contact</DialogTitle>
+            <DialogDescription className="sr-only">
+              Create a new contact and link them to this job.
+            </DialogDescription>
+          </DialogHeader>
+          <ContactForm
+            key={createOpen ? 'open' : 'closed'}
+            onSubmit={handleCreate}
+            isSubmitting={createMutation.isPending || linkMutation.isPending}
+            organisationId={organisationId}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

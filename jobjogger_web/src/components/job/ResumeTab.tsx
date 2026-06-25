@@ -20,7 +20,7 @@ import { useResumeVariantActions } from '@/hooks/useResumeVariantActions'
 import { useAllResumeVariants, useResumeVariant } from '@/hooks/useResumeVariants'
 import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import type { ResumeVariant } from '@/types/resume'
-import { IconFileOff } from '@tabler/icons-react'
+import { IconFileOff, IconPaperclip } from '@tabler/icons-react'
 import { ExternalLink, FileText, Link2Off, Pencil } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -161,8 +161,8 @@ export function ResumeTab({ jobId, status, resumeVariantId }: ResumeTabProps) {
     return (
       <>
         <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
-          <div className="mb-4 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
-            <FileText className="h-5 w-5" />
+          <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
+            <IconPaperclip className="h-5 w-5" />
           </div>
           <p className="text-[14px] font-semibold text-foreground">No resume linked</p>
           <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
