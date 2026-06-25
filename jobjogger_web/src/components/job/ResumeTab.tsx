@@ -21,6 +21,7 @@ import { useResumeVariantActions } from '@/hooks/useResumeVariantActions'
 import { useAllResumeVariants, useResumeVariant } from '@/hooks/useResumeVariants'
 import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import type { ResumeVariant } from '@/types/resume'
+import { IconFileOff } from '@tabler/icons-react'
 import { ExternalLink, FileText, Link2Off, Pencil } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -58,7 +59,7 @@ function VariantPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Link Resume</DialogTitle>
+          <DialogTitle>Link a resume</DialogTitle>
           <DialogDescription className="sr-only">
             Choose a resume variant to link to this job application.
           </DialogDescription>
@@ -67,18 +68,11 @@ function VariantPickerDialog({
         {isLoading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>
         ) : variants.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-6">
+          <div className="flex flex-col items-center gap-2 py-6">
+            <IconFileOff className="h-8 w-8 text-muted-foreground/50" />
             <p className="text-center text-sm text-muted-foreground">
               No resume variants yet. Create one in the Resume Library.
             </p>
-            <Button
-              onClick={() => {
-                onOpenChange(false)
-                navigate('/resume')
-              }}
-            >
-              Go to Resume Library
-            </Button>
           </div>
         ) : (
           <div className="max-h-80 space-y-4 overflow-y-auto pr-1">
@@ -122,10 +116,20 @@ function VariantPickerDialog({
           </div>
         )}
 
-        <div className="flex justify-end pt-1">
+        <div className="flex justify-end gap-2 pt-1">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
+          {!isLoading && variants.length === 0 && (
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+                navigate('/resume')
+              }}
+            >
+              Go to Resume Library
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
