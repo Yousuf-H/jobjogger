@@ -77,7 +77,7 @@ class Job < ApplicationRecord
   scope :due_this_week, -> { where(follow_up_date: Date.current..Date.current.end_of_week(:sunday)) }
 
   before_save :normalise_tags
-  before_update :set_date_applied_if_needed
+  before_save :set_date_applied_if_needed
   after_create_commit :create_initial_timeline_entry
   after_update_commit :auto_create_timeline_entry
 
