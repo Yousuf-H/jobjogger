@@ -23,6 +23,7 @@ import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import type { ResumeVariant } from '@/types/resume'
 import { ExternalLink, FileText, Link2Off, Pencil } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function VariantPickerDialog({
   open,
@@ -37,6 +38,7 @@ function VariantPickerDialog({
 }) {
   const { data: variants = [], isLoading } = useAllResumeVariants()
   const { linkMutation } = useResumeVariantActions()
+  const navigate = useNavigate()
 
   const byTemplate = variants.reduce<Record<string, ResumeVariant[]>>((acc, v) => {
     const key = v.template_name
@@ -65,9 +67,19 @@ function VariantPickerDialog({
         {isLoading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>
         ) : variants.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            No resume variants yet. Create one in the Resume Library.
-          </p>
+          <div className="flex flex-col items-center gap-3 py-6">
+            <p className="text-center text-sm text-muted-foreground">
+              No resume variants yet. Create one in the Resume Library.
+            </p>
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+                navigate('/resume')
+              }}
+            >
+              Go to Resume Library
+            </Button>
+          </div>
         ) : (
           <div className="max-h-80 space-y-4 overflow-y-auto pr-1">
             {Object.entries(byTemplate).map(([templateName, tvariants]) => (
