@@ -102,7 +102,9 @@ class DemoAccountResetter
     status_progression.each do |target_status|
       current_time += rand(1..days_between).days
 
-      job.update_columns(status: target_status, updated_at: current_time)
+      updates = { status: target_status, updated_at: current_time }
+      updates[:date_applied] = current_time.to_date if target_status == "applied"
+      job.update_columns(**updates)
 
       TimelineEntry.create!(
         job: job,
