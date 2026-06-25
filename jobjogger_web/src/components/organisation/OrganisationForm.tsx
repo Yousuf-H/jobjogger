@@ -72,7 +72,12 @@ export function OrganisationForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          if (errors.rating || errors.notes) setShowDetails(true)
+        })}
+        className="space-y-4"
+      >
 
         {/* Primary fields */}
         <FormField
@@ -153,7 +158,11 @@ export function OrganisationForm({
         {/* More details toggle */}
         <button
           type="button"
-          onClick={() => setShowDetails((v) => !v)}
+          onClick={() => {
+            const { rating, notes } = form.formState.errors
+            if (showDetails && (rating || notes)) return
+            setShowDetails((v) => !v)
+          }}
           className="flex w-full items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ChevronDown
