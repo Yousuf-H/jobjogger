@@ -8,6 +8,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
@@ -16,8 +17,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 import { ORG_SIZES, type OrgSize } from '@/types/organisation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ChevronDown } from 'lucide-react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -46,13 +50,14 @@ interface OrganisationFormProps {
   mode?: 'create' | 'edit'
 }
 
-
 export function OrganisationForm({
   onSubmit,
   defaultValues,
   isSubmitting,
   mode = 'create',
 }: OrganisationFormProps) {
+  const [showDetails, setShowDetails] = useState(mode === 'edit')
+
   const form = useForm<OrganisationFormValues>({
     resolver: zodResolver(organisationSchema),
     defaultValues: {
@@ -68,12 +73,16 @@ export function OrganisationForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
+        {/* Primary fields */}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name *</FormLabel>
+              <FormLabel>
+                Name <span className="text-primary">*</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Acme Corporation" {...field} />
               </FormControl>
@@ -101,7 +110,7 @@ export function OrganisationForm({
             name="size"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company Size</FormLabel>
+                <FormLabel>Company size</FormLabel>
                 <Select
                   onValueChange={(v) => field.onChange(v as OrgSize)}
                   value={field.value ?? undefined}
@@ -139,60 +148,84 @@ export function OrganisationForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="rating"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Rating <span className="text-muted-foreground font-normal">(0.1 – 5)</span></FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="any"
-                  placeholder="e.g. 4.2"
-                  value={field.value ?? ''}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    field.onChange(val === '' ? null : parseFloat(val))
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <Separator />
 
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Notes</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Any notes about this organisation..."
-                  className="min-h-[80px] resize-y"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* More details toggle */}
+        <button
+          type="button"
+          onClick={() => setShowDetails((v) => !v)}
+          className="flex w-full items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ChevronDown
+            className={cn('h-4 w-4 transition-transform duration-200', showDetails && 'rotate-180')}
+          />
+          {showDetails ? 'Less details' : 'More details'}
+        </button>
+
+        {/* Secondary fields */}
+        {showDetails && (
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="rating"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Rating{' '}
+                    <span className="text-muted-foreground font-normal">(0.1 – 5)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="any"
+                      placeholder="e.g. 4.2"
+                      value={field.value ?? ''}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        field.onChange(val === '' ? null : parseFloat(val))
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Any notes about this organisation..."
+                      className="min-h-[80px] resize-y"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        <Separator />
 
         <Button
           type="submit"
           className="w-full"
           disabled={isSubmitting}
-          variant="success"
+          variant="default"
         >
           {isSubmitting
             ? mode === 'edit'
               ? 'Saving...'
-              : 'Creating...'
+              : 'Adding...'
             : mode === 'edit'
               ? 'Save Changes'
-              : 'Create Organisation'}
+              : 'Add organisation'}
         </Button>
       </form>
     </Form>

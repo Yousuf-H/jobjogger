@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -81,10 +80,7 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
 
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Job</DialogTitle>
-          <DialogDescription>
-            Fill in the details to update the job application
-          </DialogDescription>
+          <DialogTitle>Edit job</DialogTitle>
         </DialogHeader>
 
         <JobForm

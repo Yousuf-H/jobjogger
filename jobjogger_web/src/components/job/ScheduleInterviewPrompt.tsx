@@ -3,7 +3,6 @@ import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -67,9 +66,6 @@ export function ScheduleInterviewPrompt({
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Schedule an Interview</DialogTitle>
-          <DialogDescription>
-            You've moved this job to an interview stage. Want to log the details now?
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -157,7 +153,7 @@ export function ScheduleInterviewPrompt({
               Skip for now
             </Button>
             <Button
-              variant="success"
+              variant="default"
               disabled={createMutation.isPending || !form.scheduled_at}
               onClick={handleSubmit}
             >

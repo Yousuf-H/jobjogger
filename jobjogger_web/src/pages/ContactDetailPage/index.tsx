@@ -472,7 +472,7 @@ export default function ContactDetailPage() {
             </DialogTrigger>
             <DialogContent className="max-h-[95vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Edit Contact</DialogTitle>
+                <DialogTitle>Edit contact</DialogTitle>
               </DialogHeader>
               <ContactForm
                 key={editOpen ? 'open' : 'closed'}

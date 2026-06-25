@@ -22,7 +22,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -157,10 +156,7 @@ function EditOrganisationDialog({
       </DialogTrigger>
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Organisation</DialogTitle>
-          <DialogDescription>
-            Update the details for {org.name}.
-          </DialogDescription>
+          <DialogTitle>Edit organisation</DialogTitle>
         </DialogHeader>
         <OrganisationForm
           key={open ? 'open' : 'closed'}

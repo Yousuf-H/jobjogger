@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
@@ -24,8 +25,8 @@ import {
 } from '@/lib/validations/job'
 import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarIcon } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { CalendarIcon, ChevronDown } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange'> {
@@ -54,7 +55,7 @@ function DateInput({ value, onChange, ...props }: DateInputProps) {
       <Input
         ref={inputRef}
         type="date"
-        className="pl-9 cursor-pointer"
+        className="pl-9 cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden"
         value={value}
         onChange={handleChange}
         max="9999-12-31"
@@ -82,6 +83,8 @@ export function JobForm({
   isSubmitting,
   mode = 'create',
 }: JobFormProps) {
+  const [showDetails, setShowDetails] = useState(mode === 'edit')
+
   const statusOptions =
     mode === 'edit' && defaultValues?.status === 'wishlist'
       ? ALL_STATUS_OPTIONS.filter(o => !TERMINAL_STATUSES.includes(o.value as JobStatus))
@@ -119,14 +122,17 @@ export function JobForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Row 1: Company + Title */}
+
+        {/* Primary fields */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="company_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company *</FormLabel>
+                <FormLabel>
+                  Company <span className="text-primary">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. Acme Corp" {...field} />
                 </FormControl>
@@ -139,7 +145,9 @@ export function JobForm({
             name="job_title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Job Title *</FormLabel>
+                <FormLabel>
+                  Job title <span className="text-primary">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. Store Manager" {...field} />
                 </FormControl>
@@ -149,14 +157,15 @@ export function JobForm({
           />
         </div>
 
-        {/* Row 2: Status + Date Applied */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status *</FormLabel>
+                <FormLabel>
+                  Status <span className="text-primary">*</span>
+                </FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -187,102 +196,6 @@ export function JobForm({
           />
           <FormField
             control={form.control}
-            name="date_applied"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date Applied</FormLabel>
-                <FormControl>
-                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Row 3: Location + Employment Type */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. Sydney, NSW" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="employment_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employment Type</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="full_time">Full Time</SelectItem>
-                    <SelectItem value="part_time">Part Time</SelectItem>
-                    <SelectItem value="casual">Casual</SelectItem>
-                    <SelectItem value="contract">Contract</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Row 4: Salary + Priority */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="salary_range"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Salary Range</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. $80k - $100k" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priority"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Priority</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Row 5: Source + Application Deadline */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
             name="source"
             render={({ field }) => (
               <FormItem>
@@ -305,36 +218,6 @@ export function JobForm({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="application_deadline"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Application Deadline</FormLabel>
-                <FormControl>
-                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Row 6: Follow-up Date */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="follow_up_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Follow-up Date</FormLabel>
-                <FormControl>
-                  <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         {sourceValue === 'other' && (
@@ -343,7 +226,7 @@ export function JobForm({
             name="source_other"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Other Source</FormLabel>
+                <FormLabel>Other source</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. Gumtree, newspaper" {...field} />
                 </FormControl>
@@ -353,49 +236,191 @@ export function JobForm({
           />
         )}
 
-        {/* Full-width: URL + Tags */}
-        <FormField
-          control={form.control}
-          name="job_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Job URL</FormLabel>
-              <FormControl>
-                <Input placeholder="Paste the link to the job listing" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <Separator />
 
-        <FormField
-          control={form.control}
-          name="tags"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tags</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. remote, part-time, urgent" {...field} />
-              </FormControl>
-              <FormDescription>Separate tags with commas</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* More details toggle */}
+        <button
+          type="button"
+          onClick={() => setShowDetails((v) => !v)}
+          className="flex w-full items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ChevronDown
+            className={cn('h-4 w-4 transition-transform duration-200', showDetails && 'rotate-180')}
+          />
+          {showDetails ? 'Less details' : 'More details'}
+        </button>
+
+        {/* Secondary fields */}
+        {showDetails && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Sydney, NSW" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="employment_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employment type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="full_time">Full Time</SelectItem>
+                        <SelectItem value="part_time">Part Time</SelectItem>
+                        <SelectItem value="casual">Casual</SelectItem>
+                        <SelectItem value="contract">Contract</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="salary_range"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salary range</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. $80k - $100k" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="date_applied"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date applied</FormLabel>
+                    <FormControl>
+                      <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="application_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Application deadline</FormLabel>
+                    <FormControl>
+                      <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="follow_up_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Follow-up date</FormLabel>
+                    <FormControl>
+                      <DateInput {...field} value={field.value ?? ''} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="job_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Paste the link to the job listing" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. remote, part-time, urgent" {...field} />
+                  </FormControl>
+                  <FormDescription>Separate tags with commas</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        <Separator />
 
         <Button
           type="submit"
           className="w-full"
           disabled={isSubmitting}
-          variant="success"
+          variant="default"
         >
           {isSubmitting
             ? mode === 'edit'
               ? 'Saving...'
-              : 'Creating...'
+              : 'Adding...'
             : mode === 'edit'
               ? 'Save Changes'
-              : 'Create Job'}
+              : 'Add job'}
         </Button>
       </form>
     </Form>

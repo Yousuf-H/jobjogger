@@ -270,10 +270,10 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
                   <Button
                     onClick={handleLink}
                     disabled={!selectedContactId || linkMutation.isPending}
-                    variant="success"
+                    variant="default"
                     className="w-full"
                   >
-                    {linkMutation.isPending ? 'Linking...' : 'Link Contact'}
+                    {linkMutation.isPending ? 'Linking...' : 'Link contact'}
                   </Button>
                 </div>
               </DialogContent>
@@ -282,14 +282,14 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
 
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
-              <Button variant="success" size="sm">
+              <Button variant="default" size="sm">
                 <Users className="mr-1.5 h-3.5 w-3.5" />
-                New Contact
+                New contact
               </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[95vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>New Contact</DialogTitle>
+                <DialogTitle>Add contact</DialogTitle>
               </DialogHeader>
               <ContactForm
                 key={createOpen ? 'open' : 'closed'}

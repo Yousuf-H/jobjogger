@@ -84,14 +84,14 @@ export function OrgContactsTab({ organisationId, organisationName }: OrgContacts
         </p>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="success">
+            <Button size="sm" variant="default">
               <Plus className="mr-1.5 h-3.5 w-3.5" />
-              Add Contact
+              Add contact
             </Button>
           </DialogTrigger>
           <DialogContent className="max-h-[95vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Add Contact</DialogTitle>
+              <DialogTitle>Add contact</DialogTitle>
             </DialogHeader>
             <ContactForm
               key={createOpen ? 'open' : 'closed'}

@@ -146,7 +146,6 @@ function InterviewDrawer({
   open,
   onOpenChange,
   title,
-  subtitle,
   initial,
   onSubmit,
   isSubmitting,
@@ -155,7 +154,6 @@ function InterviewDrawer({
   open: boolean
   onOpenChange: (v: boolean) => void
   title: string
-  subtitle?: string
   initial?: InterviewFormState
   onSubmit: (data: InterviewFormState) => void
   isSubmitting: boolean
@@ -185,11 +183,6 @@ function InterviewDrawer({
         {/* Fixed header */}
         <div className="shrink-0 border-b border-border px-6 pt-5 pb-[14px] pr-12">
           <DialogTitle className="text-[14px] font-medium text-foreground leading-tight">{title}</DialogTitle>
-          {subtitle && (
-            <DialogDescription className="mt-[4px] text-[11px] text-muted-foreground">
-              {subtitle}
-            </DialogDescription>
-          )}
         </div>
 
         {/* Scrollable body */}
@@ -319,21 +312,23 @@ function InterviewDrawer({
         {/* Pinned footer */}
         <div className="shrink-0 border-t border-border px-6 pt-[12px] pb-4">
           <div className="flex items-center justify-end gap-2">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => onOpenChange(false)}
-              className="rounded-[7px] px-[14px] py-[7px] text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="default"
+              size="sm"
               onClick={() => onSubmit(form)}
               disabled={!canSave || isSubmitting}
-              className="rounded-[7px] bg-[#2563EB] px-[14px] py-[7px] text-[12px] font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               {isSubmitting ? 'Saving…' : 'Save interview'}
-            </button>
+            </Button>
           </div>
         </div>
       </DialogContent>
@@ -345,7 +340,7 @@ function InterviewDrawer({
 
 function SubSectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[10px] font-medium uppercase tracking-[0.5px] text-[#9CA3AF]">
+    <span className="text-[10px] font-medium uppercase tracking-[0.5px] text-muted-foreground">
       {children}
     </span>
   )
@@ -384,13 +379,11 @@ function InterviewCard({
   round,
   jobId,
   readOnly = false,
-  companyName,
 }: {
   interview: Interview
   round: number
   jobId: number
   readOnly?: boolean
-  companyName: string
 }) {
   const { updateMutation, deleteMutation } = useInterviewActions(jobId)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -683,7 +676,6 @@ function InterviewCard({
       open={drawerOpen}
       onOpenChange={setDrawerOpen}
       title="Edit interview"
-      subtitle={`${companyName} · Round ${round}`}
       initial={{
         scheduled_at: format(new Date(interview.scheduled_at), "yyyy-MM-dd'T'HH:mm"),
         interview_type: interview.interview_type,
@@ -893,11 +885,11 @@ function NewQuestionDialog({
               Cancel
             </Button>
             <Button
-              variant="success"
+              variant="default"
               disabled={!form.question || createAndPinMutation.isPending}
               onClick={handleSubmit}
             >
-              {createAndPinMutation.isPending ? 'Saving…' : 'Save Question'}
+              {createAndPinMutation.isPending ? 'Saving…' : 'Save question'}
             </Button>
           </div>
         </div>
@@ -1064,7 +1056,7 @@ interface InterviewsTabProps {
   companyName: string
 }
 
-export function InterviewsTab({ jobId, status, organisationId, companyName }: InterviewsTabProps) {
+export function InterviewsTab({ jobId, status, organisationId }: InterviewsTabProps) {
   const readOnly = TERMINAL_STATUSES.includes(status)
   const { data: interviews = [], isLoading } = useInterviews(jobId)
   const { createMutation } = useInterviewActions(jobId)
@@ -1145,7 +1137,6 @@ export function InterviewsTab({ jobId, status, organisationId, companyName }: In
               round={chronological.findIndex((i) => i.id === interview.id) + 1}
               jobId={jobId}
               readOnly={readOnly}
-              companyName={companyName}
             />
           ))}
         </div>
@@ -1154,7 +1145,6 @@ export function InterviewsTab({ jobId, status, organisationId, companyName }: In
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         title="Schedule interview"
-        subtitle={`${companyName} · Round ${interviews.length + 1}`}
         onSubmit={handleCreate}
         isSubmitting={createMutation.isPending}
         warningMessage={

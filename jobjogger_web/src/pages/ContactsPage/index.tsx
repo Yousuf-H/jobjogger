@@ -2,6 +2,7 @@ import { DataTable } from '@/components/ui/DataTable'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { PageError } from '@/components/layout/PageError'
 import { PageLoading } from '@/components/layout/PageLoading'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
@@ -173,14 +174,14 @@ export default function ContactsPage() {
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <button className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700">
+            <Button size="sm" variant="default">
               <Plus className="h-4 w-4" />
               New contact
-            </button>
+            </Button>
           </DialogTrigger>
           <DialogContent className="max-h-[95vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>New Contact</DialogTitle>
+              <DialogTitle>Add contact</DialogTitle>
             </DialogHeader>
             <ContactForm
               key={createOpen ? 'open' : 'closed'}

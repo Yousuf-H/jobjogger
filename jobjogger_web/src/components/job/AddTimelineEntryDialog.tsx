@@ -11,6 +11,7 @@ import {
 } from '@/lib/validations/timelineEntry'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -94,33 +95,37 @@ export default function AddTimelineEntryDialog({
 
   const mutation = mode === 'edit' ? updateMutation : createMutation
 
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const descriptionLength = (form.watch('description') ?? '').length
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <button className="flex items-center gap-1.5 rounded-[7px] bg-[#2563EB] px-[14px] py-[7px] text-[12px] font-medium text-white hover:bg-blue-700 transition-colors">
+          <Button size="sm" variant="default">
             <Plus className="h-3.5 w-3.5" />
-            Add Entry
-          </button>
+            Log entry
+          </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="bg-background">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'edit' ? 'Edit Timeline Entry' : 'Add Timeline Entry'}
+            {mode === 'edit' ? 'Edit entry' : 'Log entry'}
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
             {/* Entry Type */}
             <FormField
               control={form.control}
               name="entry_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px] dark:text-muted-foreground">
+                  <FormLabel className="mb-[5px] text-[11px] font-medium text-muted-foreground">
                     Entry Type
                   </FormLabel>
                   <Select
@@ -128,7 +133,7 @@ export default function AddTimelineEntryDialog({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="border-[0.5px] border-[#E5E7EB] rounded-[7px] dark:border-border">
+                      <SelectTrigger className="rounded-[7px] border-[0.5px] border-input">
                         <SelectValue placeholder="Select entry type" />
                       </SelectTrigger>
                     </FormControl>
@@ -151,7 +156,7 @@ export default function AddTimelineEntryDialog({
               name="occurred_at"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px] dark:text-muted-foreground">
+                  <FormLabel className="mb-[5px] text-[11px] font-medium text-muted-foreground">
                     Date
                   </FormLabel>
                   <FormControl>
@@ -159,7 +164,7 @@ export default function AddTimelineEntryDialog({
                       <CalendarIcon className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
                       <Input
                         type="date"
-                        className="border-[0.5px] border-[#E5E7EB] rounded-[7px] pl-9 cursor-pointer dark:border-border"
+                        className="rounded-[7px] border-[0.5px] border-input pl-9 cursor-pointer"
                         max="9999-12-31"
                         {...field}
                       />
@@ -170,45 +175,48 @@ export default function AddTimelineEntryDialog({
               )}
             />
 
-            {/* Description */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-[#6B7280] mb-[5px] dark:text-muted-foreground">
-                    Description
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., Had phone screen with hiring manager..."
-                      rows={4}
-                      maxLength={1000}
-                      className="border-[0.5px] border-[#E5E7EB] rounded-[7px] dark:border-border"
-                      {...field}
-                    />
-                  </FormControl>
-                  <p className="text-muted-foreground text-xs">
-                    {field.value?.length || 0} / 1000 characters
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Description — counter lives outside FormItem to avoid space-y-2 gap */}
+            <div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="mb-[5px] text-[11px] font-medium text-muted-foreground">
+                      Description
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="e.g., Had phone screen with hiring manager..."
+                        rows={4}
+                        maxLength={1000}
+                        className="rounded-[7px] border-[0.5px] border-input"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {descriptionLength} / 1000 characters
+              </p>
+            </div>
 
-            <button
+            <Button
               type="submit"
+              variant="default"
               disabled={mutation.isPending}
-              className="w-full rounded-[7px] bg-[#2563EB] py-[8px] text-[13px] font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
+              className="w-full"
             >
               {mutation.isPending
                 ? mode === 'edit'
                   ? 'Saving...'
                   : 'Adding...'
                 : mode === 'edit'
-                  ? 'Save Changes'
-                  : 'Add Entry'}
-            </button>
+                  ? 'Save changes'
+                  : 'Log entry'}
+            </Button>
           </form>
         </Form>
       </DialogContent>

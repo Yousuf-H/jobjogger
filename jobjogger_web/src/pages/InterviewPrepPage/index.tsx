@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 import { Markdown } from '@/components/ui/markdown'
 import {
   Select,
@@ -293,21 +294,23 @@ function QuestionForm({
 
       {/* Footer */}
       <div className="flex justify-end gap-2 pt-1">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={onCancel}
-          className="rounded-[7px] px-[14px] py-[7px] text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="default"
+          size="sm"
           disabled={isSubmitting || !canSave}
           onClick={() => onSubmit(form)}
-          className="rounded-[7px] bg-[#2563EB] px-[14px] py-[7px] text-[12px] font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
-          {isSubmitting ? 'Saving…' : 'Save Question'}
-        </button>
+          {isSubmitting ? 'Saving…' : 'Save question'}
+        </Button>
       </div>
     </div>
   )
@@ -578,13 +581,14 @@ export default function InterviewPrepPage() {
             Tap a card to reveal your answer.
           </p>
         </div>
-        <button
-          className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700"
+        <Button
+          variant="default"
+          size="sm"
           onClick={() => setCreateOpen(true)}
         >
           <Plus className="h-4 w-4" />
           New question
-        </button>
+        </Button>
       </div>
 
       {/* Toolbar card */}
@@ -662,7 +666,7 @@ export default function InterviewPrepPage() {
                   className={cn(
                     '-mt-px mr-[18px] shrink-0 border-t-2 pt-[8px] text-[12px] font-medium transition-colors',
                     isActive
-                      ? 'border-[#2563EB] text-[#2563EB] dark:border-blue-400 dark:text-blue-400'
+                      ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                   )}
                 >
@@ -722,7 +726,7 @@ export default function InterviewPrepPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-h-[95vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>New Question</DialogTitle>
+            <DialogTitle>New question</DialogTitle>
             <DialogDescription className="sr-only">
               Add a new question to your interview question bank.
             </DialogDescription>
@@ -749,7 +753,7 @@ export default function InterviewPrepPage() {
       >
         <DialogContent className="max-h-[95vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Question</DialogTitle>
+            <DialogTitle>Edit question</DialogTitle>
             <DialogDescription className="sr-only">
               Edit the question text, category, or your prepared answer.
             </DialogDescription>
