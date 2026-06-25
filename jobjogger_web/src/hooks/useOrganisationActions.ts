@@ -71,6 +71,7 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
     onSuccess: (survivingOrg) => {
       queryClient.invalidateQueries({ queryKey: ['organisations'] })
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
       toast.success('Organisations merged successfully!')
       navigate(`/organisations/${survivingOrg.id}`)
     },
