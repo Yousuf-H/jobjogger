@@ -1,6 +1,6 @@
 class Job < ApplicationRecord
   belongs_to :user
-  has_many :timeline_entries, -> { order(occurred_at: :desc) }, dependent: :destroy
+  has_many :timeline_entries, -> { order(occurred_at: :desc, created_at: :desc) }, dependent: :destroy
   belongs_to :organisation, optional: true
   belongs_to :resume_variant, optional: true
   has_many :contact_jobs, dependent: :destroy
