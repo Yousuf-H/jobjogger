@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -66,6 +67,9 @@ export function ScheduleInterviewPrompt({
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Schedule an Interview</DialogTitle>
+          <DialogDescription className="sr-only">
+            Log the details for an upcoming interview.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

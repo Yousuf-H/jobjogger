@@ -23,6 +23,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -260,6 +261,9 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Link a Contact</DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Search and link an existing contact to this job.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <ContactCombobox
@@ -290,6 +294,9 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
             <DialogContent className="max-h-[95vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add contact</DialogTitle>
+              <DialogDescription className="sr-only">
+                Create a new contact and link them to this job.
+              </DialogDescription>
               </DialogHeader>
               <ContactForm
                 key={createOpen ? 'open' : 'closed'}

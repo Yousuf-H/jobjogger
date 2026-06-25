@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -114,6 +115,11 @@ export default function AddTimelineEntryDialog({
           <DialogTitle>
             {mode === 'edit' ? 'Edit entry' : 'Log entry'}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {mode === 'edit'
+              ? 'Update this timeline entry.'
+              : 'Log a new activity on this job application.'}
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -135,6 +136,9 @@ function EditInteractionDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Interaction</DialogTitle>
+          <DialogDescription className="sr-only">
+            Update the details for this interaction.
+          </DialogDescription>
         </DialogHeader>
         <InteractionForm
           key={open ? 'open' : 'closed'}
@@ -323,6 +327,9 @@ function InteractionsTab({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Log Interaction</DialogTitle>
+              <DialogDescription className="sr-only">
+                Log a new interaction with this contact.
+              </DialogDescription>
             </DialogHeader>
             <InteractionForm
               key={addOpen ? 'open' : 'closed'}
@@ -473,6 +480,9 @@ export default function ContactDetailPage() {
             <DialogContent className="max-h-[95vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Edit contact</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Update the details for this contact.
+                </DialogDescription>
               </DialogHeader>
               <ContactForm
                 key={editOpen ? 'open' : 'closed'}

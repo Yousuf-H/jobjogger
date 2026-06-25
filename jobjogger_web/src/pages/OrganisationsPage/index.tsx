@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -127,6 +128,9 @@ function CreateOrganisationDialog() {
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add organisation</DialogTitle>
+          <DialogDescription className="sr-only">
+            Fill in the details to add a new organisation.
+          </DialogDescription>
         </DialogHeader>
         <OrganisationForm
           key={open ? 'open' : 'closed'}

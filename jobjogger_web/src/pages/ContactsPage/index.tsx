@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -182,6 +183,9 @@ export default function ContactsPage() {
           <DialogContent className="max-h-[95vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add contact</DialogTitle>
+              <DialogDescription className="sr-only">
+                Fill in the details to add a new contact.
+              </DialogDescription>
             </DialogHeader>
             <ContactForm
               key={createOpen ? 'open' : 'closed'}

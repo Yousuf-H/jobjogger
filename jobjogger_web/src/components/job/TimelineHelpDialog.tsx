@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -67,6 +68,9 @@ export default function TimelineHelpDialog() {
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Timeline Entry Types</DialogTitle>
+          <DialogDescription className="sr-only">
+            Guide to the different types of timeline entries you can log.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 pt-4">

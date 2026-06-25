@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -68,6 +69,9 @@ export default function CreateJobDialog({
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add job</DialogTitle>
+          <DialogDescription className="sr-only">
+            Fill in the details to add a new job application.
+          </DialogDescription>
         </DialogHeader>
         <JobForm
           key={open ? 'open' : 'closed'}

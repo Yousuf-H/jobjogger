@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -105,6 +106,9 @@ function TemplateFormDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit template</DialogTitle>
+          <DialogDescription className="sr-only">
+            Update your base resume template name, notes, or PDF.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
@@ -205,6 +209,11 @@ function VariantFormDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit variant' : 'New variant'}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {isEditing
+              ? 'Update this tailored variant of your resume.'
+              : 'Create a tailored variant of this resume template for a specific application.'}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">

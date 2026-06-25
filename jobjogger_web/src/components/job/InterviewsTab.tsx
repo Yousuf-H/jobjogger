@@ -183,6 +183,9 @@ function InterviewDrawer({
         {/* Fixed header */}
         <div className="shrink-0 border-b border-border px-6 pt-5 pb-[14px] pr-12">
           <DialogTitle className="text-[14px] font-medium text-foreground leading-tight">{title}</DialogTitle>
+          <DialogDescription className="sr-only">
+            Fill in the interview details including date, type, format, and prep notes.
+          </DialogDescription>
         </div>
 
         {/* Scrollable body */}
