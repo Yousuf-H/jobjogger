@@ -91,6 +91,7 @@ export default function JobsPage() {
 
   const hasFollowUp = useMemo(() => (data || []).some((j) => Boolean(j.follow_up_date)), [data])
   const hasNextInterview = useMemo(() => (data || []).some((j) => Boolean(j.next_interview_at)), [data])
+  const hasDateApplied = useMemo(() => (data || []).some((j) => Boolean(j.date_applied)), [data])
 
   const tableColumns = useMemo(
     () => createColumns(
@@ -100,8 +101,9 @@ export default function JobsPage() {
       deleteMutation.mutate,
       hasFollowUp,
       hasNextInterview,
+      hasDateApplied,
     ),
-    [handleView, archiveMutation.mutate, unarchiveMutation.mutate, deleteMutation.mutate, hasFollowUp, hasNextInterview],
+    [handleView, archiveMutation.mutate, unarchiveMutation.mutate, deleteMutation.mutate, hasFollowUp, hasNextInterview, hasDateApplied],
   )
 
   return (

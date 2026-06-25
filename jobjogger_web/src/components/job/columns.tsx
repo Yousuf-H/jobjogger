@@ -11,6 +11,7 @@ export const columns = (
   onDelete: (id: number) => void,
   hasFollowUp = false,
   hasNextInterview = false,
+  hasDateApplied = false,
 ): ColumnDef<Job>[] => {
   const cols: ColumnDef<Job>[] = [
     {
@@ -42,6 +43,23 @@ export const columns = (
       ),
     },
   ]
+
+  if (hasDateApplied) {
+    cols.push({
+      accessorKey: 'date_applied',
+      header: 'Applied',
+      enableSorting: true,
+      cell: ({ row }) => {
+        const date = row.getValue('date_applied') as string
+        if (!date) return <span className="text-muted-foreground/40 text-sm">—</span>
+        return (
+          <span className="text-muted-foreground text-sm">
+            {format(parseISO(date.split('T')[0]), 'd MMM yyyy')}
+          </span>
+        )
+      },
+    })
+  }
 
   if (hasFollowUp) {
     cols.push({
