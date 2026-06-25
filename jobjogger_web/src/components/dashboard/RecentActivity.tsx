@@ -2,6 +2,7 @@ import { useActivity } from '@/hooks/useActivity'
 import { getStatusConfig } from '@/lib/statusConfig'
 import type { ActivityEntry } from '@/types/timelineEntry'
 import type { JobStatus } from '@/types/job'
+import { IconBellOff } from '@tabler/icons-react'
 import { formatDistanceToNow } from 'date-fns'
 import { Link } from 'react-router-dom'
 
@@ -64,7 +65,10 @@ export function RecentActivity() {
           ))}
         </div>
       ) : !entries?.length ? (
-        <p className="py-6 text-center text-[13px] text-muted-foreground">No activity yet</p>
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <IconBellOff className="h-6 w-6 text-muted-foreground/50" />
+          <p className="text-[13px] text-muted-foreground">No activity yet</p>
+        </div>
       ) : (
         <ul>
           {entries.map((entry, i) => {

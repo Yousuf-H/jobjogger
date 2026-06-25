@@ -27,7 +27,7 @@ export function StatusChart({ data }: StatusChartProps) {
         style={{ display: 'flex', height: 8 }}
       >
         {total === 0 ? (
-          <div className="w-full bg-muted/50" />
+          <div className="w-full rounded-[8px] bg-border" />
         ) : (
           data.filter((item) => item.count > 0).map((item) => (
             <div
