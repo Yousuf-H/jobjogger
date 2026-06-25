@@ -50,7 +50,7 @@ export function NavUser({ user, signout }: NavUserProps) {
                 <span className="truncate text-[13px] font-medium text-sidebar-foreground">
                   {user.name}
                 </span>
-                <span className="text-[11px] text-sidebar-foreground/60">Settings</span>
+                <span className="truncate text-[11px] text-sidebar-foreground/60">{user.email}</span>
               </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
