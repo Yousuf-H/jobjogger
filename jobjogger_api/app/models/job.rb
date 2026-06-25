@@ -180,21 +180,21 @@ class Job < ApplicationRecord
       timeline_entries.create!(
         entry_type: "status_change",
         description: "Status changed from wishlist to applied",
-        occurred_at: updated_at.beginning_of_day,
+        occurred_at: updated_at,
         metadata: { from: "wishlist", to: "applied" }
       )
 
       timeline_entries.create!(
         entry_type: "status_change",
         description: "Status changed from applied to #{to_status}",
-        occurred_at: updated_at.beginning_of_day + 1.second,
+        occurred_at: updated_at + 1.second,
         metadata: { from: "applied", to: to_status }
       )
     else
       timeline_entries.create!(
         entry_type: "status_change",
         description: "Status changed from #{from_status} to #{to_status}",
-        occurred_at: updated_at.beginning_of_day,
+        occurred_at: updated_at,
         metadata: { from: from_status, to: to_status }
       )
     end
