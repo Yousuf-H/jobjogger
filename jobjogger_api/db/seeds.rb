@@ -37,7 +37,8 @@ def create_job_with_history(user:, attrs:, status_progression: [], days_between:
 
   status_progression.each do |target_status|
     current_time += rand(1..days_between).days
-    job.update!(status: target_status, updated_at: current_time)
+    extra = target_status == "applied" ? { date_applied: current_time.to_date } : {}
+    job.update!(status: target_status, updated_at: current_time, **extra)
   end
 
   job
