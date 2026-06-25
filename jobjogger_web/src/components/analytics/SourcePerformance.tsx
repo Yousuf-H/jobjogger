@@ -10,17 +10,14 @@ function formatSource(source: string): string {
   return source.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-const APPLIED_COLOR = '#185FA5'
-const INTERVIEW_COLOR = '#85B7EB'
-
 const chartConfig = {
   applied: {
     label: 'Applied',
-    color: APPLIED_COLOR,
+    color: 'var(--chart-brand)',
   },
   got_interview: {
     label: 'Got interview',
-    color: INTERVIEW_COLOR,
+    color: 'var(--chart-brand-muted)',
   },
 } satisfies ChartConfig
 
@@ -60,10 +57,10 @@ export function SourcePerformance({ data }: SourcePerformanceProps) {
                       axisLine={false}
                       fontSize={11}
                     />
-                    <Bar dataKey="applied" fill={APPLIED_COLOR} radius={4} barSize={24}>
+                    <Bar dataKey="applied" fill="var(--color-applied)" radius={4} barSize={24}>
                       <LabelList dataKey="applied" position="top" fontSize={11} offset={4} />
                     </Bar>
-                    <Bar dataKey="got_interview" fill={INTERVIEW_COLOR} radius={4} barSize={24}>
+                    <Bar dataKey="got_interview" fill="var(--color-got_interview)" radius={4} barSize={24}>
                       <LabelList dataKey="got_interview" position="top" fontSize={11} offset={4} />
                     </Bar>
                   </BarChart>
@@ -74,11 +71,11 @@ export function SourcePerformance({ data }: SourcePerformanceProps) {
             {/* Custom legend — squares, no dot circles */}
             <div className="mt-3 flex items-center gap-5">
               <div className="flex items-center gap-1.5">
-                <div className="h-[10px] w-[10px] rounded-[2px]" style={{ background: APPLIED_COLOR }} />
+                <div className="h-[10px] w-[10px] rounded-[2px]" style={{ background: 'var(--chart-brand)' }} />
                 <span className="text-[11px] text-muted-foreground">Applied</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="h-[10px] w-[10px] rounded-[2px]" style={{ background: INTERVIEW_COLOR }} />
+                <div className="h-[10px] w-[10px] rounded-[2px]" style={{ background: 'var(--chart-brand-muted)' }} />
                 <span className="text-[11px] text-muted-foreground">Got interview</span>
               </div>
             </div>

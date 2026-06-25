@@ -29,12 +29,10 @@ function formatLabel(dateStr: string, mode: 'weekly' | 'monthly'): string {
   return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
 }
 
-const BRAND_BLUE = '#185FA5'
-
 const chartConfig = {
   count: {
     label: 'Applications',
-    color: BRAND_BLUE,
+    color: 'var(--chart-brand)',
   },
 }
 
@@ -103,8 +101,8 @@ export function ActivityChart({ weekly, monthly }: ActivityChartProps) {
             >
               <defs>
                 <linearGradient id="activityFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={BRAND_BLUE} stopOpacity={0.15} />
-                  <stop offset="95%" stopColor={BRAND_BLUE} stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--chart-brand)" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="var(--chart-brand)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -115,7 +113,7 @@ export function ActivityChart({ weekly, monthly }: ActivityChartProps) {
                 dataKey="count"
                 type="natural"
                 fill="url(#activityFill)"
-                stroke={BRAND_BLUE}
+                stroke="var(--chart-brand)"
                 strokeWidth={2}
               />
             </AreaChart>

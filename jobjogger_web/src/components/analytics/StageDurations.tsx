@@ -9,7 +9,7 @@ interface StageDurationsProps {
 const chartConfig = {
   avg_days: {
     label: 'Avg. days',
-    color: '#185FA5',
+    color: 'var(--chart-brand)',
   },
 } satisfies ChartConfig
 
