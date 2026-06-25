@@ -16,7 +16,7 @@ export const columns = (
     {
       accessorKey: 'company_name',
       header: 'Company',
-      enableSorting: false,
+      enableSorting: true,
       cell: ({ row }) => (
         <span className="font-medium text-sm">{row.original.company_name}</span>
       ),
@@ -34,7 +34,7 @@ export const columns = (
     {
       accessorKey: 'status',
       header: 'Status',
-      enableSorting: false,
+      enableSorting: true,
       cell: ({ row }) => (
         <div onClick={(e) => e.stopPropagation()}>
           <StatusBadge job={row.original} />
@@ -47,7 +47,7 @@ export const columns = (
     cols.push({
       accessorKey: 'follow_up_date',
       header: 'Follow-up',
-      enableSorting: false,
+      enableSorting: true,
       cell: ({ row }) => {
         const date = row.getValue('follow_up_date') as string
         if (!date) return <span className="text-muted-foreground/40 text-sm">—</span>
@@ -69,7 +69,7 @@ export const columns = (
     cols.push({
       accessorKey: 'next_interview_at',
       header: 'Next Interview',
-      enableSorting: false,
+      enableSorting: true,
       cell: ({ row }) => {
         const job = row.original
         if (!job.next_interview_at) return <span className="text-muted-foreground/40 text-sm">—</span>

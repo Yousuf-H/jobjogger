@@ -154,7 +154,7 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
       direction = params[:direction] == "desc" ? "desc" : "asc"
       jobs = jobs.order("#{params[:sort]} #{direction}")
     else
-      jobs = jobs.order(updated_at: :desc)
+      jobs = jobs.order(Arel.sql("follow_up_date ASC NULLS LAST, updated_at DESC"))
     end
 
     jobs
