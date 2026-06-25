@@ -23,6 +23,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -260,6 +261,9 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Link a Contact</DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Search and link an existing contact to this job.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <ContactCombobox
@@ -270,10 +274,10 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
                   <Button
                     onClick={handleLink}
                     disabled={!selectedContactId || linkMutation.isPending}
-                    variant="success"
+                    variant="default"
                     className="w-full"
                   >
-                    {linkMutation.isPending ? 'Linking...' : 'Link Contact'}
+                    {linkMutation.isPending ? 'Linking...' : 'Link contact'}
                   </Button>
                 </div>
               </DialogContent>
@@ -282,14 +286,17 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
 
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
-              <Button variant="success" size="sm">
+              <Button variant="default" size="sm">
                 <Users className="mr-1.5 h-3.5 w-3.5" />
-                New Contact
+                New contact
               </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[95vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>New Contact</DialogTitle>
+                <DialogTitle>Add contact</DialogTitle>
+              <DialogDescription className="sr-only">
+                Create a new contact and link them to this job.
+              </DialogDescription>
               </DialogHeader>
               <ContactForm
                 key={createOpen ? 'open' : 'closed'}

@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -67,6 +68,9 @@ export default function TimelineHelpDialog() {
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Timeline Entry Types</DialogTitle>
+          <DialogDescription className="sr-only">
+            Guide to the different types of timeline entries you can log.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 pt-4">
@@ -102,7 +106,7 @@ export default function TimelineHelpDialog() {
                   {item.examples.map((example, idx) => (
                     <div
                       key={idx}
-                      className="rounded-[8px] border-[0.5px] border-[#E5E7EB] bg-[#F9FAFB] p-3 text-sm dark:border-border dark:bg-muted"
+                      className="rounded-[8px] border-[0.5px] border-border bg-muted/50 p-3 text-sm"
                     >
                       <p className="text-muted-foreground mb-1 text-xs font-medium">
                         Example {idx + 1}:
@@ -115,7 +119,7 @@ export default function TimelineHelpDialog() {
             )
           })}
 
-          <div className="rounded-[8px] border border-[#BFDBFE] bg-[#EFF6FF] p-4 dark:border-blue-800 dark:bg-blue-950/30">
+          <div className="rounded-[8px] border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
             <div className="flex items-start gap-2">
               <div
                 className={cn(

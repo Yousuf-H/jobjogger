@@ -120,16 +120,16 @@ function CreateOrganisationDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700">
+        <Button size="sm" variant="default">
           <Plus className="h-4 w-4" />
           New organisation
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Organisation</DialogTitle>
-          <DialogDescription>
-            Add a company to track across your job applications.
+          <DialogTitle>Add organisation</DialogTitle>
+          <DialogDescription className="sr-only">
+            Fill in the details to add a new organisation.
           </DialogDescription>
         </DialogHeader>
         <OrganisationForm

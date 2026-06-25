@@ -157,9 +157,9 @@ function EditOrganisationDialog({
       </DialogTrigger>
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Organisation</DialogTitle>
-          <DialogDescription>
-            Update the details for {org.name}.
+          <DialogTitle>Edit organisation</DialogTitle>
+          <DialogDescription className="sr-only">
+            Update the details for this organisation.
           </DialogDescription>
         </DialogHeader>
         <OrganisationForm

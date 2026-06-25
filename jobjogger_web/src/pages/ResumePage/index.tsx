@@ -74,8 +74,8 @@ function TemplateCreateDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>New resume template</DialogTitle>
-          <DialogDescription>
-            A template is your base resume. You'll create tailored variants from it.
+          <DialogDescription className="sr-only">
+            Create a base resume template. You can add tailored variants from it later.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -237,14 +237,14 @@ export default function ResumePage() {
             {count} {count === 1 ? 'template' : 'templates'}
           </p>
         </div>
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded-[8px] bg-[#2563EB] px-[14px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700"
+        <Button
+          size="sm"
+          variant="default"
           onClick={() => setCreateOpen(true)}
         >
           <Plus className="h-4 w-4" />
           New template
-        </button>
+        </Button>
       </div>
 
       {/* Empty state */}
