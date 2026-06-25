@@ -177,7 +177,7 @@ export default function ContactsPage() {
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="default">
+            <Button variant="default">
               <Plus className="h-4 w-4" />
               New contact
             </Button>

@@ -238,7 +238,6 @@ export default function ResumePage() {
           </p>
         </div>
         <Button
-          size="sm"
           variant="default"
           onClick={() => setCreateOpen(true)}
         >
