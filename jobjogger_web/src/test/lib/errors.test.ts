@@ -38,6 +38,14 @@ describe('extractErrorMessage', () => {
     expect(extractErrorMessage(error, 'no response')).toBe('no response')
   })
 
+  it('returns fallback when error is null', () => {
+    expect(extractErrorMessage(null, 'null fallback')).toBe('null fallback')
+  })
+
+  it('returns fallback when error is undefined', () => {
+    expect(extractErrorMessage(undefined, 'undef fallback')).toBe('undef fallback')
+  })
+
   it('prefers status.message over errors[0]', () => {
     const error = makeAxiosError({
       status: { message: 'Primary message' },

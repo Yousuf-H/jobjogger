@@ -16,6 +16,17 @@ interface UseTimelineEntryActionsOptions {
   onUpdateSuccess?: () => void
 }
 
+/**
+ * Provides create and update mutations for timeline entries on a job.
+ *
+ * Both mutations call `invalidateJobQueries` on success so the job detail
+ * page (which embeds the timeline) immediately reflects the change.
+ *
+ * @param options.jobId           - The job that owns the timeline entries.
+ * @param options.onCreateSuccess - Fired after a successful create (e.g. close dialog).
+ * @param options.onUpdateSuccess - Fired after a successful update.
+ * @returns `{ createMutation, updateMutation }`
+ */
 export function useTimelineEntryActions({
   jobId,
   onCreateSuccess,

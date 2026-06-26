@@ -10,6 +10,17 @@ import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+/**
+ * Provides write mutations for resume variants and job-resume linking.
+ *
+ * All mutations invalidate both `resumeVariants.all` and `resumeTemplates.all`
+ * so template detail pages (which embed variants) stay in sync.
+ *
+ * @param templateId - The parent template ID. Required for `createMutation`
+ *                     (the new variant is scoped to this template).
+ * @returns `{ createMutation, updateMutation, deleteMutation, linkMutation, invalidate }`
+ *   - `linkMutation` accepts `{ jobId, variantId }` where `variantId: null` unlinks.
+ */
 export function useResumeVariantActions(templateId?: number) {
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()

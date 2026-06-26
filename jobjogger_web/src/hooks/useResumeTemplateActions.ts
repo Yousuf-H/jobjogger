@@ -9,6 +9,16 @@ import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+/**
+ * Provides write mutations for resume templates.
+ *
+ * All mutations invalidate `resumeTemplates.all` on success.
+ * Templates support PDF file uploads — pass a `File` object in the `pdf` field.
+ *
+ * @returns `{ createMutation, updateMutation, deleteMutation, invalidate }`
+ *   - `invalidate` is exposed so callers can manually trigger a refetch after
+ *     related operations (e.g. after variant changes).
+ */
 export function useResumeTemplateActions() {
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()

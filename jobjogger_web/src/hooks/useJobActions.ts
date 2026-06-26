@@ -11,6 +11,21 @@ interface UseJobActionsOptions {
   onDeleteSuccess?: () => void
 }
 
+/**
+ * Provides archive, unarchive, and delete mutations for a job, plus a navigation helper.
+ *
+ * All mutations invalidate the full job query set on success so lists and
+ * detail views automatically refetch. Toast notifications are shown on
+ * both success and error.
+ *
+ * @param options.onDeleteSuccess - Optional callback fired after a successful delete
+ *                                  (e.g. to close a detail panel or navigate away).
+ * @returns An object with:
+ *   - `archiveMutation`   — sets `archived_at` on the job
+ *   - `unarchiveMutation` — clears `archived_at`
+ *   - `deleteMutation`    — permanently removes the job
+ *   - `handleView(id)`    — navigates to `/jobs/:id`
+ */
 export function useJobActions(options?: UseJobActionsOptions) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()

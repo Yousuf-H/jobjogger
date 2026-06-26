@@ -1,12 +1,23 @@
 import { cn } from '@/lib/utils'
 
 interface MobileListRowProps {
+  /** Single character shown inside the avatar circle (typically the first letter of a name). */
   initial: string
+  /** Tailwind class string from `avatarColorById` or `avatarColorByName` (e.g. `"bg-avatar-1/15 text-avatar-1"`). */
   avatarColor: string
+  /** Click handler — also fires on Enter / Space for keyboard accessibility. */
   onClick: () => void
+  /** Row content rendered to the right of the avatar. Typically two lines of text. */
   children: React.ReactNode
 }
 
+/**
+ * A mobile-optimised list row with an avatar circle and arbitrary child content.
+ *
+ * Used on mobile breakpoints as a replacement for `DataTable` rows. Renders an
+ * accessible `role="button"` div that responds to click, Enter, and Space.
+ * Pair with `avatarColorById` or `avatarColorByName` for the `avatarColor` prop.
+ */
 export function MobileListRow({ initial, avatarColor, onClick, children }: MobileListRowProps) {
   return (
     <div

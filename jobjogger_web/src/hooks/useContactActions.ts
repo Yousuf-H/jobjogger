@@ -18,6 +18,20 @@ interface UseContactActionsOptions {
   onDeleteSuccess?: () => void
 }
 
+/**
+ * Provides all write mutations for contacts and their interactions.
+ *
+ * All mutations invalidate the contacts query set on success so lists and
+ * detail views stay in sync. Link/unlink mutations additionally invalidate
+ * the `forJob` key for the affected job.
+ *
+ * @param options.onCreateSuccess - Fired after a contact is successfully created.
+ * @param options.onDeleteSuccess - Fired after a contact is successfully deleted.
+ * @returns An object with named mutations:
+ *   - `createMutation` / `updateMutation` / `deleteMutation` — CRUD for contacts
+ *   - `linkMutation` / `unlinkMutation` — manage contact↔job associations
+ *   - `createInteractionMutation` / `updateInteractionMutation` / `deleteInteractionMutation`
+ */
 export function useContactActions(options?: UseContactActionsOptions) {
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()

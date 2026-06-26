@@ -21,6 +21,19 @@ interface UseOrganisationActionsOptions {
   onDeleteSuccess?: () => void
 }
 
+/**
+ * Provides write mutations for organisations, including a merge operation.
+ *
+ * All mutations invalidate the organisation query set on success. The merge
+ * mutation additionally invalidates jobs and contacts because merging
+ * reassigns those records to the surviving organisation.
+ *
+ * @param options.onDeleteSuccess - Fired after a successful delete.
+ * @returns An object with named mutations:
+ *   - `createMutation` / `updateMutation` / `deleteMutation` — standard CRUD
+ *   - `mergeMutation`           — merges a duplicate into a target, then navigates to the survivor
+ *   - `dismissReviewMutation`   — dismisses the duplicate-review flag on an organisation
+ */
 export function useOrganisationActions(options?: UseOrganisationActionsOptions) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()

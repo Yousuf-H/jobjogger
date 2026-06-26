@@ -29,6 +29,19 @@ interface StatusBadgeProps {
   job: Job
 }
 
+/**
+ * Interactive status badge that doubles as an inline status-change dropdown.
+ *
+ * Clicking the badge opens a dropdown listing all valid statuses. For wishlist
+ * jobs, terminal statuses (`accepted`, `rejected`, `ghosted`, `withdrawn`) are
+ * hidden. After changing status, three query sets are invalidated: jobs, activity,
+ * and analytics.
+ *
+ * When the new status is `phone_screen` or `interviewing`, a
+ * `ScheduleInterviewPrompt` dialog is shown to encourage scheduling the round.
+ *
+ * @param job - The job whose status to display and allow changing.
+ */
 export function StatusBadge({ job }: StatusBadgeProps) {
   const [open, setOpen] = useState(false)
   const [promptOpen, setPromptOpen] = useState(false)
