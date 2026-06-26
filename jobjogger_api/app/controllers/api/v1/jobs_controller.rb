@@ -55,6 +55,8 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
         ).call
         updates[:organisation_id] = org&.id
       elsif updates.key?(:organisation_id) && updates[:organisation_id].present?
+        # TODO: can be removed after model validation confirmed in prod
+        # Job#organisation_belongs_to_user now validates this at the model layer.
         unless current_user.organisations.exists?(updates[:organisation_id])
           return render json: { errors: ['Organisation not found'] }, status: :not_found
         end
@@ -64,6 +66,8 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
       if raw.key?(:resume_variant_id) || raw.key?("resume_variant_id")
         variant_id = raw[:resume_variant_id]
         if variant_id.present?
+          # TODO: can be removed after model validation confirmed in prod
+          # Job#resume_variant_belongs_to_user now validates this at the model layer.
           unless current_user.resume_variants.exists?(variant_id)
             return render json: { errors: ['Resume variant not found'] }, status: :not_found
           end

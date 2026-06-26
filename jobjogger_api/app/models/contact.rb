@@ -10,4 +10,15 @@ class Contact < ApplicationRecord
   INTERACTION_TYPES = %w[email call coffee_chat linkedin interview other].freeze
 
   validates :name, presence: true
+  validate :organisation_belongs_to_user
+
+  private
+
+  def organisation_belongs_to_user
+    return if organisation_id.blank?
+    return unless organisation
+    return if organisation.user_id == user_id
+
+    errors.add(:organisation, "does not belong to this user")
+  end
 end

@@ -52,6 +52,8 @@ class Api::V1::ContactsController < Api::V1::AuthenticatedController
 
   def update
     if contact_params[:organisation_id].present?
+      # TODO: can be removed after model validation confirmed in prod
+      # Contact#organisation_belongs_to_user now validates this at the model layer.
       organisation = current_user.organisations.find_by(id: contact_params[:organisation_id])
       return render json: { error: "Organisation not found" }, status: :not_found unless organisation
     end

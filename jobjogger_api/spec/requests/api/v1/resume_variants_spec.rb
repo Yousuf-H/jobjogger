@@ -94,7 +94,8 @@ RSpec.describe "Resume Variants API", type: :request do
 
     include_examples "user-scoped resource" do
       let(:make_request_for_other_user) do
-        other = create(:resume_variant, resume_template: create(:resume_template, user: create(:user)), user: create(:user))
+        other_user = create(:user)
+        other = create(:resume_variant, resume_template: create(:resume_template, user: other_user), user: other_user)
         -> { get "/api/v1/resume_variants/#{other.id}", headers: headers }
       end
     end
@@ -113,7 +114,8 @@ RSpec.describe "Resume Variants API", type: :request do
 
     include_examples "user-scoped resource" do
       let(:make_request_for_other_user) do
-        other = create(:resume_variant, resume_template: create(:resume_template, user: create(:user)), user: create(:user))
+        other_user = create(:user)
+        other = create(:resume_variant, resume_template: create(:resume_template, user: other_user), user: other_user)
         -> { patch "/api/v1/resume_variants/#{other.id}", params: { resume_variant: { notes: "X" } }.to_json, headers: headers }
       end
     end
@@ -134,7 +136,8 @@ RSpec.describe "Resume Variants API", type: :request do
 
     include_examples "user-scoped resource" do
       let(:make_request_for_other_user) do
-        other = create(:resume_variant, resume_template: create(:resume_template, user: create(:user)), user: create(:user))
+        other_user = create(:user)
+        other = create(:resume_variant, resume_template: create(:resume_template, user: other_user), user: other_user)
         -> { delete "/api/v1/resume_variants/#{other.id}", headers: headers }
       end
     end

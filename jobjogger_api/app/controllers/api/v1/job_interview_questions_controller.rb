@@ -35,6 +35,8 @@ class Api::V1::JobInterviewQuestionsController < Api::V1::AuthenticatedControlle
   def associate_existing
     question = current_user.interview_questions.find(params[:interview_question_id])
 
+    # TODO: can be removed after model validation confirmed in prod
+    # JobInterviewQuestion#question_scope_compatible_with_job now validates both of these at the model layer.
     if question.job_id.present? && question.job_id != @job.id
       return render json: { error: "This question is scoped to a different job and cannot be pinned here" }, status: :unprocessable_content
     end

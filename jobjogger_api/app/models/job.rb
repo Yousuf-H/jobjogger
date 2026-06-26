@@ -70,6 +70,8 @@ class Job < ApplicationRecord
   validate :valid_url_format
   validates :job_url, uniqueness: { scope: :user_id }, allow_nil: true
   validates :source_other, presence: true, if: :other_source?
+  validate :organisation_belongs_to_user
+  validate :resume_variant_belongs_to_user
 
   scope :active, -> { where(archived_at: nil).where.not(status: TERMINAL_STATUSES) }
   scope :archived, -> { where.not(archived_at: nil) }
@@ -90,6 +92,22 @@ class Job < ApplicationRecord
   end
 
   private
+
+  def organisation_belongs_to_user
+    return if organisation_id.blank?
+    return unless organisation
+    return if organisation.user_id == user_id
+
+    errors.add(:organisation, "does not belong to this user")
+  end
+
+  def resume_variant_belongs_to_user
+    return if resume_variant_id.blank?
+    return unless resume_variant
+    return if resume_variant.user_id == user_id
+
+    errors.add(:resume_variant, "does not belong to this user")
+  end
 
   def valid_url_format
     return if job_url.blank?

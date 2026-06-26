@@ -540,9 +540,10 @@ RSpec.describe "Jobs API", type: :request do
     end
 
     it "returns 404 when the variant belongs to another user" do
+      other_user = create(:user)
       other_variant = create(:resume_variant,
-                             resume_template: create(:resume_template, user: create(:user)),
-                             user: create(:user))
+                             resume_template: create(:resume_template, user: other_user),
+                             user: other_user)
       patch_job(resume_variant_id: other_variant.id)
       expect(response).to have_http_status(:not_found)
       expect(job.reload.resume_variant_id).to be_nil
