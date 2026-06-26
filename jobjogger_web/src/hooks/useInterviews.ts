@@ -16,7 +16,7 @@ import { getCurrentUserId } from '@/lib/auth'
 import { invalidateJobQueries } from '@/lib/invalidation'
 import { QUERY_KEYS } from '@/lib/queryKeys'
 import type { Interview, InterviewQuestion } from '@/types/interview'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 // --- Interviews ---
@@ -100,8 +100,7 @@ export function useInterviewActions(jobId: number) {
  * - `'org'`      — questions scoped to a specific `organisation_id`
  *
  * The query is automatically disabled when required scope params are missing
- * (e.g. `scope: 'job'` with no `job_id`). Uses `keepPreviousData` to avoid
- * list flash while filters change.
+ * (e.g. `scope: 'job'` with no `job_id`).
  *
  * @param params          - Filter params: `scope`, `job_id`, `organisation_id`, `category`.
  * @param options.enabled - External enabled guard (ANDed with the internal scope guard).
@@ -124,7 +123,6 @@ export function useInterviewQuestions(
     queryKey: QUERY_KEYS.interviewQuestions.list(userId, params),
     queryFn: () => fetchInterviewQuestions(params),
     enabled: options?.enabled !== undefined ? options.enabled && defaultEnabled : defaultEnabled,
-    placeholderData: keepPreviousData,
   })
 }
 

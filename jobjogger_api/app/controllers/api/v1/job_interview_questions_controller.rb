@@ -45,6 +45,7 @@ class Api::V1::JobInterviewQuestionsController < Api::V1::AuthenticatedControlle
 
   def create_and_associate
     question = current_user.interview_questions.build(new_question_params)
+    question.job_id = @job.id
     ActiveRecord::Base.transaction do
       question.save!
       @job.job_interview_questions.create!(interview_question: question)
