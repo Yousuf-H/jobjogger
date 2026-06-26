@@ -30,8 +30,4 @@ module JwtAuthenticatable
   def current_user
     @current_user
   end
-
-  def jwt_secret
-    Rails.application.credentials.devise_jwt_secret_key || ENV["DEVISE_JWT_SECRET_KEY"]
-  end
 end

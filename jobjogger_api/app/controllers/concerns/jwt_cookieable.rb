@@ -42,8 +42,4 @@ module JwtCookieable
   def jwt_cookie_expiry
     1.day.from_now
   end
-
-  def jwt_secret
-    Rails.application.credentials.devise_jwt_secret_key || ENV["DEVISE_JWT_SECRET_KEY"]
-  end
 end
