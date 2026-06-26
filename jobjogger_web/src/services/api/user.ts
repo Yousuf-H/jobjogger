@@ -1,12 +1,5 @@
 import type { User } from '@/types/user'
-import { z } from 'zod'
 import { apiClient } from './client'
-
-const userSchema = z.object({
-  id: z.number(),
-  email: z.string(),
-  name: z.string(),
-})
 
 export async function updateProfile(data: {
   name: string
@@ -80,7 +73,7 @@ export async function deleteAvatar() {
 
 export async function fetchMe(): Promise<User> {
   const response = await apiClient.get('/users/me')
-  return userSchema.parse(response.data.user) as User
+  return response.data.user as User
 }
 
 export async function acceptTermsApi() {
