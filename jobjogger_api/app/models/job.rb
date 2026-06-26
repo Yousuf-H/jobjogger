@@ -105,28 +105,16 @@ class Job < ApplicationRecord
 
   def organisation_belongs_to_user
     return if organisation_id.blank?
+    return if organisation&.user_id == user_id
 
-    unless organisation
-      errors.add(:organisation, "does not exist")
-      return
-    end
-
-    return if organisation.user_id == user_id
-
-    errors.add(:organisation, "does not belong to this user")
+    errors.add(:organisation, "not found")
   end
 
   def resume_variant_belongs_to_user
     return if resume_variant_id.blank?
+    return if resume_variant&.user_id == user_id
 
-    unless resume_variant
-      errors.add(:resume_variant, "does not exist")
-      return
-    end
-
-    return if resume_variant.user_id == user_id
-
-    errors.add(:resume_variant, "does not belong to this user")
+    errors.add(:resume_variant, "not found")
   end
 
   def valid_url_format

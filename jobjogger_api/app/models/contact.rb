@@ -21,14 +21,8 @@ class Contact < ApplicationRecord
 
   def organisation_belongs_to_user
     return if organisation_id.blank?
+    return if organisation&.user_id == user_id
 
-    unless organisation
-      errors.add(:organisation, "does not exist")
-      return
-    end
-
-    return if organisation.user_id == user_id
-
-    errors.add(:organisation, "does not belong to this user")
+    errors.add(:organisation, "not found")
   end
 end
