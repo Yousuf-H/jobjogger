@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 module Notifications
+  # Fires a follow_up_due notification for each active job whose follow_up_date
+  # is today or in the past. Respects the user's notify_follow_up_reminders preference.
   class FollowUpDueEvaluator < BaseEvaluator
+    # @return [void]
     def call
       return unless @user.notify_follow_up_reminders?
 

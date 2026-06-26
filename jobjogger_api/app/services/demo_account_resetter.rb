@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
+# Wipes all data belonging to the demo user and re-seeds it with a curated
+# set of realistic jobs, contacts, interviews, and questions. Safe to call
+# repeatedly; exits silently when no demo user exists.
 class DemoAccountResetter
-  def self.call
-    new.call
-  end
-
+  # @return [void]
   def call
     demo_user = User.find_by(demo: true)
 

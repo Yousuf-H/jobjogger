@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 module Notifications
+  # Abstract base for notification evaluators. Subclasses implement #call to
+  # inspect the user's jobs and fire notifications. Provides a 24-hour
+  # deduplication window so the same notification is not sent twice in a day.
   class BaseEvaluator
     DEDUP_WINDOW = 24.hours
 
+    # @param user [User]
     def initialize(user)
       @user = user
     end

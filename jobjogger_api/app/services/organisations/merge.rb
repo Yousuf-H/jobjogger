@@ -1,12 +1,19 @@
 # frozen_string_literal: true
 
 module Organisations
+  # Merges a duplicate organisation into a target, re-linking all associated jobs,
+  # contacts, and interview questions. The duplicate's name is absorbed into the
+  # target's aliases list, and any fields that are blank on the target are filled
+  # in from the duplicate. The duplicate record is destroyed at the end.
   class Merge
+    # @param duplicate [Organisation] the organisation to absorb and destroy
+    # @param target [Organisation] the organisation to keep
     def initialize(duplicate:, target:)
       @duplicate = duplicate
       @target = target
     end
 
+    # @return [Boolean] true on success, false when duplicate and target are the same record
     def call
       return false if @duplicate.id == @target.id
 

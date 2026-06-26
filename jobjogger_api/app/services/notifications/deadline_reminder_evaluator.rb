@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 module Notifications
+  # Fires a deadline_reminder notification for each wishlist or applied job whose
+  # application_deadline falls within the next 48 hours. Comparison is done
+  # date-to-date in SQL to avoid UTC vs app-timezone mismatches. Respects the
+  # user's notify_deadline_reminder preference.
   class DeadlineReminderEvaluator < BaseEvaluator
     LOOKAHEAD_HOURS = 48
 
+    # @return [void]
     def call
       return unless @user.notify_deadline_reminder?
 

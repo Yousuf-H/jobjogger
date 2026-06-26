@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 module Notifications
+  # Fires an interview_reminder notification for each upcoming interview scheduled
+  # within the next 24 hours on a non-archived job. Deduplication ensures at most
+  # one notification per job per 24-hour window. Respects the user's
+  # notify_interview_reminders preference.
   class InterviewReminderEvaluator < BaseEvaluator
     LOOKAHEAD_HOURS = 24
 
+    # @return [void]
     def call
       return unless @user.notify_interview_reminders?
 
