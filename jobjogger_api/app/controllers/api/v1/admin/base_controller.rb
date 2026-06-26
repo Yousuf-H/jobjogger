@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Base for admin-only controllers. Enforces admin? check after JWT authentication.
 class Api::V1::Admin::BaseController < Api::V1::AuthenticatedController
   before_action :require_admin!
 

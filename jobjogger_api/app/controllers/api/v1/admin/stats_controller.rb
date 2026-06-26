@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Returns platform-wide usage statistics for admin users: signups, sessions,
+# active users, job counts, and demo account summary — all segmented by period.
 class Api::V1::Admin::StatsController < Api::V1::Admin::BaseController
   VALID_PERIODS = %w[daily weekly monthly].freeze
 

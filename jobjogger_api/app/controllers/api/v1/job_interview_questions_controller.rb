@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Manages interview questions pinned to a specific job via the JobInterviewQuestion join table.
 class Api::V1::JobInterviewQuestionsController < Api::V1::AuthenticatedController
   before_action :set_job
 
@@ -34,17 +35,6 @@ class Api::V1::JobInterviewQuestionsController < Api::V1::AuthenticatedControlle
 
   def associate_existing
     question = current_user.interview_questions.find(params[:interview_question_id])
-
-    # TODO: can be removed after model validation confirmed in prod
-    # JobInterviewQuestion#question_scope_compatible_with_job now validates both of these at the model layer.
-    if question.job_id.present? && question.job_id != @job.id
-      return render json: { error: "This question is scoped to a different job and cannot be pinned here" }, status: :unprocessable_content
-    end
-
-    if question.organisation_id.present? && question.organisation_id != @job.organisation_id
-      return render json: { error: "This question is scoped to a different organisation and cannot be pinned here" }, status: :unprocessable_content
-    end
-
     @job.job_interview_questions.find_or_create_by!(interview_question: question)
     render json: question, status: :created
   rescue ActiveRecord::RecordNotFound

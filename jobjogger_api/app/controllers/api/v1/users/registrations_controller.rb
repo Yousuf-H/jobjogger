@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Manages user registration, profile updates, password changes, avatar, Google linking,
+# notification preferences, and account deletion. Demo accounts are blocked from mutations.
 class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   include JwtCookieable
   include JwtAuthenticatable

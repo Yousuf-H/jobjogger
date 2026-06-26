@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Handles email/password sign-in and sign-out, issuing and clearing the JWT cookie.
 class Api::V1::Users::SessionsController < Devise::SessionsController
   include JwtCookieable
 

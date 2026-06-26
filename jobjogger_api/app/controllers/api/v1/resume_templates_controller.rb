@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Manages resume templates and their associated variants for the authenticated user.
 class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
   before_action :set_template, only: [ :show, :update, :destroy ]
 
@@ -10,11 +11,46 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
       .group("resume_templates.id")
       .order(:name)
 
-    render json: templates.map { |t| template_json(t) }
+    render json: templates.map { |t|
+      {
+        id:            t.id,
+        name:          t.name,
+        notes:         t.notes,
+        variant_count: t.variant_count.to_i,
+        pdf_url:       pdf_url(t),
+        pdf_filename:  t.pdf.attached? ? t.pdf.filename.to_s : nil,
+        created_at:    t.created_at,
+        updated_at:    t.updated_at
+      }
+    }
   end
 
   def show
-    render json: template_json(@template, include_variants: true)
+    variants = @template.resume_variants.includes(:jobs)
+
+    render json: {
+      id:            @template.id,
+      name:          @template.name,
+      notes:         @template.notes,
+      variant_count: variants.length,
+      pdf_url:       pdf_url(@template),
+      pdf_filename:  @template.pdf.attached? ? @template.pdf.filename.to_s : nil,
+      created_at:    @template.created_at,
+      updated_at:    @template.updated_at,
+      variants:      variants.map { |v|
+        {
+          id:                 v.id,
+          resume_template_id: v.resume_template_id,
+          template_name:      @template.name,
+          notes:              v.notes,
+          pdf_url:            pdf_url(v),
+          pdf_filename:       v.pdf.attached? ? v.pdf.filename.to_s : nil,
+          linked_jobs:        v.jobs.map { |j| { id: j.id, company_name: j.company_name, job_title: j.job_title } },
+          created_at:         v.created_at,
+          updated_at:         v.updated_at
+        }
+      }
+    }
   end
 
   def create
@@ -26,7 +62,16 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
 
     if template.save
       template.pdf.attach(params[:pdf]) if params[:pdf].present?
-      render json: template_json(template), status: :created
+      render json: {
+        id:            template.id,
+        name:          template.name,
+        notes:         template.notes,
+        variant_count: 0,
+        pdf_url:       pdf_url(template),
+        pdf_filename:  template.pdf.attached? ? template.pdf.filename.to_s : nil,
+        created_at:    template.created_at,
+        updated_at:    template.updated_at
+      }, status: :created
     else
       render json: { errors: template.errors.full_messages }, status: :unprocessable_content
     end
@@ -43,7 +88,16 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
         @template.pdf.attach(params[:pdf])
         old_blob&.purge_later
       end
-      render json: template_json(@template), status: :ok
+      render json: {
+        id:            @template.id,
+        name:          @template.name,
+        notes:         @template.notes,
+        variant_count: @template.resume_variants.count,
+        pdf_url:       pdf_url(@template),
+        pdf_filename:  @template.pdf.attached? ? @template.pdf.filename.to_s : nil,
+        created_at:    @template.created_at,
+        updated_at:    @template.updated_at
+      }, status: :ok
     else
       render json: { errors: @template.errors.full_messages }, status: :unprocessable_content
     end
@@ -70,36 +124,5 @@ class Api::V1::ResumeTemplatesController < Api::V1::AuthenticatedController
     file.is_a?(ActionDispatch::Http::UploadedFile) &&
       file.content_type == "application/pdf" &&
       file.size <= 10.megabytes
-  end
-
-  def template_json(template, include_variants: false)
-    json = {
-      id:           template.id,
-      name:         template.name,
-      notes:        template.notes,
-      variant_count: template.try(:variant_count).to_i,
-      pdf_url:      pdf_url(template),
-      pdf_filename: template.pdf.attached? ? template.pdf.filename.to_s : nil,
-      created_at:   template.created_at,
-      updated_at:   template.updated_at
-    }
-
-    json[:variants] = template.resume_variants.includes(:jobs).map { |v| variant_json(v, template_name: template.name) } if include_variants
-
-    json
-  end
-
-  def variant_json(variant, template_name: nil)
-    {
-      id:                 variant.id,
-      resume_template_id: variant.resume_template_id,
-      template_name:      template_name || variant.resume_template.name,
-      notes:              variant.notes,
-      pdf_url:            pdf_url(variant),
-      pdf_filename:       variant.pdf.attached? ? variant.pdf.filename.to_s : nil,
-      linked_jobs:        variant.jobs.map { |j| { id: j.id, company_name: j.company_name, job_title: j.job_title } },
-      created_at:         variant.created_at,
-      updated_at:         variant.updated_at
-    }
   end
 end

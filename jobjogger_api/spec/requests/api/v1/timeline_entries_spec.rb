@@ -7,12 +7,13 @@ RSpec.describe "Timeline Entries API", type: :request do
   let(:headers) { auth_headers_for(user) }
   let(:job)     { create(:job, user: user) }
 
-  # ── POST /api/v1/jobs/:job_id/timeline_entries (create) ──────────────────────
+  # ── POST /api/v1/timeline_entries (create) ────────────────────────────────────
 
-  describe "POST /api/v1/jobs/:job_id/timeline_entries" do
+  describe "POST /api/v1/timeline_entries" do
     let(:valid_params) do
       {
         timeline_entry: {
+          job_id:      job.id,
           entry_type:  "note",
           description: "Had a great initial call with the hiring manager.",
           occurred_at: Time.current.iso8601
@@ -22,20 +23,20 @@ RSpec.describe "Timeline Entries API", type: :request do
 
     context "with valid parameters" do
       it "returns 201 Created" do
-        post "/api/v1/jobs/#{job.id}/timeline_entries",
+        post "/api/v1/timeline_entries",
              params: valid_params.to_json, headers: headers
         expect(response).to have_http_status(:created)
       end
 
       it "creates a timeline entry for the job" do
         expect {
-          post "/api/v1/jobs/#{job.id}/timeline_entries",
+          post "/api/v1/timeline_entries",
                params: valid_params.to_json, headers: headers
         }.to change(job.timeline_entries, :count).by(1)
       end
 
       it "returns the created entry in the response" do
-        post "/api/v1/jobs/#{job.id}/timeline_entries",
+        post "/api/v1/timeline_entries",
              params: valid_params.to_json, headers: headers
         body = json_response
         expect(body["description"]).to eq(valid_params[:timeline_entry][:description])
@@ -46,7 +47,7 @@ RSpec.describe "Timeline Entries API", type: :request do
         params_with_meta = valid_params.deep_merge(
           timeline_entry: { metadata: { interviewer: "Jane", format: "video" } }
         )
-        post "/api/v1/jobs/#{job.id}/timeline_entries",
+        post "/api/v1/timeline_entries",
               params: params_with_meta.to_json, headers: headers
         entry = TimelineEntry.last
 
@@ -56,7 +57,7 @@ RSpec.describe "Timeline Entries API", type: :request do
       it "accepts all valid entry_type values" do
         %w[note contact interview assessment follow_up].each do |type|
           params = valid_params.deep_merge(timeline_entry: { entry_type: type })
-          post "/api/v1/jobs/#{job.id}/timeline_entries",
+          post "/api/v1/timeline_entries",
                params: params.to_json, headers: headers
           expect(response).to have_http_status(:created), "Failed for entry_type: #{type}"
         end
@@ -65,31 +66,31 @@ RSpec.describe "Timeline Entries API", type: :request do
 
     context "with invalid parameters" do
       it "returns 422 when description is missing" do
-        post "/api/v1/jobs/#{job.id}/timeline_entries",
-             params: { timeline_entry: { entry_type: "note", description: "", occurred_at: Time.current } }.to_json,
+        post "/api/v1/timeline_entries",
+             params: { timeline_entry: { job_id: job.id, entry_type: "note", description: "", occurred_at: Time.current } }.to_json,
              headers: headers
         expect(response).to have_http_status(:unprocessable_content)
         expect(json_response["errors"]).to be_present
       end
 
       it "returns 422 when entry_type is missing" do
-        post "/api/v1/jobs/#{job.id}/timeline_entries",
-             params: { timeline_entry: { entry_type: nil, description: "Something", occurred_at: Time.current } }.to_json,
+        post "/api/v1/timeline_entries",
+             params: { timeline_entry: { job_id: job.id, entry_type: nil, description: "Something", occurred_at: Time.current } }.to_json,
              headers: headers
         expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns 422 when description exceeds 1000 characters" do
-        post "/api/v1/jobs/#{job.id}/timeline_entries",
-             params: { timeline_entry: { entry_type: "note", description: "x" * 1001, occurred_at: Time.current } }.to_json,
+        post "/api/v1/timeline_entries",
+             params: { timeline_entry: { job_id: job.id, entry_type: "note", description: "x" * 1001, occurred_at: Time.current } }.to_json,
              headers: headers
         expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "does not create an entry on failure" do
         expect {
-          post "/api/v1/jobs/#{job.id}/timeline_entries",
-               params: { timeline_entry: { entry_type: "note", description: "" } }.to_json,
+          post "/api/v1/timeline_entries",
+               params: { timeline_entry: { job_id: job.id, entry_type: "note", description: "" } }.to_json,
                headers: headers
         }.not_to change(TimelineEntry, :count)
       end
@@ -99,31 +100,34 @@ RSpec.describe "Timeline Entries API", type: :request do
       let(:other_job) { create(:job, user: create(:user)) }
 
       it "returns 404 Not Found" do
-        post "/api/v1/jobs/#{other_job.id}/timeline_entries",
-             params: valid_params.to_json, headers: headers
+        post "/api/v1/timeline_entries",
+             params: { timeline_entry: valid_params[:timeline_entry].merge(job_id: other_job.id) }.to_json,
+             headers: headers
         expect(response).to have_http_status(:not_found)
         expect(json_response["error"]).to match(/job not found/i)
       end
 
       it "does not create a timeline entry" do
         expect {
-          post "/api/v1/jobs/#{other_job.id}/timeline_entries",
-               params: valid_params.to_json, headers: headers
+          post "/api/v1/timeline_entries",
+               params: { timeline_entry: valid_params[:timeline_entry].merge(job_id: other_job.id) }.to_json,
+               headers: headers
         }.not_to change(TimelineEntry, :count)
       end
     end
 
     context "when the job does not exist" do
       it "returns 404 Not Found" do
-        post "/api/v1/jobs/999999/timeline_entries",
-             params: valid_params.to_json, headers: headers
+        post "/api/v1/timeline_entries",
+             params: { timeline_entry: valid_params[:timeline_entry].merge(job_id: 999999) }.to_json,
+             headers: headers
         expect(response).to have_http_status(:not_found)
       end
     end
 
     context "without authentication" do
       it "returns 401" do
-        post "/api/v1/jobs/#{job.id}/timeline_entries",
+        post "/api/v1/timeline_entries",
              params: valid_params.to_json,
              headers: { "Content-Type" => "application/json" }
         expect(response).to have_http_status(:unauthorized)

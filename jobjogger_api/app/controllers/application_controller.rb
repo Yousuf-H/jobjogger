@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Base controller providing shared helpers: catch-all not_found, user payload
+# serialization, and Active Storage URL helpers.
 class ApplicationController < ActionController::API
   include ActionController::MimeResponds
   include ActionController::Cookies

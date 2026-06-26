@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Links and unlinks contacts to a specific job via the ContactJob join table.
 class Api::V1::JobContactsController < Api::V1::AuthenticatedController
   before_action :set_job
 

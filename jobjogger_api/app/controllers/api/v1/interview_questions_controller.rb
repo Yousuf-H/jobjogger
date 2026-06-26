@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Manages the user's interview question bank with category and scope filtering.
 class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
   before_action :set_question, only: [ :update, :destroy ]
 
@@ -39,26 +40,7 @@ class Api::V1::InterviewQuestionsController < Api::V1::AuthenticatedController
   end
 
   def update
-    new_scope = scope_params
-
-    # TODO: can be removed after model validation confirmed in prod
-    # InterviewQuestion#scope_compatible_with_existing_pins now validates both of these at the model layer.
-    if new_scope[:job_id].present?
-      if @question.job_interview_questions.where.not(job_id: new_scope[:job_id]).exists?
-        return render json: { error: "Cannot scope this question to a job while it is pinned to other jobs" }, status: :unprocessable_content
-      end
-    end
-
-    if new_scope[:organisation_id].present?
-      conflicting = @question.job_interview_questions.joins(:job)
-        .where("jobs.organisation_id != ? OR jobs.organisation_id IS NULL", new_scope[:organisation_id])
-
-      if conflicting.exists?
-        return render json: { error: "Cannot scope this question to an organisation while it is pinned to jobs in other organisations" }, status: :unprocessable_content
-      end
-    end
-
-    if @question.update(question_params.merge(new_scope))
+    if @question.update(question_params.merge(scope_params))
       render json: @question
     else
       render json: { errors: @question.errors.full_messages }, status: :unprocessable_content

@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+# @api Manages timeline entries for the authenticated user's jobs.
+# All three operations (create, update, destroy) are top-level routes — job_id is
+# supplied in the request body for create rather than in the URL path.
 class Api::V1::TimelineEntriesController < Api::V1::AuthenticatedController
   before_action :set_timeline_entry, only: [:update, :destroy]
 
   def create
-    job = current_user.jobs.find(params[:job_id])
+    job_id = params.dig(:timeline_entry, :job_id) || params[:job_id]
+    job = current_user.jobs.find(job_id)
     timeline_entry = job.timeline_entries.build(timeline_entry_params)
 
     if timeline_entry.save

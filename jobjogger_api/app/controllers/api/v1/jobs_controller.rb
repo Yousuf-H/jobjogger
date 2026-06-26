@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Manages jobs for the authenticated user: CRUD, archiving, and filtering.
 class Api::V1::JobsController < Api::V1::AuthenticatedController
   before_action :set_job, only: [:show, :update, :destroy, :archive, :unarchive]
   before_action :check_demo_job_limit, only: [:create]
@@ -54,27 +55,12 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
           company_name: updates[:company_name]
         ).call
         updates[:organisation_id] = org&.id
-      elsif updates.key?(:organisation_id) && updates[:organisation_id].present?
-        # TODO: can be removed after model validation confirmed in prod
-        # Job#organisation_belongs_to_user now validates this at the model layer.
-        unless current_user.organisations.exists?(updates[:organisation_id])
-          return render json: { errors: ['Organisation not found'] }, status: :not_found
-        end
       end
 
       raw = params.fetch(:job, {})
       if raw.key?(:resume_variant_id) || raw.key?("resume_variant_id")
         variant_id = raw[:resume_variant_id]
-        if variant_id.present?
-          # TODO: can be removed after model validation confirmed in prod
-          # Job#resume_variant_belongs_to_user now validates this at the model layer.
-          unless current_user.resume_variants.exists?(variant_id)
-            return render json: { errors: ['Resume variant not found'] }, status: :not_found
-          end
-          updates[:resume_variant_id] = variant_id
-        else
-          updates[:resume_variant_id] = nil
-        end
+        updates[:resume_variant_id] = variant_id.present? ? variant_id : nil
       end
 
       job_updated = @job.update(updates)

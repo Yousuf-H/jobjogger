@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Signs in as the demo user without credentials, issuing a JWT cookie.
 class Api::V1::Demo::SessionsController < ApplicationController
   include JwtCookieable
 

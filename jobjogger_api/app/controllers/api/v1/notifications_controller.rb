@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Returns recent notifications for the authenticated user and marks them as read.
 class Api::V1::NotificationsController < Api::V1::AuthenticatedController
   before_action :set_notification, only: [ :read ]
 

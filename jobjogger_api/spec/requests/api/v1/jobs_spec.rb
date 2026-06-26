@@ -406,11 +406,11 @@ RSpec.describe "Jobs API", type: :request do
     context "when organisation_id belongs to another user" do
       let(:other_org) { create(:organisation, user: create(:user)) }
 
-      it "returns 404 and does not update the job" do
+      it "returns 422 and does not update the job" do
         patch "/api/v1/jobs/#{job.id}",
               params: { job: { organisation_id: other_org.id } }.to_json,
               headers: headers
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(job.reload.organisation_id).not_to eq(other_org.id)
       end
     end
@@ -539,13 +539,13 @@ RSpec.describe "Jobs API", type: :request do
       expect(job.reload.resume_variant_id).to be_nil
     end
 
-    it "returns 404 when the variant belongs to another user" do
+    it "returns 422 when the variant belongs to another user" do
       other_user = create(:user)
       other_variant = create(:resume_variant,
                              resume_template: create(:resume_template, user: other_user),
                              user: other_user)
       patch_job(resume_variant_id: other_variant.id)
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(job.reload.resume_variant_id).to be_nil
     end
 

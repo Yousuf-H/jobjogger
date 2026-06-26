@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Manages contacts for the authenticated user with search and organisation filtering.
 class Api::V1::ContactsController < Api::V1::AuthenticatedController
   before_action :set_contact, only: [ :show, :update, :destroy ]
 
@@ -51,13 +52,6 @@ class Api::V1::ContactsController < Api::V1::AuthenticatedController
   end
 
   def update
-    if contact_params[:organisation_id].present?
-      # TODO: can be removed after model validation confirmed in prod
-      # Contact#organisation_belongs_to_user now validates this at the model layer.
-      organisation = current_user.organisations.find_by(id: contact_params[:organisation_id])
-      return render json: { error: "Organisation not found" }, status: :not_found unless organisation
-    end
-
     if @contact.update(contact_params)
       render json: @contact, status: :ok
     else

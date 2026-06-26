@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Manages organisations for the authenticated user, including merge, similar-name
+# suggestions, and needs-review dismissal.
 class Api::V1::OrganisationsController < Api::V1::AuthenticatedController
   before_action :set_organisation, only: [ :show, :update, :destroy, :merge, :similar, :dismiss_review ]
   before_action :check_demo_org_limit, only: [ :create ]
