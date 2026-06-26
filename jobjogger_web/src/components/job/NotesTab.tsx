@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { updateJob } from '@/services/api/jobs'
 import type { Job } from '@/types/job'
 
@@ -31,7 +33,7 @@ export function NotesTab({ job }: NotesTabProps) {
   const saveMutation = useMutation({
     mutationFn: (newNotes: string) => updateJob(job.id, { notes: newNotes }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(getCurrentUserId()) })
       toast.success('Notes saved!')
     },
     onError: () => {

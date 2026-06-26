@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import TurndownService from 'turndown'
 
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { updateJob } from '@/services/api/jobs'
 import type { Job } from '@/types/job'
 
@@ -35,7 +37,7 @@ export function JobInfoTab({ job }: { job: Job }) {
     mutationFn: (newDescription: string) =>
       updateJob(job.id, { job_description: newDescription }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(getCurrentUserId()) })
       toast.success('Description saved!')
     },
     onError: () => {

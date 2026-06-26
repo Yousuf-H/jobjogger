@@ -13,9 +13,10 @@ import {
   updateInterviewQuestion,
 } from '@/services/api/interviews'
 import { getCurrentUserId } from '@/lib/auth'
+import { invalidateJobQueries } from '@/lib/invalidation'
 import { QUERY_KEYS } from '@/lib/queryKeys'
 import type { Interview, InterviewQuestion } from '@/types/interview'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 // --- Interviews ---
@@ -36,7 +37,7 @@ export function useInterviewActions(jobId: number) {
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey })
-    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
+    invalidateJobQueries(queryClient, userId)
   }
 
   const createMutation = useMutation({
@@ -89,6 +90,7 @@ export function useInterviewQuestions(
     queryKey: QUERY_KEYS.interviewQuestions.list(userId, params),
     queryFn: () => fetchInterviewQuestions(params),
     enabled: options?.enabled !== undefined ? options.enabled && defaultEnabled : defaultEnabled,
+    placeholderData: keepPreviousData,
   })
 }
 

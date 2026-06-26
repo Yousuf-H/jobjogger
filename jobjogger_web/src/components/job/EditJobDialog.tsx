@@ -10,7 +10,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import type { UpdateJobFormValues } from '@/lib/validations/job'
+import { getCurrentUserId } from '@/lib/auth'
 import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { updateJob } from '@/services/api/jobs'
 import type { Job } from '@/types/job'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -33,8 +35,8 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
   const mutation = useMutation({
     mutationFn: (jobData: Job) => updateJob(job.id, jobData),
     onSuccess: (_, jobData) => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      queryClient.invalidateQueries({ queryKey: ['jobs', job.id.toString()] })
+      const userId = getCurrentUserId()
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
       toast.success('Job updated successfully!')
       setOpen(false)
       const statusChanged = jobData.status !== job.status

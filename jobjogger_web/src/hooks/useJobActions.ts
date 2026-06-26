@@ -1,6 +1,7 @@
 import { archiveJob, deleteJob, unarchiveJob } from '@/services/api/jobs'
+import { getCurrentUserId } from '@/lib/auth'
 import { extractErrorMessage } from '@/lib/errors'
-import { QUERY_KEYS } from '@/lib/queryKeys'
+import { invalidateJobQueries } from '@/lib/invalidation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -13,11 +14,14 @@ interface UseJobActionsOptions {
 export function useJobActions(options?: UseJobActionsOptions) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const userId = getCurrentUserId()
+
+  const invalidate = () => invalidateJobQueries(queryClient, userId)
 
   const archiveMutation = useMutation({
     mutationFn: archiveJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
+      invalidate()
       toast.success('Job Archived Successfully!')
     },
     onError: (error: unknown) => {
@@ -28,7 +32,7 @@ export function useJobActions(options?: UseJobActionsOptions) {
   const unarchiveMutation = useMutation({
     mutationFn: unarchiveJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
+      invalidate()
       toast.success('Job unarchived successfully!')
     },
     onError: (error: unknown) => {
@@ -39,7 +43,7 @@ export function useJobActions(options?: UseJobActionsOptions) {
   const deleteMutation = useMutation({
     mutationFn: deleteJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
+      invalidate()
       toast.success('Job Deleted Successfully!')
       options?.onDeleteSuccess?.()
     },

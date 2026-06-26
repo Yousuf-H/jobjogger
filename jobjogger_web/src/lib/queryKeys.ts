@@ -21,7 +21,10 @@ export const QUERY_KEYS = {
     similar: (userId: UserId, id: string | number | undefined) => ['organisations', userId, id, 'similar'] as const,
   },
   analytics: (userId: UserId) => ['analytics', userId] as const,
-  activity: (userId: UserId, page: number, perPage: number) => ['activity', userId, page, perPage] as const,
+  activity: {
+    byUser: (userId: UserId) => ['activity', userId] as const,
+    detail: (userId: UserId, page: number, perPage: number) => ['activity', userId, page, perPage] as const,
+  },
   interviews: {
     byUser: (userId: UserId) => ['interviews', userId] as const,
     forJob: (userId: UserId, jobId: number | undefined) => ['interviews', userId, jobId] as const,

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import { getCurrentUserId } from '@/lib/auth'
 import { extractErrorMessage } from '@/lib/errors'
-import { QUERY_KEYS } from '@/lib/queryKeys'
+import { invalidateJobQueries } from '@/lib/invalidation'
 import type { TimelineEntryFormValues } from '@/lib/validations/timelineEntry'
 import {
   createTimelineEntry,
@@ -21,12 +22,15 @@ export function useTimelineEntryActions({
   onUpdateSuccess,
 }: UseTimelineEntryActionsOptions) {
   const queryClient = useQueryClient()
+  const userId = getCurrentUserId()
+
+  const invalidate = () => invalidateJobQueries(queryClient, userId)
 
   const createMutation = useMutation({
     mutationFn: (data: TimelineEntryFormValues) =>
       createTimelineEntry(jobId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
+      invalidate()
       toast.success('Timeline entry added!')
       onCreateSuccess?.()
     },
@@ -44,7 +48,7 @@ export function useTimelineEntryActions({
       data: TimelineEntryFormValues
     }) => updateTimelineEntry(entryId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
+      invalidate()
       toast.success('Timeline entry updated!')
       onUpdateSuccess?.()
     },

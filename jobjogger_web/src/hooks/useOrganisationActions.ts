@@ -5,8 +5,13 @@ import {
   mergeOrganisation,
   updateOrganisation,
 } from '@/services/api/organisations'
+import { getCurrentUserId } from '@/lib/auth'
 import { extractErrorMessage } from '@/lib/errors'
-import { QUERY_KEYS } from '@/lib/queryKeys'
+import {
+  invalidateContactQueries,
+  invalidateJobQueries,
+  invalidateOrganisationQueries,
+} from '@/lib/invalidation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Organisation } from '@/types/organisation'
 import { useNavigate } from 'react-router-dom'
@@ -19,11 +24,14 @@ interface UseOrganisationActionsOptions {
 export function useOrganisationActions(options?: UseOrganisationActionsOptions) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const userId = getCurrentUserId()
+
+  const invalidateOrgs = () => invalidateOrganisationQueries(queryClient, userId)
 
   const createMutation = useMutation({
     mutationFn: (data: Partial<Organisation>) => createOrganisation(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
+      invalidateOrgs()
       toast.success('Organisation created successfully!')
     },
     onError: (error: unknown) => {
@@ -35,7 +43,7 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
     mutationFn: ({ id, data }: { id: number; data: Partial<Organisation> }) =>
       updateOrganisation(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
+      invalidateOrgs()
       toast.success('Organisation updated successfully!')
     },
     onError: (error: unknown) => {
@@ -46,7 +54,7 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
   const deleteMutation = useMutation({
     mutationFn: deleteOrganisation,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
+      invalidateOrgs()
       toast.success('Organisation deleted successfully!')
       options?.onDeleteSuccess?.()
     },
@@ -64,9 +72,9 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
       targetId: number
     }) => mergeOrganisation(duplicateId, targetId),
     onSuccess: (survivingOrg) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contacts.all() })
+      invalidateOrgs()
+      invalidateJobQueries(queryClient, userId)
+      invalidateContactQueries(queryClient, userId)
       toast.success('Organisations merged successfully!')
       navigate(`/organisations/${survivingOrg.id}`)
     },
@@ -78,7 +86,7 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
   const dismissReviewMutation = useMutation({
     mutationFn: (id: number) => dismissOrganisationReview(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
+      invalidateOrgs()
       toast.success('Review dismissed.')
     },
     onError: () => {

@@ -10,7 +10,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import type { CreateJobFormValues } from '@/lib/validations/job'
+import { getCurrentUserId } from '@/lib/auth'
 import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { createJob } from '@/services/api/jobs'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
@@ -30,9 +32,10 @@ export default function CreateJobDialog({
   const mutation = useMutation({
     mutationFn: createJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      queryClient.invalidateQueries({ queryKey: ['activity'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      const userId = getCurrentUserId()
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.activity.byUser(userId) })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics(userId) })
       toast.success('Job created successfully!')
       setOpen(false)
     },

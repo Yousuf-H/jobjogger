@@ -4,6 +4,8 @@ import { Check, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { STATUS_CONFIG, getStatusConfig } from '@/lib/statusConfig'
 import { cn } from '@/lib/utils'
 import { updateJob } from '@/services/api/jobs'
@@ -43,9 +45,10 @@ export function StatusBadge({ job }: StatusBadgeProps) {
     mutationFn: (newStatus: JobStatus) =>
       updateJob(job.id, { status: newStatus }),
     onSuccess: (_, newStatus) => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      queryClient.invalidateQueries({ queryKey: ['activity'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      const userId = getCurrentUserId()
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.activity.byUser(userId) })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics(userId) })
       toast.success('Status updated!')
       if (newStatus !== job.status && INTERVIEW_TRIGGER_STATUSES.includes(newStatus)) {
         setPromptOpen(true)

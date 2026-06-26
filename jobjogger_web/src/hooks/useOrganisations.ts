@@ -1,7 +1,7 @@
 import { fetchOrganisations } from '@/services/api/organisations'
 import { getCurrentUserId } from '@/lib/auth'
 import { QUERY_KEYS } from '@/lib/queryKeys'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export function useOrganisations() {
   const userId = getCurrentUserId()
@@ -9,5 +9,6 @@ export function useOrganisations() {
   return useQuery({
     queryKey: QUERY_KEYS.organisations.list(userId),
     queryFn: fetchOrganisations,
+    placeholderData: keepPreviousData,
   })
 }

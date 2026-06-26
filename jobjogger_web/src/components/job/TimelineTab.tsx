@@ -2,6 +2,8 @@ import AddTimelineEntryDialog from '@/components/job/AddTimelineEntryDialog'
 import TimelineHelpDialog from '@/components/job/TimelineHelpDialog'
 import { cn } from '@/lib/utils'
 import { getEntryTypeConfig } from '@/lib/timelineEntryStyles'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { deleteTimelineEntry } from '@/services/api/timelineEntries'
 import type { TimelineEntry } from '@/types/timelineEntry'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -32,7 +34,7 @@ function TimelineEntryItem({
   const deleteMutation = useMutation({
     mutationFn: () => deleteTimelineEntry(entry.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(getCurrentUserId()) })
       toast.success('Timeline entry deleted!')
     },
     onError: () => {

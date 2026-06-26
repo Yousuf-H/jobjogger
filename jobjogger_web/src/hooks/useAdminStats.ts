@@ -1,14 +1,16 @@
-import { useAuth } from '@/hooks/useAuth'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { fetchAdminStats } from '@/services/api/admin'
 import type { StatPeriod } from '@/types/admin'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export function useAdminStats(period: StatPeriod) {
-  const { user } = useAuth()
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['adminStats', user?.id, period],
+    queryKey: QUERY_KEYS.adminStats(userId, period),
     queryFn: () => fetchAdminStats(period),
-    enabled: !!user?.id,
+    enabled: !!userId,
+    placeholderData: keepPreviousData,
   })
 }

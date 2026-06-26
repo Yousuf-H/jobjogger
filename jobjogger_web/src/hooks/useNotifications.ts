@@ -13,6 +13,7 @@ export function useNotifications() {
   return useQuery({
     queryKey: QUERY_KEYS.notifications(userId),
     queryFn: fetchNotifications,
+    // Poll every 60 s — no WebSocket support yet. Remove when real-time push is added.
     refetchInterval: 60000,
   })
 }
