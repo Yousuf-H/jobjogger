@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Concern that provides helpers for generating, setting, and deleting the JWT cookie.
+# Sets httponly, secure (production only), and SameSite=None (production) / Lax (dev).
+# Included in SessionsController, RegistrationsController, and OAuth callback controllers.
 module JwtCookieable
   extend ActiveSupport::Concern
 

@@ -1,3 +1,7 @@
+# Represents a registered user. The root of all user-scoped resources — every query
+# for jobs, contacts, organisations, etc. starts from current_user to prevent
+# cross-user data access. Supports both email/password and Google OAuth sign-in;
+# Google-only users have no encrypted_password and password validation is relaxed.
 class User < ApplicationRecord
   has_many :jobs, dependent: :destroy
   has_many :notifications, dependent: :destroy

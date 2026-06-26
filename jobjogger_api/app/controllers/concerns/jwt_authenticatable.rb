@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Concern that provides JWT-cookie authentication helpers. Reads the signed :jwt cookie,
+# decodes it with HS256, and sets @current_user. Renders 401 on any failure.
+# Included in AuthenticatedController (and RegistrationsController for protected actions).
 module JwtAuthenticatable
   extend ActiveSupport::Concern
 

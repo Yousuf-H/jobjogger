@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# A question in the user's interview preparation bank. Questions can be unscoped
+# (personal bank), scoped to a specific job, or scoped to an organisation — but never
+# both a job and an organisation at once. Separately, any question can be *pinned* to
+# one or more jobs via JobInterviewQuestion; this is distinct from its scope.
+#
+# Re-scoping a question is validated against existing pins to prevent conflicts:
+# you cannot scope a question to job A if it is already pinned to job B.
 class InterviewQuestion < ApplicationRecord
   belongs_to :user
   belongs_to :job, optional: true
@@ -7,9 +14,9 @@ class InterviewQuestion < ApplicationRecord
   has_many :job_interview_questions, dependent: :destroy
 
   enum :category, {
-    behavioural: "behavioural",
-    technical: "technical",
-    questions_to_ask: "questions_to_ask"
+    behavioural:      "behavioural",      # soft-skills, situational, STAR-format questions
+    technical:        "technical",        # coding, architecture, domain-knowledge questions
+    questions_to_ask: "questions_to_ask"  # questions the user wants to ask the interviewer
   }
 
   validates :question, presence: true

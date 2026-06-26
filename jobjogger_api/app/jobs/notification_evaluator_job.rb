@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Background job that runs all four notification evaluators for every non-demo user.
+# Intended to be enqueued on a recurring schedule (e.g. daily via a cron adapter).
+# Each evaluator is called independently; errors for one user are logged and do not
+# abort evaluation for subsequent users.
 class NotificationEvaluatorJob < ApplicationJob
   queue_as :default
 

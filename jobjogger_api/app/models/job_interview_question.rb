@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Join table that pins an InterviewQuestion from the bank to a specific job.
+# A question can be pinned to multiple jobs (e.g. questions shared across similar roles).
+# Pinning is subject to scope compatibility: a question scoped to job A cannot be pinned
+# to job B, and a question scoped to org A cannot be pinned to a job in org B.
 class JobInterviewQuestion < ApplicationRecord
   belongs_to :job
   belongs_to :interview_question
