@@ -20,17 +20,10 @@ import { TERMINAL_STATUSES, type Job, type JobStatus } from '@/types/job'
 
 const INTERVIEW_TRIGGER_STATUSES: JobStatus[] = ['phone_screen', 'interviewing']
 
-const STATUS_OPTIONS: { value: JobStatus; label: string }[] = [
-  { value: 'wishlist', label: 'Wishlist' },
-  { value: 'applied', label: 'Applied' },
-  { value: 'phone_screen', label: 'Phone Screen' },
-  { value: 'interviewing', label: 'Interviewing' },
-  { value: 'offer', label: 'Offer' },
-  { value: 'accepted', label: 'Accepted' },
-  { value: 'rejected', label: 'Rejected' },
-  { value: 'ghosted', label: 'Ghosted' },
-  { value: 'withdrawn', label: 'Withdrawn' },
-]
+const STATUS_OPTIONS = (Object.keys(STATUS_CONFIG) as JobStatus[]).map((value) => ({
+  value,
+  label: STATUS_CONFIG[value].label,
+}))
 
 interface StatusBadgeProps {
   job: Job

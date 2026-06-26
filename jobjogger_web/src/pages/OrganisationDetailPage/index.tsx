@@ -137,6 +137,7 @@ function EditOrganisationDialog({
             Update the details for this organisation.
           </DialogDescription>
         </DialogHeader>
+        {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
         <OrganisationForm
           key={open ? 'open' : 'closed'}
           onSubmit={handleSubmit}

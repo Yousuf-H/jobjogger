@@ -1,3 +1,4 @@
+import EmptyTabState from '@/components/job/EmptyTabState'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -1113,21 +1114,13 @@ export function InterviewsTab({ jobId, status, organisationId }: InterviewsTabPr
 
       {/* Interview round cards or empty state */}
       {interviews.length === 0 ? (
-        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
-          <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
-            <CalendarIcon className="h-5 w-5" />
-          </div>
-          <p className="text-[14px] font-semibold text-foreground">No interviews logged yet</p>
-          <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
-            Add your first interview round to start tracking.
-          </p>
-          {!readOnly && (
-            <Button onClick={() => setDrawerOpen(true)} className="mt-5">
-              <Plus className="h-[13px] w-[13px]" />
-              Add interview
-            </Button>
-          )}
-        </div>
+        <EmptyTabState
+          icon={CalendarIcon}
+          title="No interviews logged yet"
+          description="Add your first interview round to start tracking."
+          actionLabel={!readOnly ? 'Add interview' : undefined}
+          onAction={!readOnly ? () => setDrawerOpen(true) : undefined}
+        />
       ) : (
         <div className="space-y-3">
           {displayOrder.map((interview) => (

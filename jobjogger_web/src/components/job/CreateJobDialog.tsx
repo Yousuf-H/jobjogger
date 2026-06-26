@@ -70,6 +70,7 @@ export default function CreateJobDialog({
             Fill in the details to add a new job application.
           </DialogDescription>
         </DialogHeader>
+        {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
         <JobForm
           key={open ? 'open' : 'closed'}
           onSubmit={handleSubmit}

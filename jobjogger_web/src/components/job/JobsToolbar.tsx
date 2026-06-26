@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useDebounce } from '@/hooks/useDebounce'
+import { PRIORITY_CONFIG, STATUS_CONFIG } from '@/lib/statusConfig'
 import { cn } from '@/lib/utils'
 import type { JobFilters, JobStatus } from '@/types/job'
 import { AlertTriangle, Archive, CalendarClock, X } from 'lucide-react'
@@ -11,22 +12,15 @@ import { useEffect, useMemo, useState } from 'react'
 type Priority = 'low' | 'medium' | 'high'
 type JobSource = 'seek' | 'linkedin' | 'referral' | 'company_site' | 'other'
 
-const STATUS_OPTIONS: { label: string; value: JobStatus }[] = [
-  { label: 'Wishlist', value: 'wishlist' },
-  { label: 'Applied', value: 'applied' },
-  { label: 'Phone Screen', value: 'phone_screen' },
-  { label: 'Interviewing', value: 'interviewing' },
-  { label: 'Offer', value: 'offer' },
-  { label: 'Accepted', value: 'accepted' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'Ghosted', value: 'ghosted' },
-  { label: 'Withdrawn', value: 'withdrawn' },
-]
+const STATUS_OPTIONS = (Object.keys(STATUS_CONFIG) as JobStatus[]).map((value) => ({
+  value,
+  label: STATUS_CONFIG[value].label,
+}))
 
 const PRIORITY_OPTIONS: { label: string; value: Priority }[] = [
-  { label: 'High', value: 'high' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Low', value: 'low' },
+  { label: PRIORITY_CONFIG.high.label, value: 'high' },
+  { label: PRIORITY_CONFIG.medium.label, value: 'medium' },
+  { label: PRIORITY_CONFIG.low.label, value: 'low' },
 ]
 
 const SOURCE_OPTIONS: { label: string; value: JobSource }[] = [

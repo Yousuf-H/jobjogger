@@ -115,6 +115,7 @@ function EditInteractionDialog({
             Update the details for this interaction.
           </DialogDescription>
         </DialogHeader>
+        {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
         <InteractionForm
           key={open ? 'open' : 'closed'}
           mode="edit"
@@ -306,6 +307,7 @@ function InteractionsTab({
                 Log a new interaction with this contact.
               </DialogDescription>
             </DialogHeader>
+            {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
             <InteractionForm
               key={addOpen ? 'open' : 'closed'}
               onSubmit={handleAdd}
@@ -459,6 +461,7 @@ export default function ContactDetailPage() {
                   Update the details for this contact.
                 </DialogDescription>
               </DialogHeader>
+              {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
               <ContactForm
                 key={editOpen ? 'open' : 'closed'}
                 onSubmit={handleUpdate}

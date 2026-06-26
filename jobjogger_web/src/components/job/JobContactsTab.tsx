@@ -264,6 +264,8 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
       )}
 
       {jobContacts.length === 0 ? (
+        // TODO: use EmptyTabState — empty state has two action buttons (Link Existing + New Contact)
+        // which EmptyTabState's single onAction slot can't accommodate without an API change.
         <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
           <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
             <Users className="h-5 w-5" />
@@ -336,6 +338,7 @@ export function JobContactsTab({ jobId, organisationId }: JobContactsTabProps) {
               Create a new contact and link them to this job.
             </DialogDescription>
           </DialogHeader>
+          {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
           <ContactForm
             key={createOpen ? 'open' : 'closed'}
             onSubmit={handleCreate}

@@ -83,6 +83,7 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
+        {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
         <JobForm
           key={open ? 'open' : 'closed'}
           defaultValues={{
