@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module Contacts
-  # Removes the link between a contact and a job. If the contact becomes
-  # completely orphaned after unlinking (no organisation, no remaining jobs,
-  # no interactions), it is destroyed automatically.
+  # Removes the link between a contact and a job. Only the ContactJob join record
+  # is removed — the contact itself is never auto-deleted. Contacts represent real
+  # people and their data has value independent of any job link; removal must be
+  # explicit from the contacts page.
   class Unlink
     # @param contact [Contact]
     # @param job [Job]
@@ -18,14 +19,6 @@ module Contacts
       return false unless contact_job
 
       contact_job.destroy
-
-      # Clean up the contact if it has no org, no remaining jobs, and no interactions
-      if @contact.organisation_id.nil? &&
-         @contact.jobs.empty? &&
-         @contact.contact_interactions.empty?
-        @contact.destroy
-      end
-
       true
     end
   end

@@ -66,18 +66,9 @@ RSpec.describe "Job Contacts API", type: :request do
       expect(job.contacts.reload).not_to include(contact)
     end
 
-    it "destroys an orphaned contact (no org, no jobs, no interactions)" do
+    it "preserves the contact after unlinking, even with no other connections" do
       expect {
         delete "/api/v1/jobs/#{job.id}/job_contacts/#{contact.id}", headers: headers
-      }.to change(Contact, :count).by(-1)
-    end
-
-    it "keeps the contact when it belongs to an org" do
-      org_contact = create(:contact, :with_organisation, user: user)
-      Contacts::Link.new(contact: org_contact, job: job).call
-
-      expect {
-        delete "/api/v1/jobs/#{job.id}/job_contacts/#{org_contact.id}", headers: headers
       }.not_to change(Contact, :count)
     end
   end
