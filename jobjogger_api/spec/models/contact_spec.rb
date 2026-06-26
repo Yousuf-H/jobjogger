@@ -40,6 +40,12 @@ RSpec.describe Contact, type: :model do
         expect(contact).not_to be_valid
         expect(contact.errors[:organisation]).to be_present
       end
+
+      it "is invalid when organisation_id is set to a nonexistent id" do
+        contact = build(:contact, user: user, organisation_id: 0)
+        expect(contact).not_to be_valid
+        expect(contact.errors[:organisation]).to be_present
+      end
     end
   end
 
