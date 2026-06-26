@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { StatusBadge } from '@/components/job/StatusBadge'
 import { renderWithProviders } from '../utils'
 import { makeJob } from '../fixtures'
@@ -40,9 +40,7 @@ describe('StatusBadge', () => {
   })
 
   it('opens the dropdown when clicked', async () => {
-    const { user } = renderWithProviders(<StatusBadge job={makeJob({ status: 'applied' })} />, {
-      user: true,
-    }) as never
+    renderWithProviders(<StatusBadge job={makeJob({ status: 'applied' })} />)
 
     const button = screen.getByRole('button', { name: /change status/i })
     // Just assert the button is clickable (no throw)
