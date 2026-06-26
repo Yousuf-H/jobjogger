@@ -136,7 +136,7 @@ RSpec.describe Organisation, type: :model do
 
     before do
       create(:organisation, user: user, name: "Acme Corporation")
-      create(:organisation, user: user, name: "TechStart", aliases: ["TechStartup Inc"])
+      create(:organisation, user: user, name: "TechStart", aliases: [ "TechStartup Inc" ])
     end
 
     it "finds organisations whose name contains the search term" do

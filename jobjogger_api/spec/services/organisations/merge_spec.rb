@@ -101,10 +101,10 @@ RSpec.describe Organisations::Merge do
 
     context "alias merging" do
       let!(:target) do
-        create(:organisation, user: user, name: "Acme Corp", aliases: ["Acme Corp Ltd"])
+        create(:organisation, user: user, name: "Acme Corp", aliases: [ "Acme Corp Ltd" ])
       end
       let!(:duplicate) do
-        create(:organisation, user: user, name: "Acme", aliases: ["ACM", "Acme Corp Ltd"])
+        create(:organisation, user: user, name: "Acme", aliases: [ "ACM", "Acme Corp Ltd" ])
       end
 
       it "merges aliases from both records without duplicates" do

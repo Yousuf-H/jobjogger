@@ -49,7 +49,7 @@ RSpec.describe Organisations::FindOrCreate do
     end
 
     context "when the company_name matches an alias (case-insensitive)" do
-      let!(:existing) { create(:organisation, user: user, name: "Acme Corp", aliases: ["Acme", "ACME Ltd"]) }
+      let!(:existing) { create(:organisation, user: user, name: "Acme Corp", aliases: [ "Acme", "ACME Ltd" ]) }
       let(:company_name) { "acme" }
 
       it "returns the organisation matched by alias" do
