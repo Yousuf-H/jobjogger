@@ -1,13 +1,8 @@
 import type { AxiosError } from 'axios'
-
-type ApiErrorData = {
-  status?: { message?: string }
-  errors?: string[]
-  error?: string
-}
+import type { ApiErrorResponse } from '@/types/api'
 
 export function extractErrorMessage(error: unknown, fallback: string): string {
-  const e = error as AxiosError<ApiErrorData>
+  const e = error as AxiosError<ApiErrorResponse>
   return (
     e.response?.data?.status?.message ??
     e.response?.data?.errors?.[0] ??

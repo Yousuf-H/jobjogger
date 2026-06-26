@@ -10,9 +10,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import type { CreateJobFormValues } from '@/lib/validations/job'
+import { extractErrorMessage } from '@/lib/errors'
 import { createJob } from '@/services/api/jobs'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -36,14 +36,8 @@ export default function CreateJobDialog({
       toast.success('Job created successfully!')
       setOpen(false)
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to create job'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to create job'))
     },
   })
 

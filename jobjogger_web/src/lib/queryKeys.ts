@@ -1,4 +1,4 @@
-type UserId = string | undefined
+type UserId = string | null | undefined
 
 export const QUERY_KEYS = {
   jobs: {
