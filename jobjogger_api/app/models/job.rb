@@ -1,3 +1,9 @@
+# Represents a job application tracked by a user. Core resource of the app.
+#
+# Jobs follow a status pipeline from wishlist through to terminal states. After
+# reaching a terminal status (accepted/rejected/ghosted/withdrawn) or being archived,
+# write actions in the UI are suppressed. Status changes automatically create
+# TimelineEntry records via after_update_commit so the history is always current.
 class Job < ApplicationRecord
   belongs_to :user
   has_many :timeline_entries, -> { order(occurred_at: :desc, created_at: :desc) }, dependent: :destroy
@@ -24,43 +30,47 @@ class Job < ApplicationRecord
     super(options).merge('next_interview_at' => next_interview_at)
   end
 
+  # Statuses from which the job cannot transition forward — UI treats these as read-only.
+  # Mirrored in jobjogger_web/src/types/job.ts.
   TERMINAL_STATUSES = %w[accepted rejected ghosted withdrawn].freeze
 
-  # Pipeline order for detecting skipped stages
+  # Ordered pipeline stages used to detect when a job has skipped a step.
+  # Only includes forward-progress stages (not terminal ones), so we can
+  # synthesise missing applied entries in the timeline.
   PIPELINE_ORDER = %w[wishlist applied phone_screen interviewing offer accepted].freeze
 
   enum :status, {
-      wishlist: 'wishlist',
-      applied: 'applied',
-      phone_screen: 'phone_screen',
-      interviewing: 'interviewing',
-      offer: 'offer',
-      accepted: 'accepted',
-      rejected: 'rejected',
-      ghosted: 'ghosted',
-      withdrawn: 'withdrawn'
-    }
+    wishlist:     "wishlist",      # saved to apply later — no action taken yet
+    applied:      "applied",       # application submitted
+    phone_screen: "phone_screen",  # recruiter phone/video screen scheduled or completed
+    interviewing: "interviewing",  # in-depth interview(s) underway
+    offer:        "offer",         # offer received, under consideration
+    accepted:     "accepted",      # offer accepted — terminal
+    rejected:     "rejected",      # application rejected — terminal
+    ghosted:      "ghosted",       # no response received — terminal
+    withdrawn:    "withdrawn"      # user withdrew the application — terminal
+  }
 
   enum :priority, {
-      low: 'low',
-      medium: 'medium',
-      high: 'high'
-    }
+    low:    "low",    # nice to have
+    medium: "medium", # default priority
+    high:   "high"    # actively pursuing
+  }
 
   enum :employment_type, {
-      full_time: 'full_time',
-      part_time: 'part_time',
-      casual: 'casual',
-      contract: 'contract'
-    }
+    full_time: "full_time",
+    part_time: "part_time",
+    casual:    "casual",
+    contract:  "contract"
+  }
 
   enum :source, {
-      seek: 'seek',
-      linkedin: 'linkedin',
-      referral: 'referral',
-      company_site: 'company_site',
-      other: 'other'
-    }
+    seek:         "seek",
+    linkedin:     "linkedin",
+    referral:     "referral",
+    company_site: "company_site",
+    other:        "other"           # requires source_other to be filled in
+  }
 
   validates :company_name, presence: true
   validates :job_title, presence: true
@@ -70,6 +80,8 @@ class Job < ApplicationRecord
   validate :valid_url_format
   validates :job_url, uniqueness: { scope: :user_id }, allow_nil: true
   validates :source_other, presence: true, if: :other_source?
+  validate :organisation_belongs_to_user
+  validate :resume_variant_belongs_to_user
 
   scope :active, -> { where(archived_at: nil).where.not(status: TERMINAL_STATUSES) }
   scope :archived, -> { where.not(archived_at: nil) }
@@ -90,6 +102,20 @@ class Job < ApplicationRecord
   end
 
   private
+
+  def organisation_belongs_to_user
+    return if organisation_id.blank?
+    return if organisation&.user_id == user_id
+
+    errors.add(:organisation, "not found")
+  end
+
+  def resume_variant_belongs_to_user
+    return if resume_variant_id.blank?
+    return if resume_variant&.user_id == user_id
+
+    errors.add(:resume_variant, "not found")
+  end
 
   def valid_url_format
     return if job_url.blank?

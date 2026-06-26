@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Concern that provides helpers for generating, setting, and deleting the JWT cookie.
+# Sets httponly, secure (production only), and SameSite=None (production) / Lax (dev).
+# Included in SessionsController, RegistrationsController, and OAuth callback controllers.
 module JwtCookieable
   extend ActiveSupport::Concern
 
@@ -38,9 +41,5 @@ module JwtCookieable
 
   def jwt_cookie_expiry
     1.day.from_now
-  end
-
-  def jwt_secret
-    Rails.application.credentials.devise_jwt_secret_key || ENV["DEVISE_JWT_SECRET_KEY"]
   end
 end

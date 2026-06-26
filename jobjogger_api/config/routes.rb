@@ -68,9 +68,6 @@ Rails.application.routes.draw do
           patch :unarchive
         end
 
-        # Timeline entries (nested under jobs for creation)
-        resources :timeline_entries, only: [:create]
-
         # Contacts linked to a specific job
         resources :job_contacts, only: [:index, :create, :destroy]
 
@@ -84,8 +81,8 @@ Rails.application.routes.draw do
       # Interview questions (scoped by query params: personal / job / org)
       resources :interview_questions, only: [:index, :create, :update, :destroy]
 
-      # Timeline entries (top-level for update/destroy)
-      resources :timeline_entries, only: [:update, :destroy]
+      # Timeline entries — all operations are top-level; job_id is passed in the body for create
+      resources :timeline_entries, only: [:create, :update, :destroy]
 
       # Notifications
       resources :notifications, only: [ :index ] do

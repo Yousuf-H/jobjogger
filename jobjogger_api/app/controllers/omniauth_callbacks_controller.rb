@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Handles the Google OAuth2 callback from OmniAuth. On sign-in, creates a short-lived
+# OauthExchange record and redirects the browser to the frontend with the JTI. On link,
+# attaches the Google UID to the current user's account.
 class OmniauthCallbacksController < ApplicationController
   include JwtCookieable
 

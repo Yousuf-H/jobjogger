@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Base controller providing shared helpers: catch-all not_found, user payload
+# serialization, and Active Storage URL helpers.
 class ApplicationController < ActionController::API
   include ActionController::MimeResponds
   include ActionController::Cookies
@@ -10,7 +12,11 @@ class ApplicationController < ActionController::API
 
   protected
 
-  def user_payload(user)
+  def jwt_secret
+    Rails.application.credentials.devise_jwt_secret_key || ENV["DEVISE_JWT_SECRET_KEY"]
+  end
+
+  def user_payload(user, avatar_url: avatar_url(user))
     {
       id: user.id,
       email: user.email,
@@ -25,7 +31,7 @@ class ApplicationController < ActionController::API
       notify_deadline_reminder: user.notify_deadline_reminder,
       theme: user.theme,
       default_follow_up_days: user.default_follow_up_days,
-      avatar_url: avatar_url(user),
+      avatar_url: avatar_url,
       demo: user.demo?,
       admin: user.admin?,
       terms_agreed_at: user.terms_agreed_at,

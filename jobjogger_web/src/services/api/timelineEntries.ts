@@ -5,8 +5,8 @@ export async function createTimelineEntry(
   job_id: number,
   data: Partial<TimelineEntry>
 ): Promise<TimelineEntry> {
-  const response = await apiClient.post(`/jobs/${job_id}/timeline_entries`, {
-    timeline_entry: data,
+  const response = await apiClient.post('/timeline_entries', {
+    timeline_entry: { ...data, job_id },
   })
 
   return response.data.timeline_entry

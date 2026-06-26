@@ -3,8 +3,8 @@
 require "rails_helper"
 
 RSpec.describe DemoAccountResetter do
-  describe ".call" do
-    subject(:reset) { described_class.call }
+  describe "#call" do
+    subject(:reset) { described_class.new.call }
 
     context "when no demo user exists" do
       it "does not raise an error" do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Converts a short-lived OAuth exchange token (JTI) into a JWT session cookie.
+# Called by the frontend after the OAuth redirect delivers the JTI query param.
 class Api::V1::Auth::CallbackController < ApplicationController
   include JwtCookieable
 
@@ -10,7 +12,7 @@ class Api::V1::Auth::CallbackController < ApplicationController
     exchange = OauthExchange.valid.find_by(jti: jti)
 
     unless exchange
-      return render json: { status: { message: "Invalid or expired session." } }, status: :unprocessable_entity
+      return render json: { status: { message: "Invalid or expired session." } }, status: :unprocessable_content
     end
 
     unless request.session.id.to_s == exchange.session_id
@@ -18,7 +20,7 @@ class Api::V1::Auth::CallbackController < ApplicationController
     end
 
     unless exchange.consume!
-      return render json: { status: { message: "Invalid or expired session." } }, status: :unprocessable_entity
+      return render json: { status: { message: "Invalid or expired session." } }, status: :unprocessable_content
     end
 
     exchange.user.update_column(:last_sign_in_at, Time.current)

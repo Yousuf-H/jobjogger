@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Manages interactions (calls, emails, meetings) nested under a specific contact.
 class Api::V1::ContactInteractionsController < Api::V1::AuthenticatedController
   before_action :set_contact
 

@@ -37,6 +37,64 @@ RSpec.describe Job, type: :model do
       end
     end
 
+    context "organisation ownership" do
+      let(:user)           { create(:user) }
+      let(:own_org)        { create(:organisation, user: user) }
+      let(:other_user_org) { create(:organisation, user: create(:user)) }
+
+      it "is valid when organisation belongs to the same user" do
+        job = build(:job, user: user, organisation: own_org)
+        expect(job).to be_valid
+      end
+
+      it "is valid when organisation is not set" do
+        job = build(:job, user: user, organisation: nil)
+        expect(job).to be_valid
+      end
+
+      it "is invalid when organisation belongs to a different user" do
+        job = build(:job, user: user, organisation: other_user_org)
+        expect(job).not_to be_valid
+        expect(job.errors[:organisation]).to be_present
+      end
+
+      it "is invalid when organisation_id is set to a nonexistent id" do
+        job = build(:job, user: user, organisation_id: 0)
+        expect(job).not_to be_valid
+        expect(job.errors[:organisation]).to be_present
+      end
+    end
+
+    context "resume variant ownership" do
+      let(:user)             { create(:user) }
+      let(:own_template)     { create(:resume_template, user: user) }
+      let(:own_variant)      { create(:resume_variant, resume_template: own_template, user: user) }
+      let(:other_template)   { create(:resume_template, user: create(:user)) }
+      let(:other_variant)    { create(:resume_variant, resume_template: other_template, user: other_template.user) }
+
+      it "is valid when resume_variant belongs to the same user" do
+        job = build(:job, user: user, resume_variant: own_variant)
+        expect(job).to be_valid
+      end
+
+      it "is valid when resume_variant is not set" do
+        job = build(:job, user: user, resume_variant: nil)
+        expect(job).to be_valid
+      end
+
+      it "is invalid when resume_variant belongs to a different user" do
+        job = build(:job, user: user, resume_variant: other_variant)
+        expect(job).not_to be_valid
+        expect(job.errors[:resume_variant]).to be_present
+      end
+
+      it "is invalid when resume_variant_id is set to a nonexistent id" do
+        job = build(:job, user: user, resume_variant_id: 0)
+        expect(job).not_to be_valid
+        expect(job.errors[:resume_variant]).to be_present
+      end
+    end
+
     context "source_other" do
       it "requires source_other when source is 'other'" do
         job = build(:job, source: "other", source_other: nil)

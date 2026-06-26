@@ -1,12 +1,19 @@
 # frozen_string_literal: true
 
 module Organisations
+  # Looks up an existing organisation for the user by name (case-insensitive) or
+  # alias, and creates one if no match is found. Handles concurrent inserts by
+  # rescuing RecordNotUnique and retrying the lookup.
   class FindOrCreate
+    # @param user [User]
+    # @param company_name [String, nil]
     def initialize(user:, company_name:)
       @user = user
       @company_name = company_name&.strip
     end
 
+    # @return [Organisation, nil] nil when company_name is blank
+    # @raise [ArgumentError] when the demo user has reached the 20-organisation limit
     def call
       return nil if @company_name.blank?
 

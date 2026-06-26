@@ -3,7 +3,7 @@
 namespace :demo do
   desc "Reset demo account data"
   task reset: :environment do
-    DemoAccountResetter.call
+    DemoAccountResetter.new.call
   end
 
   desc "Create demo user in production"

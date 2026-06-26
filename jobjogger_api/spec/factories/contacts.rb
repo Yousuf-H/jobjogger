@@ -9,7 +9,9 @@ FactoryBot.define do
     phone { Faker::PhoneNumber.phone_number }
 
     trait :with_organisation do
-      association :organisation
+      after(:create) do |contact|
+        contact.update!(organisation: create(:organisation, user: contact.user))
+      end
     end
 
     trait :with_interactions do

@@ -1,20 +1,23 @@
 # frozen_string_literal: true
 
+# @api Manages resume variants (specific PDF versions) within a template, optionally
+# scoped to a parent template via nested routes.
 class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
   before_action :set_template, only: [ :index, :create ]
   before_action :set_variant,  only: [ :show, :update, :destroy ]
 
   def index
     if @template
-      render json: @template.resume_variants.includes(:jobs).map { |v| variant_json(v, template_name: @template.name) }
+      variants = @template.resume_variants.includes(:jobs)
+      render json: variants.map { |v| build_variant_json(v, template_name: @template.name) }
     else
       variants = current_user.resume_variants.includes(:resume_template, :jobs)
-      render json: variants.map { |v| variant_json(v) }
+      render json: variants.map { |v| build_variant_json(v) }
     end
   end
 
   def show
-    render json: variant_json(@variant)
+    render json: build_variant_json(@variant)
   end
 
   def create
@@ -26,7 +29,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
 
     if variant.save
       variant.pdf.attach(params[:pdf]) if params[:pdf].present?
-      render json: variant_json(variant), status: :created
+      render json: build_variant_json(variant, template_name: @template.name), status: :created
     else
       render json: { errors: variant.errors.full_messages }, status: :unprocessable_content
     end
@@ -43,7 +46,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
         @variant.pdf.attach(params[:pdf])
         old_blob&.purge_later
       end
-      render json: variant_json(@variant), status: :ok
+      render json: build_variant_json(@variant), status: :ok
     else
       render json: { errors: @variant.errors.full_messages }, status: :unprocessable_content
     end
@@ -79,7 +82,7 @@ class Api::V1::ResumeVariantsController < Api::V1::AuthenticatedController
       file.size <= 10.megabytes
   end
 
-  def variant_json(variant, template_name: nil)
+  def build_variant_json(variant, template_name: nil)
     {
       id:                 variant.id,
       resume_template_id: variant.resume_template_id,

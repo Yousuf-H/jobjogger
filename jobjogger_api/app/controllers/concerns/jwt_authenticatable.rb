@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Concern that provides JWT-cookie authentication helpers. Reads the signed :jwt cookie,
+# decodes it with HS256, and sets @current_user. Renders 401 on any failure.
+# Included in AuthenticatedController (and RegistrationsController for protected actions).
 module JwtAuthenticatable
   extend ActiveSupport::Concern
 
@@ -26,9 +29,5 @@ module JwtAuthenticatable
 
   def current_user
     @current_user
-  end
-
-  def jwt_secret
-    Rails.application.credentials.devise_jwt_secret_key || ENV["DEVISE_JWT_SECRET_KEY"]
   end
 end

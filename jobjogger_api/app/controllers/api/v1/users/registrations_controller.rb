@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Manages user registration, profile updates, password changes, avatar, Google linking,
+# notification preferences, and account deletion. Demo accounts are blocked from mutations.
 class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   include JwtCookieable
   include JwtAuthenticatable
@@ -249,31 +251,6 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
   def password_params
     params.require(:user).permit(:password, :password_confirmation)
-  end
-
-  def user_payload(user, avatar_url: avatar_url(user))
-    {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      job_title: user.job_title,
-      phone: user.phone,
-      location: user.location,
-      linkedin_url: user.linkedin_url,
-      notify_follow_up_reminders: user.notify_follow_up_reminders,
-      notify_interview_reminders: user.notify_interview_reminders,
-      notify_stage_stall: user.notify_stage_stall,
-      notify_deadline_reminder: user.notify_deadline_reminder,
-      theme: user.theme,
-      default_follow_up_days: user.default_follow_up_days,
-      avatar_url: avatar_url,
-      demo: user.demo?,
-      admin: user.admin?,
-      terms_agreed_at: user.terms_agreed_at,
-      created_at: user.created_at,
-      google_linked: user.google_uid.present?,
-      has_password: user.encrypted_password.present?
-    }
   end
 
   def prevent_demo_changes

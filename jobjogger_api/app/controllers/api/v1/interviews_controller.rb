@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Manages interviews nested under a specific job for the authenticated user.
 class Api::V1::InterviewsController < Api::V1::AuthenticatedController
   before_action :set_job
   before_action :set_interview, only: [ :update, :destroy ]

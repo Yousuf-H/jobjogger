@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 module Notifications
+  # Fires a stage_stall notification for each active job that has had no status
+  # change in more than 14 days. Respects the user's notify_stage_stall preference.
   class StageStallEvaluator < BaseEvaluator
     STALL_DAYS = 14
 
+    # @return [void]
     def call
       return unless @user.notify_stage_stall?
 

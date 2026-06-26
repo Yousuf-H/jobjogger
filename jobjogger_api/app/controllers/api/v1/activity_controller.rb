@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api Returns a paginated activity feed of timeline entries across all the user's jobs.
 class Api::V1::ActivityController < Api::V1::AuthenticatedController
   def index
     per_page = params.fetch(:per_page, 5).to_i.clamp(1, 50)

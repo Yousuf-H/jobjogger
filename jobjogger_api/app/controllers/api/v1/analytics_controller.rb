@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @api Returns aggregated job-search analytics for the authenticated user: funnel,
+# summary stats, activity over time, source performance, and stage durations.
 class Api::V1::AnalyticsController < Api::V1::AuthenticatedController
   def index
     render json: {

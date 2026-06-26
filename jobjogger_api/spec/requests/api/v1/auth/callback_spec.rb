@@ -59,7 +59,7 @@ RSpec.describe "POST /api/v1/auth/session (OAuth exchange)", type: :request do
 
     it "consumes the entry so a second exchange is rejected" do
       post_exchange(jti: jti)
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
@@ -95,8 +95,8 @@ RSpec.describe "POST /api/v1/auth/session (OAuth exchange)", type: :request do
   context "when the JTI does not exist in cache" do
     before { post_exchange(jti: "nonexistent-jti") }
 
-    it "returns 422 Unprocessable Entity" do
-      expect(response).to have_http_status(:unprocessable_entity)
+    it "returns 422 Unprocessable Content" do
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it "does not set a JWT cookie" do
