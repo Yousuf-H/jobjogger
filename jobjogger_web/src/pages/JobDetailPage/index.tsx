@@ -25,7 +25,9 @@ import { useJob } from '@/hooks/useJob'
 import { useJobActions } from '@/hooks/useJobActions'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { MetaItem } from '@/components/ui/MetaItem'
 import { getPriorityConfig } from '@/lib/statusConfig'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { cn } from '@/lib/utils'
 import { updateJob } from '@/services/api/jobs'
 import { formatDistanceToNow, parseISO, format, isPast } from 'date-fns'
@@ -61,29 +63,6 @@ function formatLabel(value?: string | null): string {
   return value.replaceAll('_', ' ')
 }
 
-type MetaItemProps = {
-  icon: ElementType
-  label: string
-  value: React.ReactNode
-  valueClass?: string
-}
-
-function MetaItem({ icon: Icon, label, value, valueClass }: MetaItemProps) {
-  return (
-    <div className="flex items-center gap-[8px] pr-[20px] mr-[20px] border-r border-border last:border-r-0 last:pr-0 last:mr-0">
-      <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-muted border border-border/60">
-        <Icon className="h-[13px] w-[13px] text-muted-foreground" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[10px] text-muted-foreground leading-tight">{label}</span>
-        <span className={cn('text-[12px] font-medium text-foreground/80 leading-tight', valueClass)}>
-          {value}
-        </span>
-      </div>
-    </div>
-  )
-}
-
 function OrgRow({ jobId, organisationId }: { jobId: number; organisationId?: number | null }) {
   const queryClient = useQueryClient()
   const { data: organisations } = useOrganisations()
@@ -94,7 +73,7 @@ function OrgRow({ jobId, organisationId }: { jobId: number; organisationId?: num
   const detachMutation = useMutation({
     mutationFn: () => updateJob(jobId, { organisation_id: null }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
       toast.success('Organisation detached.')
     },
     onError: () => toast.error('Failed to detach organisation'),
@@ -103,7 +82,7 @@ function OrgRow({ jobId, organisationId }: { jobId: number; organisationId?: num
   const linkMutation = useMutation({
     mutationFn: (orgId: number) => updateJob(jobId, { organisation_id: orgId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
       toast.success('Organisation linked.')
     },
     onError: () => toast.error('Failed to link organisation'),
@@ -360,7 +339,11 @@ export default function JobDetailPage() {
         {(visibleMeta.length > 0 || job.job_url) && (
           <div className="mt-[14px] pt-[14px] border-t border-border/60 flex flex-wrap items-center gap-y-[10px]">
             {visibleMeta.map((m, i) => (
-              <MetaItem key={i} icon={m.icon} label={m.label} value={m.value} valueClass={m.valueClass} />
+              <MetaItem key={i} icon={m.icon} label={m.label}>
+                <span className={cn('text-[12px] font-medium text-foreground/80 leading-tight', m.valueClass)}>
+                  {m.value}
+                </span>
+              </MetaItem>
             ))}
             {job.job_url && (
               <div className="flex items-center gap-[8px]">

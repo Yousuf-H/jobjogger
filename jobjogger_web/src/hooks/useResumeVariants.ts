@@ -1,20 +1,22 @@
 import { fetchAllResumeVariants, fetchResumeVariant } from '@/services/api/resume'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useQuery } from '@tanstack/react-query'
 
 export function useAllResumeVariants() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['resume_variants', user.id],
+    queryKey: QUERY_KEYS.resumeVariants.all(userId),
     queryFn: fetchAllResumeVariants,
   })
 }
 
 export function useResumeVariant(id: number | null | undefined) {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['resume_variants', user.id, id],
+    queryKey: QUERY_KEYS.resumeVariants.detail(userId, id),
     queryFn: () => fetchResumeVariant(id!),
     enabled: !!id,
   })

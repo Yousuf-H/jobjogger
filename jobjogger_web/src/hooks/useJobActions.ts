@@ -1,6 +1,7 @@
 import { archiveJob, deleteJob, unarchiveJob } from '@/services/api/jobs'
+import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -16,52 +17,34 @@ export function useJobActions(options?: UseJobActionsOptions) {
   const archiveMutation = useMutation({
     mutationFn: archiveJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
       toast.success('Job Archived Successfully!')
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to archive this job'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to archive this job'))
     },
   })
 
   const unarchiveMutation = useMutation({
     mutationFn: unarchiveJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
       toast.success('Job unarchived successfully!')
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to unarchive'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to unarchive'))
     },
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
       toast.success('Job Deleted Successfully!')
       options?.onDeleteSuccess?.()
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to delete this job'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to delete this job'))
     },
   })
 

@@ -5,9 +5,10 @@ import {
   mergeOrganisation,
   updateOrganisation,
 } from '@/services/api/organisations'
+import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Organisation } from '@/types/organisation'
-import { AxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -22,13 +23,11 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
   const createMutation = useMutation({
     mutationFn: (data: Partial<Organisation>) => createOrganisation(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organisations'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
       toast.success('Organisation created successfully!')
     },
-    onError: (error: AxiosError<{ errors?: string[] }>) => {
-      const message =
-        error.response?.data?.errors?.[0] || 'Failed to create organisation'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to create organisation'))
     },
   })
 
@@ -36,27 +35,23 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
     mutationFn: ({ id, data }: { id: number; data: Partial<Organisation> }) =>
       updateOrganisation(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organisations'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
       toast.success('Organisation updated successfully!')
     },
-    onError: (error: AxiosError<{ errors?: string[] }>) => {
-      const message =
-        error.response?.data?.errors?.[0] || 'Failed to update organisation'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to update organisation'))
     },
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteOrganisation,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organisations'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
       toast.success('Organisation deleted successfully!')
       options?.onDeleteSuccess?.()
     },
-    onError: (error: AxiosError<{ errors?: string[] }>) => {
-      const message =
-        error.response?.data?.errors?.[0] || 'Failed to delete organisation'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to delete organisation'))
     },
   })
 
@@ -69,23 +64,21 @@ export function useOrganisationActions(options?: UseOrganisationActionsOptions) 
       targetId: number
     }) => mergeOrganisation(duplicateId, targetId),
     onSuccess: (survivingOrg) => {
-      queryClient.invalidateQueries({ queryKey: ['organisations'] })
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.all() })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contacts.all() })
       toast.success('Organisations merged successfully!')
       navigate(`/organisations/${survivingOrg.id}`)
     },
-    onError: (error: AxiosError<{ error?: string }>) => {
-      const message =
-        error.response?.data?.error || 'Failed to merge organisations'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to merge organisations'))
     },
   })
 
   const dismissReviewMutation = useMutation({
     mutationFn: (id: number) => dismissOrganisationReview(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organisations'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.organisations.all() })
       toast.success('Review dismissed.')
     },
     onError: () => {

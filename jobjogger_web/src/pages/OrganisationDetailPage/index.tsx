@@ -40,6 +40,7 @@ import {
 } from '@/hooks/useOrganisation'
 import { useOrganisationActions } from '@/hooks/useOrganisationActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { MetaItem } from '@/components/ui/MetaItem'
 import { getStatusConfig } from '@/lib/statusConfig'
 import { cn } from '@/lib/utils'
 import type { OrgJob, Organisation } from '@/types/organisation'
@@ -96,32 +97,6 @@ function StarRating({ rating }: { rating?: number | null }) {
       <span className="text-[12px] font-medium text-[#374151] dark:text-foreground/80 tabular-nums">
         {rating % 1 === 0 ? `${rating}.0` : rating}
       </span>
-    </div>
-  )
-}
-
-// ─── Meta item (matches job detail pattern) ──────────────────────────────────
-
-function MetaItem({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ElementType
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-center gap-[8px] pr-[20px] mr-[20px] border-r border-[#E5E7EB] last:border-r-0 last:pr-0 last:mr-0 dark:border-border">
-      <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-[#F9FAFB] border border-[#F3F4F6] dark:bg-muted dark:border-border/60">
-        <Icon className="h-[13px] w-[13px] text-[#9CA3AF] dark:text-muted-foreground" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[10px] text-[#9CA3AF] leading-tight dark:text-muted-foreground">
-          {label}
-        </span>
-        {children}
-      </div>
     </div>
   )
 }

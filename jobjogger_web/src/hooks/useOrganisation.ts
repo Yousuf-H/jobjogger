@@ -1,21 +1,23 @@
 import { fetchOrganisation, fetchSimilarOrganisations } from '@/services/api/organisations'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useQuery } from '@tanstack/react-query'
 
 export function useOrganisation(id: string | undefined) {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['organisations', user.id, id],
+    queryKey: QUERY_KEYS.organisations.detail(userId, id),
     queryFn: () => fetchOrganisation(Number(id)),
     enabled: !!id,
   })
 }
 
 export function useSimilarOrganisations(id: string | undefined, enabled: boolean) {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['organisations', user.id, id, 'similar'],
+    queryKey: QUERY_KEYS.organisations.similar(userId, id),
     queryFn: () => fetchSimilarOrganisations(Number(id)),
     enabled: !!id && enabled,
   })

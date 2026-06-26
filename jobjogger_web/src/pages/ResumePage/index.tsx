@@ -17,21 +17,10 @@ import { useResumeTemplates } from '@/hooks/useResumeTemplates'
 import { useAllResumeVariants } from '@/hooks/useResumeVariants'
 import { useResumeTemplateActions } from '@/hooks/useResumeTemplateActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { avatarColorById, avatarColorByName } from '@/lib/avatar'
 import { cn } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 import type { ResumeTemplate } from '@/types/resume'
-
-// Deterministic per-template colour, same avatar palette used across the app
-const TEMPLATE_COLORS = [
-  'bg-avatar-1/15 text-avatar-1',
-  'bg-avatar-2/15 text-avatar-2',
-  'bg-avatar-3/15 text-avatar-3',
-  'bg-avatar-4/15 text-avatar-4',
-  'bg-avatar-5/15 text-avatar-5',
-  'bg-avatar-6/15 text-avatar-6',
-]
-const templateColor = (id: number) => TEMPLATE_COLORS[id % TEMPLATE_COLORS.length]
-const companyColor = (name: string) => TEMPLATE_COLORS[name.charCodeAt(0) % TEMPLATE_COLORS.length]
 
 // ── Create-template dialog ────────────────────────────────────────────────────
 
@@ -150,7 +139,7 @@ function TemplateCard({
         <div
           className={cn(
             'flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[7px] text-[12px] font-semibold',
-            templateColor(template.id)
+            avatarColorById(template.id)
           )}
         >
           {template.name.charAt(0).toUpperCase()}
@@ -176,7 +165,7 @@ function TemplateCard({
                 className={cn(
                   'flex h-[18px] w-[18px] items-center justify-center rounded-full border-[1.5px] border-card text-[7px] font-semibold',
                   i > 0 && '-ml-[6px]',
-                  companyColor(name)
+                  avatarColorByName(name)
                 )}
               >
                 {name.charAt(0).toUpperCase()}

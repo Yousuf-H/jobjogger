@@ -1,20 +1,22 @@
 import { fetchResumeTemplate, fetchResumeTemplates } from '@/services/api/resume'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useQuery } from '@tanstack/react-query'
 
 export function useResumeTemplates() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['resume_templates', user.id],
+    queryKey: QUERY_KEYS.resumeTemplates.all(userId),
     queryFn: fetchResumeTemplates,
   })
 }
 
 export function useResumeTemplate(id: number | undefined) {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['resume_templates', user.id, id],
+    queryKey: QUERY_KEYS.resumeTemplates.detail(userId, id),
     queryFn: () => fetchResumeTemplate(id!),
     enabled: !!id,
   })

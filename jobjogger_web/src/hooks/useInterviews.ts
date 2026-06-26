@@ -12,33 +12,31 @@ import {
   updateInterview,
   updateInterviewQuestion,
 } from '@/services/api/interviews'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import type { Interview, InterviewQuestion } from '@/types/interview'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-function getUserId(): string {
-  return JSON.parse(localStorage.getItem('user') || '{}').id
-}
-
 // --- Interviews ---
 
 export function useInterviews(jobId: number | undefined) {
-  const userId = getUserId()
+  const userId = getCurrentUserId()
   return useQuery({
-    queryKey: ['interviews', userId, jobId],
+    queryKey: QUERY_KEYS.interviews.forJob(userId, jobId),
     queryFn: () => fetchInterviews(Number(jobId)),
     enabled: !!jobId,
   })
 }
 
 export function useInterviewActions(jobId: number) {
-  const userId = getUserId()
+  const userId = getCurrentUserId()
   const queryClient = useQueryClient()
-  const queryKey = ['interviews', userId, jobId]
+  const queryKey = QUERY_KEYS.interviews.forJob(userId, jobId)
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey })
-    queryClient.invalidateQueries({ queryKey: ['jobs', userId] })
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
   }
 
   const createMutation = useMutation({
@@ -83,12 +81,12 @@ export function useInterviewQuestions(
   },
   options?: { enabled?: boolean }
 ) {
-  const userId = getUserId()
+  const userId = getCurrentUserId()
   const defaultEnabled =
     (params?.scope !== 'job' || !!params?.job_id) &&
     (params?.scope !== 'org' || !!params?.organisation_id)
   return useQuery({
-    queryKey: ['interview_questions', userId, params],
+    queryKey: QUERY_KEYS.interviewQuestions.list(userId, params),
     queryFn: () => fetchInterviewQuestions(params),
     enabled: options?.enabled !== undefined ? options.enabled && defaultEnabled : defaultEnabled,
   })
@@ -97,18 +95,18 @@ export function useInterviewQuestions(
 // --- Pinned Questions (join table) ---
 
 export function usePinnedQuestions(jobId: number) {
-  const userId = getUserId()
+  const userId = getCurrentUserId()
   return useQuery({
-    queryKey: ['pinned_questions', userId, jobId],
+    queryKey: QUERY_KEYS.pinnedQuestions.forJob(userId, jobId),
     queryFn: () => fetchPinnedQuestions(jobId),
     enabled: !!jobId,
   })
 }
 
 export function usePinnedQuestionActions(jobId: number) {
-  const userId = getUserId()
+  const userId = getCurrentUserId()
   const queryClient = useQueryClient()
-  const queryKey = ['pinned_questions', userId, jobId]
+  const queryKey = QUERY_KEYS.pinnedQuestions.forJob(userId, jobId)
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey })
 
@@ -122,7 +120,7 @@ export function usePinnedQuestionActions(jobId: number) {
     mutationFn: (data: Partial<InterviewQuestion>) => createAndPinQuestion(jobId, data),
     onSuccess: () => {
       invalidate()
-      queryClient.invalidateQueries({ queryKey: ['interview_questions', userId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.interviewQuestions.byUser(userId) })
       toast.success('Question saved!')
     },
     onError: () => toast.error('Failed to save question'),
@@ -138,12 +136,12 @@ export function usePinnedQuestionActions(jobId: number) {
 }
 
 export function useInterviewQuestionActions() {
-  const userId = getUserId()
+  const userId = getCurrentUserId()
   const queryClient = useQueryClient()
 
   const invalidate = () =>
     queryClient.invalidateQueries({
-      queryKey: ['interview_questions', userId],
+      queryKey: QUERY_KEYS.interviewQuestions.byUser(userId),
     })
 
   const createMutation = useMutation({

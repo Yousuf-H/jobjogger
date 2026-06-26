@@ -4,17 +4,19 @@ import {
   linkResumeVariant,
   updateResumeVariant,
 } from '@/services/api/resume'
+import { getCurrentUserId } from '@/lib/auth'
+import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import { toast } from 'sonner'
 
 export function useResumeVariantActions(templateId?: number) {
   const queryClient = useQueryClient()
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ['resume_variants', user.id] })
-    queryClient.invalidateQueries({ queryKey: ['resume_templates', user.id] })
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.resumeVariants.all(userId) })
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.resumeTemplates.all(userId) })
   }
 
   const createMutation = useMutation({
@@ -24,8 +26,8 @@ export function useResumeVariantActions(templateId?: number) {
       invalidate()
       toast.success('Variant created.')
     },
-    onError: (error: AxiosError<{ errors?: string[] }>) => {
-      toast.error(error.response?.data?.errors?.[0] ?? 'Failed to create variant.')
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to create variant.'))
     },
   })
 
@@ -36,8 +38,8 @@ export function useResumeVariantActions(templateId?: number) {
       invalidate()
       toast.success('Variant updated.')
     },
-    onError: (error: AxiosError<{ errors?: string[] }>) => {
-      toast.error(error.response?.data?.errors?.[0] ?? 'Failed to update variant.')
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to update variant.'))
     },
   })
 
@@ -56,7 +58,7 @@ export function useResumeVariantActions(templateId?: number) {
     mutationFn: ({ jobId, variantId }: { jobId: number; variantId: number | null }) =>
       linkResumeVariant(jobId, variantId),
     onSuccess: (_, { variantId }) => {
-      queryClient.invalidateQueries({ queryKey: ['jobs', user.id] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
       toast.success(variantId ? 'Resume linked.' : 'Resume unlinked.')
     },
     onError: () => {

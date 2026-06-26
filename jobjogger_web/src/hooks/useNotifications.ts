@@ -3,17 +3,15 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
 } from '@/services/api/notifications'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-function getUserId(): string {
-  return JSON.parse(localStorage.getItem('user') || '{}').id
-}
-
 export function useNotifications() {
-  const userId = getUserId()
+  const userId = getCurrentUserId()
 
   return useQuery({
-    queryKey: ['notifications', userId],
+    queryKey: QUERY_KEYS.notifications(userId),
     queryFn: fetchNotifications,
     refetchInterval: 60000,
   })
@@ -21,10 +19,10 @@ export function useNotifications() {
 
 export function useNotificationActions() {
   const queryClient = useQueryClient()
-  const userId = getUserId()
+  const userId = getCurrentUserId()
 
   const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ['notifications', userId] })
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.notifications(userId) })
 
   const markReadMutation = useMutation({
     mutationFn: markNotificationRead,

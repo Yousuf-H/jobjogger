@@ -3,16 +3,18 @@ import {
   deleteResumeTemplate,
   updateResumeTemplate,
 } from '@/services/api/resume'
+import { getCurrentUserId } from '@/lib/auth'
+import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import { toast } from 'sonner'
 
 export function useResumeTemplateActions() {
   const queryClient = useQueryClient()
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = getCurrentUserId()
 
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ['resume_templates', user.id] })
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.resumeTemplates.all(userId) })
   }
 
   const createMutation = useMutation({
@@ -22,8 +24,8 @@ export function useResumeTemplateActions() {
       invalidate()
       toast.success('Template created.')
     },
-    onError: (error: AxiosError<{ errors?: string[] }>) => {
-      toast.error(error.response?.data?.errors?.[0] ?? 'Failed to create template.')
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to create template.'))
     },
   })
 
@@ -34,8 +36,8 @@ export function useResumeTemplateActions() {
       invalidate()
       toast.success('Template updated.')
     },
-    onError: (error: AxiosError<{ errors?: string[] }>) => {
-      toast.error(error.response?.data?.errors?.[0] ?? 'Failed to update template.')
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to update template.'))
     },
   })
 

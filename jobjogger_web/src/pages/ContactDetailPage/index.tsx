@@ -43,6 +43,7 @@ import { useContactActions } from '@/hooks/useContactActions'
 import { useContact } from '@/hooks/useContacts'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { ContactFormValues, InteractionFormValues } from '@/lib/validations/contact'
+import { MetaItem } from '@/components/ui/MetaItem'
 import { getStatusConfig } from '@/lib/statusConfig'
 import { cn } from '@/lib/utils'
 import {
@@ -81,32 +82,6 @@ function getInteractionIconConfig(type: InteractionType) {
     default:
       return { Icon: IconMessage, bg: 'bg-[#F9FAFB] dark:bg-muted', ring: 'ring-[#E5E7EB] dark:ring-border', color: 'text-[#6B7280] dark:text-muted-foreground' }
   }
-}
-
-// ─── Meta item (matches job/org detail pattern) ──────────────────────────────
-
-function MetaItem({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ElementType
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-center gap-[8px] pr-[20px] mr-[20px] border-r border-[#E5E7EB] last:border-r-0 last:pr-0 last:mr-0 dark:border-border">
-      <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-[#F9FAFB] border border-[#F3F4F6] dark:bg-muted dark:border-border/60">
-        <Icon className="h-[13px] w-[13px] text-[#9CA3AF] dark:text-muted-foreground" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[10px] text-[#9CA3AF] leading-tight dark:text-muted-foreground">
-          {label}
-        </span>
-        {children}
-      </div>
-    </div>
-  )
 }
 
 // ─── Interaction item ─────────────────────────────────────────────────────────

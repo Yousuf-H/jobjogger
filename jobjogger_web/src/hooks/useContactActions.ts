@@ -8,12 +8,10 @@ import {
   updateContact,
   updateInteraction,
 } from '@/services/api/contacts'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-
-function getUserId(): string {
-  return JSON.parse(localStorage.getItem('user') || '{}').id
-}
 
 interface UseContactActionsOptions {
   onCreateSuccess?: () => void
@@ -22,10 +20,10 @@ interface UseContactActionsOptions {
 
 export function useContactActions(options?: UseContactActionsOptions) {
   const queryClient = useQueryClient()
-  const userId = getUserId()
+  const userId = getCurrentUserId()
 
   const invalidateContacts = () =>
-    queryClient.invalidateQueries({ queryKey: ['contacts', userId] })
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contacts.byUser(userId) })
 
   const createMutation = useMutation({
     mutationFn: createContact,
@@ -62,7 +60,7 @@ export function useContactActions(options?: UseContactActionsOptions) {
       linkContactToJob(jobId, contactId),
     onSuccess: (_data, { jobId }) => {
       invalidateContacts()
-      queryClient.invalidateQueries({ queryKey: ['contacts', userId, 'job', jobId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contacts.forJob(userId, jobId) })
       toast.success('Contact linked to job')
     },
     onError: () => toast.error('Failed to link contact'),
@@ -73,7 +71,7 @@ export function useContactActions(options?: UseContactActionsOptions) {
       unlinkContactFromJob(jobId, contactId),
     onSuccess: (_data, { jobId }) => {
       invalidateContacts()
-      queryClient.invalidateQueries({ queryKey: ['contacts', userId, 'job', jobId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contacts.forJob(userId, jobId) })
       toast.success('Contact unlinked')
     },
     onError: () => toast.error('Failed to unlink contact'),
