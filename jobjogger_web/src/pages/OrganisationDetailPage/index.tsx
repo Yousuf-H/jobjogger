@@ -267,7 +267,7 @@ function ReviewBanner({ org }: { org: Organisation }) {
                     className="shrink-0 border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-400"
                   >
                     <ArrowRightLeft className="mr-1.5 h-3.5 w-3.5" />
-                    Merge into this org
+                    Merge into existing org
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -275,10 +275,9 @@ function ReviewBanner({ org }: { org: Organisation }) {
                     <AlertDialogTitle>Merge organisations?</AlertDialogTitle>
                     <AlertDialogDescription>
                       <strong>{org.name}</strong> will be merged into{' '}
-                      <strong>{suggestion.name}</strong>. All linked jobs will be moved
-                      to <strong>{suggestion.name}</strong>, and{' '}
-                      <strong>{org.name}</strong> will be deleted. This
-                      cannot be undone.
+                      <strong>{suggestion.name}</strong>. All linked jobs and contacts
+                      will be moved there, and <strong>{org.name}</strong> will be
+                      deleted. This cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
