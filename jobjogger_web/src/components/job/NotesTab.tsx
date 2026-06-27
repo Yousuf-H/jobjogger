@@ -2,9 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { updateJob } from '@/services/api/jobs'
 import type { Job } from '@/types/job'
 
+import EmptyTabState from '@/components/job/EmptyTabState'
 import { Markdown } from '@/components/ui/markdown'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
@@ -31,7 +34,7 @@ export function NotesTab({ job }: NotesTabProps) {
   const saveMutation = useMutation({
     mutationFn: (newNotes: string) => updateJob(job.id, { notes: newNotes }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(getCurrentUserId()) })
       toast.success('Notes saved!')
     },
     onError: () => {
@@ -97,15 +100,11 @@ export function NotesTab({ job }: NotesTabProps) {
             <Markdown>{notes}</Markdown>
           </div>
         ) : (
-          <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
-            <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
-              <PenLine className="h-5 w-5" />
-            </div>
-            <p className="text-[14px] font-semibold text-foreground">No notes yet</p>
-            <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
-              Switch to Write to add interview prep, recruiter context, or anything worth remembering. Markdown is supported.
-            </p>
-          </div>
+          <EmptyTabState
+            icon={PenLine}
+            title="No notes yet"
+            description="Switch to Write to add interview prep, recruiter context, or anything worth remembering. Markdown is supported."
+          />
         )
       )}
 

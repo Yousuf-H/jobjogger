@@ -10,10 +10,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import type { UpdateJobFormValues } from '@/lib/validations/job'
+import { getCurrentUserId } from '@/lib/auth'
+import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { updateJob } from '@/services/api/jobs'
 import type { Job } from '@/types/job'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -33,8 +35,8 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
   const mutation = useMutation({
     mutationFn: (jobData: Job) => updateJob(job.id, jobData),
     onSuccess: (_, jobData) => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      queryClient.invalidateQueries({ queryKey: ['jobs', job.id.toString()] })
+      const userId = getCurrentUserId()
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
       toast.success('Job updated successfully!')
       setOpen(false)
       const statusChanged = jobData.status !== job.status
@@ -42,14 +44,8 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
         setPromptOpen(true)
       }
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to update job'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to update job'))
     },
   })
 
@@ -87,6 +83,7 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
+        {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
         <JobForm
           key={open ? 'open' : 'closed'}
           defaultValues={{

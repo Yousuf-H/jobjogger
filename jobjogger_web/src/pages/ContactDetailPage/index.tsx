@@ -43,6 +43,7 @@ import { useContactActions } from '@/hooks/useContactActions'
 import { useContact } from '@/hooks/useContacts'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { ContactFormValues, InteractionFormValues } from '@/lib/validations/contact'
+import { MetaItem } from '@/components/ui/MetaItem'
 import { getStatusConfig } from '@/lib/statusConfig'
 import { cn } from '@/lib/utils'
 import {
@@ -83,32 +84,6 @@ function getInteractionIconConfig(type: InteractionType) {
   }
 }
 
-// ─── Meta item (matches job/org detail pattern) ──────────────────────────────
-
-function MetaItem({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ElementType
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-center gap-[8px] pr-[20px] mr-[20px] border-r border-[#E5E7EB] last:border-r-0 last:pr-0 last:mr-0 dark:border-border">
-      <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] bg-[#F9FAFB] border border-[#F3F4F6] dark:bg-muted dark:border-border/60">
-        <Icon className="h-[13px] w-[13px] text-[#9CA3AF] dark:text-muted-foreground" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[10px] text-[#9CA3AF] leading-tight dark:text-muted-foreground">
-          {label}
-        </span>
-        {children}
-      </div>
-    </div>
-  )
-}
-
 // ─── Interaction item ─────────────────────────────────────────────────────────
 
 function EditInteractionDialog({
@@ -140,6 +115,7 @@ function EditInteractionDialog({
             Update the details for this interaction.
           </DialogDescription>
         </DialogHeader>
+        {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
         <InteractionForm
           key={open ? 'open' : 'closed'}
           mode="edit"
@@ -331,6 +307,7 @@ function InteractionsTab({
                 Log a new interaction with this contact.
               </DialogDescription>
             </DialogHeader>
+            {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
             <InteractionForm
               key={addOpen ? 'open' : 'closed'}
               onSubmit={handleAdd}
@@ -484,6 +461,7 @@ export default function ContactDetailPage() {
                   Update the details for this contact.
                 </DialogDescription>
               </DialogHeader>
+              {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
               <ContactForm
                 key={editOpen ? 'open' : 'closed'}
                 onSubmit={handleUpdate}

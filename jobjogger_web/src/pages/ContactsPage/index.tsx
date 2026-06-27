@@ -16,26 +16,14 @@ import {
 import { useContactActions } from '@/hooks/useContactActions'
 import { useContacts } from '@/hooks/useContacts'
 import { usePageTitle } from '@/hooks/usePageTitle'
-import { cn } from '@/lib/utils'
+import { avatarColorById } from '@/lib/avatar'
+import { MobileListRow } from '@/components/ui/MobileListRow'
 import type { ContactFormValues } from '@/lib/validations/contact'
 import type { Contact } from '@/types/contact'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Building2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-const AVATAR_COLORS = [
-  'bg-avatar-1/15 text-avatar-1',
-  'bg-avatar-2/15 text-avatar-2',
-  'bg-avatar-3/15 text-avatar-3',
-  'bg-avatar-4/15 text-avatar-4',
-  'bg-avatar-5/15 text-avatar-5',
-  'bg-avatar-6/15 text-avatar-6',
-]
-
-function avatarColorClasses(contact: Contact) {
-  return AVATAR_COLORS[contact.id % AVATAR_COLORS.length]
-}
 
 function ContactMobileRow({
   contact,
@@ -44,43 +32,24 @@ function ContactMobileRow({
   contact: Contact
   onClick: () => void
 }) {
-  const initial = contact.name.charAt(0).toUpperCase()
-
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="flex items-start gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0 focus-visible:outline-none focus-visible:bg-blue-50 dark:focus-visible:bg-blue-900/20"
+    <MobileListRow
+      initial={contact.name.charAt(0).toUpperCase()}
+      avatarColor={avatarColorById(contact.id)}
       onClick={onClick}
-      onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
-          e.preventDefault()
-          onClick()
-        }
-      }}
     >
-      <div
-        className={cn(
-          'flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold mt-0.5',
-          avatarColorClasses(contact)
+      <span className="font-medium text-sm truncate block">{contact.name}</span>
+      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+        {contact.role && <span>{contact.role}</span>}
+        {contact.organisation && <span>{contact.organisation.name}</span>}
+        {contact.email && <span className="truncate">{contact.email}</span>}
+        {contact.jobs && contact.jobs.length > 0 && (
+          <span>
+            {contact.jobs.length} {contact.jobs.length === 1 ? 'job' : 'jobs'}
+          </span>
         )}
-      >
-        {initial}
       </div>
-      <div className="min-w-0 flex-1">
-        <span className="font-medium text-sm truncate block">{contact.name}</span>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-          {contact.role && <span>{contact.role}</span>}
-          {contact.organisation && <span>{contact.organisation.name}</span>}
-          {contact.email && <span className="truncate">{contact.email}</span>}
-          {contact.jobs && contact.jobs.length > 0 && (
-            <span>
-              {contact.jobs.length} {contact.jobs.length === 1 ? 'job' : 'jobs'}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
+    </MobileListRow>
   )
 }
 

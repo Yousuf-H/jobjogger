@@ -1,6 +1,24 @@
 import type { Job, JobFilters } from '@/types/job'
 import type { TimelineEntry } from '@/types/timelineEntry'
+import { z } from 'zod'
 import { apiClient } from './client'
+
+const jobSchema = z.object({
+  id: z.number(),
+  company_name: z.string(),
+  job_title: z.string(),
+  status: z.string(),
+  tags: z.array(z.string()),
+  created_at: z.string(),
+  updated_at: z.string(),
+})
+
+const jobsResponseSchema = z.array(jobSchema)
+
+const jobDetailResponseSchema = z.object({
+  job: jobSchema,
+  timeline_entries: z.array(z.object({ id: z.number() })),
+})
 
 export async function fetchJobs(filters?: JobFilters): Promise<Job[]> {
   const response = await apiClient.get('/jobs', {
@@ -21,17 +39,18 @@ export async function fetchJobs(filters?: JobFilters): Promise<Job[]> {
       return searchParams.toString()
     },
   })
-  return response.data
+  jobsResponseSchema.parse(response.data)
+  return response.data as Job[]
 }
 
 export async function fetchJob(
   id: number
 ): Promise<{ job: Job; timeline_entries: TimelineEntry[] }> {
   const response = await apiClient.get(`/jobs/${id}`)
-
+  jobDetailResponseSchema.parse(response.data)
   return {
-    job: response.data.job,
-    timeline_entries: response.data.timeline_entries,
+    job: response.data.job as Job,
+    timeline_entries: response.data.timeline_entries as TimelineEntry[],
   }
 }
 

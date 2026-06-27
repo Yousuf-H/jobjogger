@@ -3,13 +3,29 @@ import { TypographyH3 } from '@/components/ui/typography'
 import type { LucideIcon } from 'lucide-react'
 
 interface EmptyTabStateProps {
+  /** A Lucide icon component rendered in the circular icon container. */
   icon: LucideIcon
+  /** Short heading (e.g. `"No notes yet"`). */
   title: string
+  /** Explanatory sentence below the heading. */
   description: string
+  /** Label for the optional CTA button. Requires `onAction` to render. */
   actionLabel?: string
+  /** Handler for the CTA button. Requires `actionLabel` to render. */
   onAction?: () => void
 }
 
+/**
+ * Standardised empty state for job/contact/organisation detail tabs.
+ *
+ * Renders a centred icon, heading, description, and an optional action button.
+ * The button only renders when **both** `actionLabel` and `onAction` are provided —
+ * omit either to show a read-only empty state (used for terminal-status jobs).
+ *
+ * Prefer this over ad-hoc empty state markup so all tabs share the same
+ * visual language. Two cases currently use custom markup instead due to
+ * limitations in the single-action slot — see `JobContactsTab` and `TimelineTab`.
+ */
 export default function EmptyTabState({
   icon: Icon,
   title,

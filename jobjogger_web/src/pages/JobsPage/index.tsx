@@ -12,18 +12,10 @@ import { useJobActions } from '@/hooks/useJobActions'
 import { useJobs } from '@/hooks/useJobs'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Job, JobFilters } from '@/types/job'
-import { cn } from '@/lib/utils'
+import { avatarColorById } from '@/lib/avatar'
+import { MobileListRow } from '@/components/ui/MobileListRow'
 import { useCallback, useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
-
-const AVATAR_COLORS = [
-  'bg-avatar-1/15 text-avatar-1',
-  'bg-avatar-2/15 text-avatar-2',
-  'bg-avatar-3/15 text-avatar-3',
-  'bg-avatar-4/15 text-avatar-4',
-  'bg-avatar-5/15 text-avatar-5',
-  'bg-avatar-6/15 text-avatar-6',
-]
 
 interface JobMobileRowProps {
   job: Job
@@ -35,45 +27,30 @@ interface JobMobileRowProps {
 }
 
 function JobMobileRow({ job, onClick, onView, onArchive, onUnarchive, onDelete }: JobMobileRowProps) {
-  const initial = job.company_name.charAt(0).toUpperCase()
-  const avatarColor = AVATAR_COLORS[job.id % AVATAR_COLORS.length]
-
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="flex items-start gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0 focus-visible:outline-none focus-visible:bg-blue-50 dark:focus-visible:bg-blue-900/20"
+    <MobileListRow
+      initial={job.company_name.charAt(0).toUpperCase()}
+      avatarColor={avatarColorById(job.id)}
       onClick={onClick}
-      onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
-          e.preventDefault()
-          onClick()
-        }
-      }}
     >
-      <div className={cn('flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold mt-0.5', avatarColor)}>
-        {initial}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-medium text-sm truncate">{job.company_name}</span>
-          <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-            <StatusBadge job={job} />
-            <ActionsCell
-              jobId={job.id}
-              isArchived={Boolean(job.archived_at)}
-              onView={onView}
-              onArchive={onArchive}
-              onUnarchive={onUnarchive}
-              onDelete={onDelete}
-            />
-          </div>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium text-sm truncate">{job.company_name}</span>
+        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <StatusBadge job={job} />
+          <ActionsCell
+            jobId={job.id}
+            isArchived={Boolean(job.archived_at)}
+            onView={onView}
+            onArchive={onArchive}
+            onUnarchive={onUnarchive}
+            onDelete={onDelete}
+          />
         </div>
-        {job.job_title && (
-          <span className="text-xs text-muted-foreground mt-0.5 block">{job.job_title}</span>
-        )}
       </div>
-    </div>
+      {job.job_title && (
+        <span className="text-xs text-muted-foreground mt-0.5 block">{job.job_title}</span>
+      )}
+    </MobileListRow>
   )
 }
 

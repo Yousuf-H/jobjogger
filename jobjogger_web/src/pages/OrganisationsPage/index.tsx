@@ -19,6 +19,8 @@ import {
 import { useOrganisationActions } from '@/hooks/useOrganisationActions'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { avatarColorById } from '@/lib/avatar'
+import { MobileListRow } from '@/components/ui/MobileListRow'
 import { cn } from '@/lib/utils'
 import type { Organisation } from '@/types/organisation'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -38,19 +40,6 @@ const PILL_INACTIVE =
   'bg-background text-muted-foreground border-border hover:text-foreground hover:bg-muted/60'
 const PILL_ACTIVE =
   'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800'
-
-const AVATAR_COLORS = [
-  'bg-avatar-1/15 text-avatar-1',
-  'bg-avatar-2/15 text-avatar-2',
-  'bg-avatar-3/15 text-avatar-3',
-  'bg-avatar-4/15 text-avatar-4',
-  'bg-avatar-5/15 text-avatar-5',
-  'bg-avatar-6/15 text-avatar-6',
-]
-
-function avatarColorClasses(org: Organisation) {
-  return AVATAR_COLORS[org.id % AVATAR_COLORS.length]
-}
 
 function primaryIndustry(industry: string) {
   return industry.split(/[/,]/)[0].trim()
@@ -144,68 +133,50 @@ function CreateOrganisationDialog() {
 }
 
 function OrgMobileRow({ org, onClick }: { org: Organisation; onClick: () => void }) {
-  const initial = org.name.charAt(0).toUpperCase()
   const totalCount = org.total_jobs_count ?? 0
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="flex items-start gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors border-b border-border/40 last:border-0 focus-visible:outline-none focus-visible:bg-blue-50 dark:focus-visible:bg-blue-900/20"
+    <MobileListRow
+      initial={org.name.charAt(0).toUpperCase()}
+      avatarColor={avatarColorById(org.id)}
       onClick={onClick}
-      onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
-          e.preventDefault()
-          onClick()
-        }
-      }}
     >
-      <div
-        className={cn(
-          'flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold mt-0.5',
-          avatarColorClasses(org)
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium text-sm truncate">{org.name}</span>
+        {org.needs_review && (
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-blue-500 dark:text-blue-400" />
         )}
-      >
-        {initial}
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-medium text-sm truncate">{org.name}</span>
-          {org.needs_review && (
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-blue-500 dark:text-blue-400" />
-          )}
-        </div>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-          {org.industry && <span>{primaryIndustry(org.industry)}</span>}
-          {org.size && <span>{org.size}</span>}
-          <span>
-            {totalCount} {totalCount === 1 ? 'job' : 'jobs'}
+      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+        {org.industry && <span>{primaryIndustry(org.industry)}</span>}
+        {org.size && <span>{org.size}</span>}
+        <span>
+          {totalCount} {totalCount === 1 ? 'job' : 'jobs'}
+        </span>
+        {org.rating != null && (
+          <span className="inline-flex items-center gap-0.5">
+            <Star className="h-3 w-3" />
+            {org.rating % 1 === 0 ? `${org.rating}.0` : org.rating}
           </span>
-          {org.rating != null && (
-            <span className="inline-flex items-center gap-0.5">
-              <Star className="h-3 w-3" />
-              {org.rating % 1 === 0 ? `${org.rating}.0` : org.rating}
-            </span>
-          )}
-          {org.website && (
-            <a
-              href={
-                org.website.startsWith('http')
-                  ? org.website
-                  : `https://${org.website}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-brand flex items-center gap-0.5 hover:underline"
-            >
-              <ExternalLink className="h-3 w-3" />
-              Site
-            </a>
-          )}
-        </div>
+        )}
+        {org.website && (
+          <a
+            href={
+              org.website.startsWith('http')
+                ? org.website
+                : `https://${org.website}`
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-brand flex items-center gap-0.5 hover:underline"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Site
+          </a>
+        )}
       </div>
-    </div>
+    </MobileListRow>
   )
 }
 

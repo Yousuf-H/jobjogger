@@ -2,6 +2,8 @@ import AddTimelineEntryDialog from '@/components/job/AddTimelineEntryDialog'
 import TimelineHelpDialog from '@/components/job/TimelineHelpDialog'
 import { cn } from '@/lib/utils'
 import { getEntryTypeConfig } from '@/lib/timelineEntryStyles'
+import { getCurrentUserId } from '@/lib/auth'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { deleteTimelineEntry } from '@/services/api/timelineEntries'
 import type { TimelineEntry } from '@/types/timelineEntry'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -32,7 +34,7 @@ function TimelineEntryItem({
   const deleteMutation = useMutation({
     mutationFn: () => deleteTimelineEntry(entry.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(getCurrentUserId()) })
       toast.success('Timeline entry deleted!')
     },
     onError: () => {
@@ -144,6 +146,8 @@ export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
   return (
     <div className="space-y-4">
       {timelineEntries.length === 0 ? (
+        // TODO: use EmptyTabState — action button is AddTimelineEntryDialog which owns its own open
+        // state; fix requires either lifting that state here or adding open/onOpenChange props to the dialog.
         <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
           <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
             <History className="h-5 w-5" />

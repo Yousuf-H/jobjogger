@@ -1,5 +1,6 @@
 import { ContactAvatar } from '@/components/contact/ContactAvatar'
 import { ContactForm } from '@/components/contact/ContactForm'
+import EmptyTabState from '@/components/job/EmptyTabState'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -87,21 +88,13 @@ export function OrgContactsTab({ organisationId, organisationName }: OrgContacts
       )}
 
       {!isLoading && contacts.length === 0 ? (
-        <div className="flex min-h-[200px] flex-col items-center justify-center px-6 py-10 text-center">
-          <div className="mb-4 rounded-full bg-muted p-3 text-muted-foreground">
-            <Users className="h-5 w-5" />
-          </div>
-          <p className="text-[14px] font-semibold text-foreground">No contacts at this organisation yet</p>
-          <p className="text-muted-foreground mt-2 max-w-md text-[13px]">
-            Add people you've spoken to or connected with at this company.
-          </p>
-          <div className="mt-5">
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-1.5 h-3.5 w-3.5" />
-              Add contact
-            </Button>
-          </div>
-        </div>
+        <EmptyTabState
+          icon={Users}
+          title="No contacts at this organisation yet"
+          description="Add people you've spoken to or connected with at this company."
+          actionLabel="Add contact"
+          onAction={() => setCreateOpen(true)}
+        />
       ) : contacts.length > 0 ? (
         <div className="-mx-6 -mb-6">
           {contacts.map((contact) => (
@@ -118,6 +111,7 @@ export function OrgContactsTab({ organisationId, organisationName }: OrgContacts
               Fill in the details to add a new contact to this organisation.
             </DialogDescription>
           </DialogHeader>
+          {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
           <ContactForm
             key={createOpen ? 'open' : 'closed'}
             onSubmit={handleCreate}

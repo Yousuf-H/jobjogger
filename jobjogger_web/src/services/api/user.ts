@@ -1,3 +1,4 @@
+import type { User } from '@/types/user'
 import { apiClient } from './client'
 
 export async function updateProfile(data: {
@@ -70,9 +71,9 @@ export async function deleteAvatar() {
   return response.data
 }
 
-export async function fetchMe() {
+export async function fetchMe(): Promise<User> {
   const response = await apiClient.get('/users/me')
-  return response.data.user
+  return response.data.user as User
 }
 
 export async function acceptTermsApi() {

@@ -65,6 +65,15 @@ function NotificationItem({
   )
 }
 
+/**
+ * Navigation bell icon that shows the unread notification count and a popover inbox.
+ *
+ * Notifications are fetched via `useNotifications`, which polls every 60 seconds.
+ * The red badge on the icon displays `unread_count` from the response meta; counts
+ * above 9 are capped at `"9+"`. Clicking a notification marks it read and navigates
+ * to the linked job if one exists. The "Mark all as read" button is only shown when
+ * there are unread items.
+ */
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const { data } = useNotifications()

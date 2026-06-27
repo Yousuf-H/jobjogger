@@ -24,6 +24,19 @@ interface DataTableProps<TData, TValue> {
   emptyMessage?: string
 }
 
+/**
+ * Generic sortable data table built on TanStack Table.
+ *
+ * Sorting is managed locally — columns opt in by setting `enableSorting: true`
+ * in their `ColumnDef`. Rows are keyboard-accessible when `onRowClick` is
+ * provided (Enter / Space activates the row).
+ *
+ * @param columns       - TanStack Table column definitions.
+ * @param data          - The array of row data to display.
+ * @param onRowClick    - Optional click handler; makes rows interactive and focusable.
+ * @param defaultSort   - Initial sorting state (default: none).
+ * @param emptyMessage  - Text shown when `data` is empty (default: `"No results."`).
+ */
 export function DataTable<TData, TValue>({
   columns,
   data,

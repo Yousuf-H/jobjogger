@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import { toast } from 'sonner'
 
+import { getCurrentUserId } from '@/lib/auth'
+import { extractErrorMessage } from '@/lib/errors'
+import { invalidateJobQueries } from '@/lib/invalidation'
 import type { TimelineEntryFormValues } from '@/lib/validations/timelineEntry'
 import {
   createTimelineEntry,
@@ -14,29 +16,37 @@ interface UseTimelineEntryActionsOptions {
   onUpdateSuccess?: () => void
 }
 
+/**
+ * Provides create and update mutations for timeline entries on a job.
+ *
+ * Both mutations call `invalidateJobQueries` on success so the job detail
+ * page (which embeds the timeline) immediately reflects the change.
+ *
+ * @param options.jobId           - The job that owns the timeline entries.
+ * @param options.onCreateSuccess - Fired after a successful create (e.g. close dialog).
+ * @param options.onUpdateSuccess - Fired after a successful update.
+ * @returns `{ createMutation, updateMutation }`
+ */
 export function useTimelineEntryActions({
   jobId,
   onCreateSuccess,
   onUpdateSuccess,
 }: UseTimelineEntryActionsOptions) {
   const queryClient = useQueryClient()
+  const userId = getCurrentUserId()
+
+  const invalidate = () => invalidateJobQueries(queryClient, userId)
 
   const createMutation = useMutation({
     mutationFn: (data: TimelineEntryFormValues) =>
       createTimelineEntry(jobId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      invalidate()
       toast.success('Timeline entry added!')
       onCreateSuccess?.()
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to add entry'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to add entry'))
     },
   })
 
@@ -49,18 +59,12 @@ export function useTimelineEntryActions({
       data: TimelineEntryFormValues
     }) => updateTimelineEntry(entryId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      invalidate()
       toast.success('Timeline entry updated!')
       onUpdateSuccess?.()
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to update entry'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to update entry'))
     },
   })
 

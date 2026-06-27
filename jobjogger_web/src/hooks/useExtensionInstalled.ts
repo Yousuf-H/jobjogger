@@ -14,6 +14,18 @@ interface ChromeWindow {
   runtime?: ChromeRuntime
 }
 
+/**
+ * Detects whether the JobJogger Chrome extension is installed in the current browser.
+ *
+ * Sends a `PING` message to the extension ID from `VITE_EXTENSION_ID`. If the
+ * extension responds with `{ pong: true }` it is considered installed.
+ *
+ * Returns `null` while the check is in progress (i.e. on the initial render),
+ * then settles to `true` or `false`. Components should treat `null` as "unknown"
+ * and avoid rendering install prompts until it resolves.
+ *
+ * @returns `true` if installed, `false` if not, `null` while detecting.
+ */
 export function useExtensionInstalled(): boolean | null {
   const [installed, setInstalled] = useState<boolean | null>(null)
 

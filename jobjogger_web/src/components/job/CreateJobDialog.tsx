@@ -10,9 +10,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import type { CreateJobFormValues } from '@/lib/validations/job'
+import { getCurrentUserId } from '@/lib/auth'
+import { extractErrorMessage } from '@/lib/errors'
+import { QUERY_KEYS } from '@/lib/queryKeys'
 import { createJob } from '@/services/api/jobs'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -30,20 +32,15 @@ export default function CreateJobDialog({
   const mutation = useMutation({
     mutationFn: createJob,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs'] })
-      queryClient.invalidateQueries({ queryKey: ['activity'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      const userId = getCurrentUserId()
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.jobs.byUser(userId) })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.activity.byUser(userId) })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics(userId) })
       toast.success('Job created successfully!')
       setOpen(false)
     },
-    onError: (
-      error: AxiosError<{ status?: { message?: string }; errors?: string[] }>
-    ) => {
-      const message =
-        error.response?.data?.status?.message ||
-        error.response?.data?.errors?.[0] ||
-        'Failed to create job'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, 'Failed to create job'))
     },
   })
 
@@ -73,6 +70,7 @@ export default function CreateJobDialog({
             Fill in the details to add a new job application.
           </DialogDescription>
         </DialogHeader>
+        {/* TODO: replace key trick with form.reset() in onOpenChange — requires lifting useForm to dialog scope */}
         <JobForm
           key={open ? 'open' : 'closed'}
           onSubmit={handleSubmit}
