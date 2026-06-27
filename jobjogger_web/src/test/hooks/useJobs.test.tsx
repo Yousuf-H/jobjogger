@@ -23,7 +23,7 @@ describe('useJobs', () => {
 
   it('accepts filters without error', async () => {
     const wrapper = createWrapper()
-    const { result } = renderHook(() => useJobs({ status: 'applied' }), { wrapper })
+    const { result } = renderHook(() => useJobs({ status: ['applied'] }), { wrapper })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     // MSW returns the full list regardless of filter — just verify no error

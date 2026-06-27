@@ -15,7 +15,7 @@ export type ContactFormValues = z.infer<typeof contactSchema>
 
 export const interactionSchema = z.object({
   interaction_type: z.enum(INTERACTION_TYPES, {
-    errorMap: () => ({ message: 'Please select an interaction type' }),
+    error: 'Please select an interaction type',
   }),
   notes: z.string().optional(),
   occurred_at: z.string().min(1, 'Date is required'),
