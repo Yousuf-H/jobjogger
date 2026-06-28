@@ -2,7 +2,7 @@
 
 # @api Manages jobs for the authenticated user: CRUD, archiving, and filtering.
 class Api::V1::JobsController < Api::V1::AuthenticatedController
-  before_action :set_job, only: [:show, :update, :destroy, :archive, :unarchive]
+  before_action :set_job, only: [:show, :update, :destroy, :archive, :unarchive, :analyse_resume]
   before_action :check_demo_job_limit, only: [:create]
 
   def index
@@ -12,7 +12,18 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   end
 
   def show
-    render json: { job: @job, timeline_entries: @job.timeline_entries }
+    analysis = @job.resume_match_analysis
+    analysis_json = analysis&.then do |a|
+      {
+        score:            a.score,
+        strengths:        a.strengths,
+        weaknesses:       a.weaknesses,
+        missing_keywords: a.missing_keywords,
+        cached:           true
+      }
+    end
+
+    render json: { job: @job.as_json.merge("resume_match_analysis" => analysis_json), timeline_entries: @job.timeline_entries }
   end
 
   def create
@@ -89,6 +100,29 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   def unarchive
     @job.unarchive!
     render json: @job, status: :ok
+  end
+
+  # @api Analyses how well the linked resume matches the job description using Gemini.
+  #
+  # Returns a JSON object with keys: score, strengths, weaknesses, missing_keywords.
+  # The job must have a linked resume variant with a PDF attached and a non-blank job description.
+  def analyse_resume
+    if @job.resume_variant_id.nil?
+      return render json: { error: "No resume variant linked to this job" }, status: :unprocessable_content
+    end
+
+    if @job.job_description.blank?
+      return render json: { error: "No job description on this job" }, status: :unprocessable_content
+    end
+
+    unless @job.resume_variant.pdf.attached?
+      return render json: { error: "Resume variant has no PDF attached" }, status: :unprocessable_content
+    end
+
+    result = Ai::ResumeMatchService.new(@job).call
+    render json: result, status: :ok
+  rescue StandardError => e
+    render json: { error: e.message }, status: :internal_server_error
   end
 
   private

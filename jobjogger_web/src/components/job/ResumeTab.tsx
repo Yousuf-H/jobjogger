@@ -16,13 +16,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import EmptyTabState from '@/components/job/EmptyTabState'
+import { useAnalyseResume } from '@/hooks/useAnalyseResume'
 import { useResumeVariantActions } from '@/hooks/useResumeVariantActions'
 import { useAllResumeVariants, useResumeVariant } from '@/hooks/useResumeVariants'
-import { TERMINAL_STATUSES, type JobStatus } from '@/types/job'
+import { extractErrorMessage } from '@/lib/errors'
+import { TERMINAL_STATUSES, type JobStatus, type ResumeMatchAnalysis } from '@/types/job'
 import type { ResumeVariant } from '@/types/resume'
 import { IconFileOff } from '@tabler/icons-react'
-import { ExternalLink, FileText, Link2Off, Paperclip, Pencil } from 'lucide-react'
+import { ExternalLink, FileText, Link2Off, Loader2, Paperclip, Pencil, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -136,19 +144,50 @@ function VariantPickerDialog({
   )
 }
 
+function MatchResultSection({ label, items }: { label: string; items: string[] }) {
+  if (items.length === 0) return null
+  return (
+    <div>
+      <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <ul className="space-y-1">
+        {items.map((item, i) => (
+          <li key={i} className="text-sm text-foreground">
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 interface ResumeTabProps {
   jobId: number
   status: JobStatus
   resumeVariantId: number | null | undefined
+  jobDescription?: string
+  jobAnalysis?: ResumeMatchAnalysis | null
 }
 
-export function ResumeTab({ jobId, status, resumeVariantId }: ResumeTabProps) {
+export function ResumeTab({ jobId, status, resumeVariantId, jobDescription, jobAnalysis }: ResumeTabProps) {
   const readOnly = TERMINAL_STATUSES.includes(status)
   const { data: variant, isLoading } = useResumeVariant(resumeVariantId)
   const { linkMutation } = useResumeVariantActions()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [unlinkOpen, setUnlinkOpen] = useState(false)
+
+  const analyseMutation = useAnalyseResume(jobId)
+
+  // Prefer fresh mutation result; fall back to persisted analysis from job data.
+  const displayedAnalysis: ResumeMatchAnalysis | null = analyseMutation.data ?? jobAnalysis ?? null
+
+  const canAnalyse = !!resumeVariantId && !!jobDescription?.trim()
+  const analyseDisabledReason = !resumeVariantId
+    ? 'Link a resume to this job first'
+    : !jobDescription?.trim()
+      ? 'Add a job description to this job first'
+      : undefined
 
   const handleUnlink = () => {
     linkMutation.mutate({ jobId, variantId: null })
@@ -228,6 +267,64 @@ export function ResumeTab({ jobId, status, resumeVariantId }: ResumeTabProps) {
                   {variant.pdf_filename ?? 'View PDF'}
                 </a>
               </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Match analysis */}
+        <div className="space-y-3 border-t pt-4">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {/* span wrapper needed so pointer events reach the tooltip when button is disabled */}
+                <span className="inline-block">
+                  <Button
+                    onClick={() => analyseMutation.mutate()}
+                    disabled={!canAnalyse || analyseMutation.isPending}
+                  >
+                    {analyseMutation.isPending ? (
+                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="mr-1.5 h-4 w-4" />
+                    )}
+                    {analyseMutation.isPending ? 'Analysing…' : 'Analyse Match'}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {analyseDisabledReason && (
+                <TooltipContent>{analyseDisabledReason}</TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+
+          {analyseMutation.isError && (
+            <p className="text-sm text-destructive">
+              {extractErrorMessage(analyseMutation.error, 'Analysis failed. Please try again.')}
+            </p>
+          )}
+
+          {displayedAnalysis && (
+            <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
+                    Match Score
+                  </p>
+                  <p className="text-3xl font-bold tabular-nums">
+                    {displayedAnalysis.score}
+                    <span className="text-base font-normal text-muted-foreground"> / 100</span>
+                  </p>
+                </div>
+                {displayedAnalysis.cached && (
+                  <p className="text-xs text-muted-foreground mt-1 shrink-0">
+                    Cached · Update the job description or linked resume to run a fresh analysis
+                  </p>
+                )}
+              </div>
+
+              <MatchResultSection label="Strengths" items={displayedAnalysis.strengths} />
+              <MatchResultSection label="Weaknesses" items={displayedAnalysis.weaknesses} />
+              <MatchResultSection label="Missing Keywords" items={displayedAnalysis.missing_keywords} />
             </div>
           )}
         </div>

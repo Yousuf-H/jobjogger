@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_101239) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -200,6 +200,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000002) do
     t.index ["user_id"], name: "index_organisations_on_user_id"
   end
 
+  create_table "resume_match_analyses", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "job_description_digest", null: false
+    t.bigint "job_id", null: false
+    t.jsonb "missing_keywords", default: [], null: false
+    t.bigint "resume_variant_id", null: false
+    t.integer "score", null: false
+    t.jsonb "strengths", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "weaknesses", default: [], null: false
+    t.index ["job_id"], name: "index_resume_match_analyses_on_job_id", unique: true
+    t.index ["resume_variant_id"], name: "index_resume_match_analyses_on_resume_variant_id"
+  end
+
   create_table "resume_templates", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -287,6 +301,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000002) do
   add_foreign_key "notifications", "users"
   add_foreign_key "oauth_exchanges", "users"
   add_foreign_key "organisations", "users"
+  add_foreign_key "resume_match_analyses", "jobs"
+  add_foreign_key "resume_match_analyses", "resume_variants"
   add_foreign_key "resume_templates", "users"
   add_foreign_key "resume_variants", "resume_templates"
   add_foreign_key "resume_variants", "users"

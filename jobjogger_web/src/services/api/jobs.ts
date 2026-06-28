@@ -81,3 +81,17 @@ export async function unarchiveJob(id: number): Promise<Job> {
 
   return response.data.job
 }
+
+export async function analyseResume(jobId: number): Promise<ResumeMatchResult> {
+  // Gemini responses can take 20-30 s; override the global 20 s client timeout for this call only.
+  const response = await apiClient.post(`/jobs/${jobId}/analyse_resume`, undefined, { timeout: 60000 })
+  return response.data as ResumeMatchResult
+}
+
+export interface ResumeMatchResult {
+  score: number
+  strengths: string[]
+  weaknesses: string[]
+  missing_keywords: string[]
+  cached: boolean
+}

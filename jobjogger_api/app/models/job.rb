@@ -16,6 +16,7 @@ class Job < ApplicationRecord
   has_many :job_interview_questions, dependent: :destroy
   has_many :pinned_questions, through: :job_interview_questions, source: :interview_question
   has_many :notifications, dependent: :destroy
+  has_one :resume_match_analysis, dependent: :destroy
 
   def next_interview_at
     if interviews.loaded?

@@ -62,8 +62,17 @@ export interface Job {
   organisation_id?: number | null
   resume_variant_id?: number | null
   next_interview_at?: string | null
+  resume_match_analysis?: ResumeMatchAnalysis | null
   created_at: string
   updated_at: string
+}
+
+export interface ResumeMatchAnalysis {
+  score: number
+  strengths: string[]
+  weaknesses: string[]
+  missing_keywords: string[]
+  cached: boolean
 }
 
 export interface JobFilters {
