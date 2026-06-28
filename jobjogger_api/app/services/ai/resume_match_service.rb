@@ -35,14 +35,8 @@ module Ai
     # @raise [RuntimeError] If the PDF cannot be read, Gemini returns a non-200
     #   response, or the response JSON cannot be parsed.
     def call
-      digest = ResumeMatchAnalysis.digest_for(@job.job_description)
-
-      cached = @job.resume_match_analysis
-      if cached &&
-          cached.resume_variant_id == @job.resume_variant_id &&
-          cached.job_description_digest == digest
-        return to_result_hash(cached, cached: true)
-      end
+      existing = @job.resume_match_analysis
+      return to_result_hash(existing, cached: true) if existing&.fresh_for?(@job)
 
       resume_text = extract_resume_text
       prompt      = build_prompt(resume_text)
@@ -53,7 +47,8 @@ module Ai
         {
           job_id:                  @job.id,
           resume_variant_id:       @job.resume_variant_id,
-          job_description_digest:  digest,
+          job_description_digest:  ResumeMatchAnalysis.digest_for(@job.job_description),
+          pdf_blob_checksum:       @job.resume_variant.pdf.blob.checksum,
           score:                   result[:score],
           strengths:               result[:strengths],
           weaknesses:              result[:weaknesses],
@@ -62,7 +57,7 @@ module Ai
           updated_at:              Time.current
         },
         unique_by: :job_id,
-        update_only: %i[resume_variant_id job_description_digest score strengths weaknesses missing_keywords updated_at],
+        update_only: %i[resume_variant_id job_description_digest pdf_blob_checksum score strengths weaknesses missing_keywords updated_at],
         record_timestamps: false
       )
 

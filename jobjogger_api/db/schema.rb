@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_28_101239) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_111038) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -205,6 +205,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_101239) do
     t.string "job_description_digest", null: false
     t.bigint "job_id", null: false
     t.jsonb "missing_keywords", default: [], null: false
+    t.string "pdf_blob_checksum"
     t.bigint "resume_variant_id", null: false
     t.integer "score", null: false
     t.jsonb "strengths", default: [], null: false

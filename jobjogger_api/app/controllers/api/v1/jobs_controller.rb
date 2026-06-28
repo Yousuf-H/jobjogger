@@ -12,8 +12,9 @@ class Api::V1::JobsController < Api::V1::AuthenticatedController
   end
 
   def show
-    analysis = @job.resume_match_analysis
-    analysis_json = analysis&.then do |a|
+    analysis       = @job.resume_match_analysis
+    fresh_analysis = analysis&.fresh_for?(@job) ? analysis : nil
+    analysis_json  = fresh_analysis&.then do |a|
       {
         score:            a.score,
         strengths:        a.strengths,
