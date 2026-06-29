@@ -91,7 +91,7 @@ export default function AddTimelineEntryDialog({
     const today = format(new Date(), 'yyyy-MM-dd')
     const resolvedData = {
       ...data,
-      occurred_at: data.occurred_at === today ? new Date().toISOString() : data.occurred_at,
+      occurred_at: mode === 'create' && data.occurred_at === today ? new Date().toISOString() : data.occurred_at,
     }
     if (mode === 'edit' && entry) {
       updateMutation.mutate({ entryId: entry.id, data: resolvedData })
