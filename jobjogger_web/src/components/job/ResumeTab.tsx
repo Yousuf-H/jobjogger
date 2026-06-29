@@ -185,7 +185,7 @@ export function ResumeTab({ jobId, status, resumeVariantId, jobTitle, jobDescrip
   useEffect(() => {
     analyseMutation.reset()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resumeVariantId, jobTitle, jobDescription])
+  }, [resumeVariantId, jobTitle, jobDescription, jobAnalysis == null])
 
   // Prefer fresh mutation result; fall back to persisted analysis from job data.
   const displayedAnalysis: ResumeMatchAnalysis | null = analyseMutation.data ?? jobAnalysis ?? null
