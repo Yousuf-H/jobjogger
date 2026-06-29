@@ -145,7 +145,17 @@ module Ai
 
     def parse_response(text)
       result = JSON.parse(text.strip)
-      result.transform_keys(&:to_sym)
+      result.transform_keys!(&:to_sym)
+
+      unless result[:score].is_a?(Numeric) &&
+             result[:strengths].is_a?(Array) &&
+             result[:weaknesses].is_a?(Array) &&
+             result[:missing_keywords].is_a?(Array)
+        raise "Gemini returned an unexpected response shape: #{text.strip}"
+      end
+
+      result[:score] = result[:score].to_i
+      result
     rescue JSON::ParserError => e
       raise "Failed to parse match result JSON from Gemini: #{e.message}"
     end

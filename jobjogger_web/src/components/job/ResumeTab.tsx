@@ -31,7 +31,7 @@ import { TERMINAL_STATUSES, type JobStatus, type ResumeMatchAnalysis } from '@/t
 import type { ResumeVariant } from '@/types/resume'
 import { IconFileOff } from '@tabler/icons-react'
 import { ExternalLink, FileText, Link2Off, Loader2, Paperclip, Pencil, Sparkles } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function VariantPickerDialog({
@@ -178,6 +178,13 @@ export function ResumeTab({ jobId, status, resumeVariantId, jobDescription, jobA
   const [unlinkOpen, setUnlinkOpen] = useState(false)
 
   const analyseMutation = useAnalyseResume(jobId)
+
+  // Reset stale mutation data when the resume or job description changes so the
+  // old score is not shown for inputs that no longer match the current job.
+  useEffect(() => {
+    analyseMutation.reset()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeVariantId, jobDescription])
 
   // Prefer fresh mutation result; fall back to persisted analysis from job data.
   const displayedAnalysis: ResumeMatchAnalysis | null = analyseMutation.data ?? jobAnalysis ?? null
