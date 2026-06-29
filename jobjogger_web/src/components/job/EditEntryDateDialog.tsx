@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { CalendarIcon } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -32,10 +32,6 @@ export default function EditEntryDateDialog({ entry, trigger }: EditEntryDateDia
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()
 
-  useEffect(() => {
-    setDate(entry.occurred_at.split('T')[0])
-  }, [entry.occurred_at])
-
   const updateMutation = useMutation({
     mutationFn: () => updateTimelineEntry(entry.id, { occurred_at: date }),
     onSuccess: () => {
@@ -50,7 +46,7 @@ export default function EditEntryDateDialog({ entry, trigger }: EditEntryDateDia
   })
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) setDate(entry.occurred_at.split('T')[0])
+    setDate(entry.occurred_at.split('T')[0])
     setOpen(isOpen)
   }
 

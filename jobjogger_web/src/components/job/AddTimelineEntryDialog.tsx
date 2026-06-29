@@ -102,7 +102,6 @@ export default function AddTimelineEntryDialog({
 
   const mutation = mode === 'edit' ? updateMutation : createMutation
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const descriptionLength = (form.watch('description') ?? '').length
 
   return (
