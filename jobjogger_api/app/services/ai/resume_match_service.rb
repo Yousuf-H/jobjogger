@@ -38,10 +38,24 @@ module Ai
       existing = @job.resume_match_analysis
       return to_result_hash(existing, cached: true) if existing&.fresh_for?(@job)
 
+      # Snapshot the prompt inputs before the Gemini call so we can detect
+      # mid-flight changes (title, description, or PDF swap) after it returns.
+      snapshot_digest   = ResumeMatchAnalysis.prompt_digest_for(@job)
+      snapshot_variant  = @job.resume_variant_id
+      snapshot_checksum = @job.resume_variant.pdf.blob.checksum
+
       resume_text = extract_resume_text
       prompt      = build_prompt(resume_text)
       raw_json    = call_gemini(prompt)
       result      = parse_response(raw_json)
+
+      # Reload to pick up any writes that arrived during the ~20 s Gemini wait.
+      @job.reload
+      if ResumeMatchAnalysis.prompt_digest_for(@job) != snapshot_digest ||
+         @job.resume_variant_id != snapshot_variant ||
+         @job.resume_variant&.pdf&.blob&.checksum != snapshot_checksum
+        raise "Job inputs changed while analysis was running — please re-run"
+      end
 
       ResumeMatchAnalysis.upsert(
         {
