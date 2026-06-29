@@ -33,7 +33,10 @@ export default function EditEntryDateDialog({ entry, trigger }: EditEntryDateDia
   const userId = getCurrentUserId()
 
   const updateMutation = useMutation({
-    mutationFn: () => updateTimelineEntry(entry.id, { occurred_at: date }),
+    mutationFn: () => {
+      const originalTime = entry.occurred_at.split('T')[1]
+      return updateTimelineEntry(entry.id, { occurred_at: `${date}T${originalTime}` })
+    },
     onSuccess: () => {
       invalidateJobQueries(queryClient, userId)
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics(userId) })
