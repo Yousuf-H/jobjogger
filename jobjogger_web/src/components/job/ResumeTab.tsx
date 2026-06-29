@@ -190,12 +190,14 @@ export function ResumeTab({ jobId, status, resumeVariantId, jobTitle, jobDescrip
   // Prefer fresh mutation result; fall back to persisted analysis from job data.
   const displayedAnalysis: ResumeMatchAnalysis | null = analyseMutation.data ?? jobAnalysis ?? null
 
-  const canAnalyse = !!resumeVariantId && !!jobDescription?.trim()
+  const canAnalyse = !!resumeVariantId && !!jobDescription?.trim() && !!variant?.pdf_url
   const analyseDisabledReason = !resumeVariantId
     ? 'Link a resume to this job first'
     : !jobDescription?.trim()
       ? 'Add a job description to this job first'
-      : undefined
+      : !variant?.pdf_url
+        ? 'The linked resume has no PDF — upload one in the Resume Library first'
+        : undefined
 
   const handleUnlink = () => {
     linkMutation.mutate({ jobId, variantId: null })
