@@ -17,24 +17,25 @@ class ResumeMatchAnalysis < ApplicationRecord
   validates :weaknesses, presence: true
   validates :missing_keywords, presence: true
 
-  # Returns a stable digest for any string, used to detect job description changes.
+  # Digests the full prompt input (job title + description) so that a change to
+  # either field is detected as stale. Stored in job_description_digest.
   #
-  # @param text [String]
+  # @param job [Job]
   # @return [String] 64-character hex SHA-256 digest
-  def self.digest_for(text)
-    Digest::SHA256.hexdigest(text)
+  def self.prompt_digest_for(job)
+    Digest::SHA256.hexdigest("#{job.job_title}\n#{job.job_description}")
   end
 
   # Returns true when this record still matches the job's current state.
   #
-  # Checks resume_variant_id, job_description_digest, and pdf_blob_checksum.
-  # A nil pdf_blob_checksum (legacy row) is always treated as stale.
+  # Checks resume_variant_id, prompt digest (title + description), and
+  # pdf_blob_checksum. A nil pdf_blob_checksum (legacy row) is always stale.
   #
   # @param job [Job]
   # @return [Boolean]
   def fresh_for?(job)
     return false if resume_variant_id != job.resume_variant_id
-    return false if job_description_digest != self.class.digest_for(job.job_description.to_s)
+    return false if job_description_digest != self.class.prompt_digest_for(job)
     return false if pdf_blob_checksum.nil?
     return false unless job.resume_variant&.pdf&.attached?
     pdf_blob_checksum == job.resume_variant.pdf.blob.checksum

@@ -47,7 +47,7 @@ module Ai
         {
           job_id:                  @job.id,
           resume_variant_id:       @job.resume_variant_id,
-          job_description_digest:  ResumeMatchAnalysis.digest_for(@job.job_description),
+          job_description_digest:  ResumeMatchAnalysis.prompt_digest_for(@job),
           pdf_blob_checksum:       @job.resume_variant.pdf.blob.checksum,
           score:                   result[:score],
           strengths:               result[:strengths],
@@ -152,6 +152,12 @@ module Ai
              result[:weaknesses].is_a?(Array) &&
              result[:missing_keywords].is_a?(Array)
         raise "Gemini returned an unexpected response shape: #{text.strip}"
+      end
+
+      %i[strengths weaknesses missing_keywords].each do |field|
+        unless result[field].all? { |item| item.is_a?(String) }
+          raise "Gemini returned non-string items in #{field}: #{result[field].inspect}"
+        end
       end
 
       result[:score] = result[:score].to_i
