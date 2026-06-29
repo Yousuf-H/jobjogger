@@ -147,7 +147,8 @@ module Ai
       result = JSON.parse(text.strip)
       result.transform_keys!(&:to_sym)
 
-      unless result[:score].is_a?(Numeric) &&
+      unless result[:score].is_a?(Integer) &&
+             result[:score].between?(0, 100) &&
              result[:strengths].is_a?(Array) &&
              result[:weaknesses].is_a?(Array) &&
              result[:missing_keywords].is_a?(Array)

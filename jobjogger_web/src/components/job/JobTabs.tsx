@@ -80,7 +80,7 @@ export function JobTabs({ job, timelineEntries }: JobTabsProps) {
         {activeTab === 'interviews' && showInterviews && (
           <InterviewsTab jobId={job.id} status={job.status} organisationId={job.organisation_id ?? null} companyName={job.company_name} />
         )}
-        {activeTab === 'resume' && <ResumeTab jobId={job.id} status={job.status} resumeVariantId={job.resume_variant_id} jobDescription={job.job_description} jobAnalysis={job.resume_match_analysis} />}
+        {activeTab === 'resume' && <ResumeTab jobId={job.id} status={job.status} resumeVariantId={job.resume_variant_id} jobTitle={job.job_title} jobDescription={job.job_description} jobAnalysis={job.resume_match_analysis} />}
       </div>
     </div>
   )

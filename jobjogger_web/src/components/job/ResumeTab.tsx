@@ -166,11 +166,12 @@ interface ResumeTabProps {
   jobId: number
   status: JobStatus
   resumeVariantId: number | null | undefined
+  jobTitle?: string
   jobDescription?: string
   jobAnalysis?: ResumeMatchAnalysis | null
 }
 
-export function ResumeTab({ jobId, status, resumeVariantId, jobDescription, jobAnalysis }: ResumeTabProps) {
+export function ResumeTab({ jobId, status, resumeVariantId, jobTitle, jobDescription, jobAnalysis }: ResumeTabProps) {
   const readOnly = TERMINAL_STATUSES.includes(status)
   const { data: variant, isLoading } = useResumeVariant(resumeVariantId)
   const { linkMutation } = useResumeVariantActions()
@@ -184,7 +185,7 @@ export function ResumeTab({ jobId, status, resumeVariantId, jobDescription, jobA
   useEffect(() => {
     analyseMutation.reset()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resumeVariantId, jobDescription])
+  }, [resumeVariantId, jobTitle, jobDescription])
 
   // Prefer fresh mutation result; fall back to persisted analysis from job data.
   const displayedAnalysis: ResumeMatchAnalysis | null = analyseMutation.data ?? jobAnalysis ?? null
