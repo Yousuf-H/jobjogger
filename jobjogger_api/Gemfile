@@ -53,6 +53,9 @@ gem "omniauth-google-oauth2"
 # JSON API serialization
 gem "jsonapi-serializer"
 
+# PDF text extraction
+gem "pdf-reader"
+
 # Error tracking
 gem "sentry-ruby"
 gem "sentry-rails"

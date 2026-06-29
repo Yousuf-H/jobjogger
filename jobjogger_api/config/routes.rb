@@ -66,6 +66,7 @@ Rails.application.routes.draw do
         member do
           patch :archive
           patch :unarchive
+          post  :analyse_resume
         end
 
         # Contacts linked to a specific job
