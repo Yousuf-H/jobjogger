@@ -1,4 +1,5 @@
 import AddTimelineEntryDialog from '@/components/job/AddTimelineEntryDialog'
+import EditEntryDateDialog from '@/components/job/EditEntryDateDialog'
 import TimelineHelpDialog from '@/components/job/TimelineHelpDialog'
 import { cn } from '@/lib/utils'
 import { getEntryTypeConfig } from '@/lib/timelineEntryStyles'
@@ -48,19 +49,14 @@ function TimelineEntryItem({
     }
   }
 
-  // Only status_change entries are system-generated and immutable — every
-  // other type is user-created and supports edit/delete.
-  const isLocked = entry.entry_type === 'status_change'
+  // status_change entries are auto-generated — description/type are immutable,
+  // but the date (occurred_at) can be corrected by the user.
+  const isStatusChange = entry.entry_type === 'status_change'
   const config = getEntryTypeConfig(entry.entry_type)
   const date = formatEntryDate(entry.occurred_at)
 
   return (
-    <div
-      className={cn(
-        'relative flex gap-[14px] rounded-[8px] px-[6px] py-[10px]',
-        !isLocked && 'timeline-row'
-      )}
-    >
+    <div className="relative flex gap-[14px] rounded-[8px] px-[6px] py-[10px] timeline-row">
       {/* Dot */}
       <div
         className={cn(
@@ -80,63 +76,81 @@ function TimelineEntryItem({
           {entry.description}
         </p>
 
-        {!isLocked && (
-          <div className="timeline-mobile-actions mt-[8px] gap-[6px]">
-            <AddTimelineEntryDialog
-              jobId={jobId}
+        <div className="timeline-mobile-actions mt-[8px] gap-[6px]">
+          {isStatusChange ? (
+            <EditEntryDateDialog
               entry={entry}
-              mode="edit"
               trigger={
                 <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280] dark:border-border dark:text-muted-foreground">
                   <IconPencil className="h-[11px] w-[11px]" />
-                  Edit
+                  Edit date
                 </button>
               }
             />
-            <button
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626] dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
-            >
-              <IconTrash className="h-[11px] w-[11px]" />
-              Delete
-            </button>
-          </div>
-        )}
+          ) : (
+            <>
+              <AddTimelineEntryDialog
+                jobId={jobId}
+                entry={entry}
+                mode="edit"
+                trigger={
+                  <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280] dark:border-border dark:text-muted-foreground">
+                    <IconPencil className="h-[11px] w-[11px]" />
+                    Edit
+                  </button>
+                }
+              />
+              <button
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#FECACA] bg-[#FEF2F2] px-[8px] py-[3px] text-[11px] text-[#DC2626] dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
+              >
+                <IconTrash className="h-[11px] w-[11px]" />
+                Delete
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Date / actions column — fixed width so hover never shifts layout */}
       <div className="relative h-[22px] w-[116px] shrink-0">
-        <span
-          className={cn(
-            'absolute right-0 text-[11px] text-[#9CA3AF] dark:text-muted-foreground',
-            !isLocked && 'timeline-date'
-          )}
-        >
+        <span className="timeline-date absolute right-0 text-[11px] text-[#9CA3AF] dark:text-muted-foreground">
           {date}
         </span>
 
-        {!isLocked && (
-          <div className="timeline-actions absolute right-0 flex items-center gap-[6px]">
-            <AddTimelineEntryDialog
-              jobId={jobId}
+        <div className="timeline-actions absolute right-0 flex items-center gap-[6px]">
+          {isStatusChange ? (
+            <EditEntryDateDialog
               entry={entry}
-              mode="edit"
               trigger={
                 <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-muted">
                   <IconPencil className="h-[12px] w-[12px]" />
                 </button>
               }
             />
-            <button
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:border-red-900 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-            >
-              <IconTrash className="h-[12px] w-[12px]" />
-            </button>
-          </div>
-        )}
+          ) : (
+            <>
+              <AddTimelineEntryDialog
+                jobId={jobId}
+                entry={entry}
+                mode="edit"
+                trigger={
+                  <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-muted">
+                    <IconPencil className="h-[12px] w-[12px]" />
+                  </button>
+                }
+              />
+              <button
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#FECACA] hover:bg-[#FEF2F2] hover:text-[#DC2626] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:border-red-900 dark:hover:bg-red-950/30 dark:hover:text-red-400"
+              >
+                <IconTrash className="h-[12px] w-[12px]" />
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
