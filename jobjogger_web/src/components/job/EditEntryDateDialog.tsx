@@ -1,3 +1,4 @@
+import { format, parseISO } from 'date-fns'
 import { useState } from 'react'
 import { CalendarIcon } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -28,14 +29,16 @@ interface EditEntryDateDialogProps {
 
 export default function EditEntryDateDialog({ entry, trigger }: EditEntryDateDialogProps) {
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState(entry.occurred_at.split('T')[0])
+  const [date, setDate] = useState(format(parseISO(entry.occurred_at), 'yyyy-MM-dd'))
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()
 
   const updateMutation = useMutation({
     mutationFn: () => {
-      const originalTime = entry.occurred_at.split('T')[1]
-      return updateTimelineEntry(entry.id, { occurred_at: `${date}T${originalTime}` })
+      const original = parseISO(entry.occurred_at)
+      const [year, month, day] = date.split('-').map(Number)
+      const adjusted = new Date(year, month - 1, day, original.getHours(), original.getMinutes(), original.getSeconds(), original.getMilliseconds())
+      return updateTimelineEntry(entry.id, { occurred_at: adjusted.toISOString() })
     },
     onSuccess: () => {
       invalidateJobQueries(queryClient, userId)
@@ -49,7 +52,7 @@ export default function EditEntryDateDialog({ entry, trigger }: EditEntryDateDia
   })
 
   const handleOpenChange = (isOpen: boolean) => {
-    setDate(entry.occurred_at.split('T')[0])
+    setDate(format(parseISO(entry.occurred_at), 'yyyy-MM-dd'))
     setOpen(isOpen)
   }
 
