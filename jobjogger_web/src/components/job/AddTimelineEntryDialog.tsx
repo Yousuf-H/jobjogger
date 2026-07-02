@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { CalendarIcon, Plus } from 'lucide-react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
@@ -67,7 +67,7 @@ export default function AddTimelineEntryDialog({
       ? {
           entry_type: entry.entry_type as TimelineEntryFormValues['entry_type'],
           description: entry.description,
-          occurred_at: entry.occurred_at.split('T')[0],
+          occurred_at: format(parseISO(entry.occurred_at), 'yyyy-MM-dd'),
         }
       : {
           entry_type: 'note',
@@ -89,10 +89,18 @@ export default function AddTimelineEntryDialog({
 
   const onSubmit = (data: TimelineEntryFormValues) => {
     const today = format(new Date(), 'yyyy-MM-dd')
-    const resolvedData = {
-      ...data,
-      occurred_at: mode === 'create' && data.occurred_at === today ? new Date().toISOString() : data.occurred_at,
+    const originalLocalDate = entry ? format(parseISO(entry.occurred_at), 'yyyy-MM-dd') : null
+
+    let occurred_at: string
+    if (mode === 'create' && data.occurred_at === today) {
+      occurred_at = new Date().toISOString()
+    } else if (mode === 'edit' && entry && data.occurred_at === originalLocalDate) {
+      occurred_at = entry.occurred_at
+    } else {
+      occurred_at = data.occurred_at
     }
+
+    const resolvedData = { ...data, occurred_at }
     if (mode === 'edit' && entry) {
       updateMutation.mutate({ entryId: entry.id, data: resolvedData })
     } else {

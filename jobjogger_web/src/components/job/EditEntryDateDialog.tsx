@@ -35,7 +35,9 @@ export default function EditEntryDateDialog({ entry, jobId, trigger }: EditEntry
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()
 
-  const isAppliedEntry = entry.metadata?.['to'] === 'applied'
+  const isFirstAppliedEntry =
+    entry.metadata?.['to'] === 'applied' &&
+    (entry.metadata?.['from'] == null || entry.metadata?.['from'] === 'wishlist')
 
   const updateMutation = useMutation({
     mutationFn: () => {
@@ -45,7 +47,7 @@ export default function EditEntryDateDialog({ entry, jobId, trigger }: EditEntry
       const updates: Promise<unknown>[] = [
         updateTimelineEntry(entry.id, { occurred_at: adjusted.toISOString() }),
       ]
-      if (isAppliedEntry) {
+      if (isFirstAppliedEntry) {
         updates.push(updateJob(jobId, { date_applied: date }))
       }
       return Promise.all(updates)
