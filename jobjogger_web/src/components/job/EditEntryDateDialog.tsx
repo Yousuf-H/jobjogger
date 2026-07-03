@@ -52,6 +52,7 @@ export default function EditEntryDateDialog({ entry, jobId, isFirstApplied, trig
     onSuccess: () => {
       invalidateJobQueries(queryClient, userId)
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics(userId) })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.activity.byUser(userId) })
       toast.success('Date updated')
       setOpen(false)
     },
