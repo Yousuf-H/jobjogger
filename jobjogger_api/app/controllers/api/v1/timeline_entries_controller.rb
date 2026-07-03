@@ -21,7 +21,14 @@ class Api::V1::TimelineEntriesController < Api::V1::AuthenticatedController
   end
 
   def update
-    if @timeline_entry.update(timeline_entry_params)
+    saved = false
+    ActiveRecord::Base.transaction do
+      saved = @timeline_entry.update(timeline_entry_params)
+      sync_date_applied_if_needed if saved
+      raise ActiveRecord::Rollback unless saved
+    end
+
+    if saved
       render json: @timeline_entry, status: :ok
     else
       render json: { errors: @timeline_entry.errors.full_messages }, status: :unprocessable_content
@@ -45,5 +52,26 @@ class Api::V1::TimelineEntriesController < Api::V1::AuthenticatedController
 
   def timeline_entry_params
     params.require(:timeline_entry).permit(:entry_type, :description, :occurred_at, metadata: {})
+  end
+
+  def sync_date_applied_if_needed
+    return unless @timeline_entry.status_change?
+    return unless @timeline_entry.metadata&.dig('to') == 'applied'
+
+    earliest = @timeline_entry.job.timeline_entries
+      .where(entry_type: 'status_change')
+      .where("metadata->>'to' = 'applied'")
+      .reorder(occurred_at: :asc)
+      .first
+
+    return unless earliest
+
+    # Prefer the browser-supplied local calendar date (applied_date param) to
+    # avoid UTC/local-day mismatch near day boundaries. Fall back to the UTC
+    # date of the earliest applied timestamp only when not provided.
+    date_value = params.dig(:timeline_entry, :applied_date).presence ||
+                 earliest.occurred_at.to_date
+
+    @timeline_entry.job.update_column(:date_applied, date_value)
   end
 end
