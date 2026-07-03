@@ -7,7 +7,6 @@ import { toast } from 'sonner'
 import { getCurrentUserId } from '@/lib/auth'
 import { QUERY_KEYS } from '@/lib/queryKeys'
 import { invalidateJobQueries } from '@/lib/invalidation'
-import { updateJob } from '@/services/api/jobs'
 import { updateTimelineEntry } from '@/services/api/timelineEntries'
 import type { TimelineEntry } from '@/types/timelineEntry'
 
@@ -25,12 +24,10 @@ import { Label } from '@/components/ui/label'
 
 interface EditEntryDateDialogProps {
   entry: TimelineEntry
-  jobId: number
-  isFirstApplied: boolean
   trigger: React.ReactNode
 }
 
-export default function EditEntryDateDialog({ entry, jobId, isFirstApplied, trigger }: EditEntryDateDialogProps) {
+export default function EditEntryDateDialog({ entry, trigger }: EditEntryDateDialogProps) {
   const [open, setOpen] = useState(false)
   const originalLocalDate = format(parseISO(entry.occurred_at), 'yyyy-MM-dd')
   const [date, setDate] = useState(originalLocalDate)
@@ -42,13 +39,7 @@ export default function EditEntryDateDialog({ entry, jobId, isFirstApplied, trig
       const original = parseISO(entry.occurred_at)
       const [year, month, day] = date.split('-').map(Number)
       const adjusted = new Date(year, month - 1, day, original.getHours(), original.getMinutes(), original.getSeconds(), original.getMilliseconds())
-      const updates: Promise<unknown>[] = [
-        updateTimelineEntry(entry.id, { occurred_at: adjusted.toISOString() }),
-      ]
-      if (isFirstApplied && date !== originalLocalDate) {
-        updates.push(updateJob(jobId, { date_applied: date }))
-      }
-      return Promise.all(updates)
+      return updateTimelineEntry(entry.id, { occurred_at: adjusted.toISOString() })
     },
     onSuccess: () => {
       invalidateJobQueries(queryClient, userId)
