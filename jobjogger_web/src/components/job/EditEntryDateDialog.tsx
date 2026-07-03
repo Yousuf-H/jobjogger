@@ -26,18 +26,15 @@ import { Label } from '@/components/ui/label'
 interface EditEntryDateDialogProps {
   entry: TimelineEntry
   jobId: number
+  isFirstApplied: boolean
   trigger: React.ReactNode
 }
 
-export default function EditEntryDateDialog({ entry, jobId, trigger }: EditEntryDateDialogProps) {
+export default function EditEntryDateDialog({ entry, jobId, isFirstApplied, trigger }: EditEntryDateDialogProps) {
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(format(parseISO(entry.occurred_at), 'yyyy-MM-dd'))
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()
-
-  const isFirstAppliedEntry =
-    entry.metadata?.['to'] === 'applied' &&
-    (entry.metadata?.['from'] == null || entry.metadata?.['from'] === 'wishlist')
 
   const updateMutation = useMutation({
     mutationFn: () => {
@@ -47,7 +44,7 @@ export default function EditEntryDateDialog({ entry, jobId, trigger }: EditEntry
       const updates: Promise<unknown>[] = [
         updateTimelineEntry(entry.id, { occurred_at: adjusted.toISOString() }),
       ]
-      if (isFirstAppliedEntry) {
+      if (isFirstApplied) {
         updates.push(updateJob(jobId, { date_applied: date }))
       }
       return Promise.all(updates)

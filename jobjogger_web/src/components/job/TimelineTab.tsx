@@ -26,9 +26,11 @@ function formatEntryDate(date: string) {
 function TimelineEntryItem({
   entry,
   jobId,
+  isFirstApplied,
 }: {
   entry: TimelineEntry
   jobId: number
+  isFirstApplied: boolean
 }) {
   const queryClient = useQueryClient()
 
@@ -81,6 +83,7 @@ function TimelineEntryItem({
             <EditEntryDateDialog
               entry={entry}
               jobId={jobId}
+              isFirstApplied={isFirstApplied}
               trigger={
                 <button className="flex items-center gap-[4px] rounded-[6px] border-[0.5px] border-[#E5E7EB] px-[8px] py-[3px] text-[11px] text-[#6B7280] dark:border-border dark:text-muted-foreground">
                   <IconPencil className="h-[11px] w-[11px]" />
@@ -125,6 +128,7 @@ function TimelineEntryItem({
             <EditEntryDateDialog
               entry={entry}
               jobId={jobId}
+              isFirstApplied={isFirstApplied}
               trigger={
                 <button className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-[0.5px] border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F3F4F6] dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-muted">
                   <IconPencil className="h-[12px] w-[12px]" />
@@ -159,6 +163,10 @@ function TimelineEntryItem({
 }
 
 export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
+  const firstAppliedEntryId = timelineEntries
+    .filter(e => e.entry_type === 'status_change' && e.metadata?.['to'] === 'applied')
+    .sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime())[0]?.id
+
   return (
     <div className="space-y-4">
       {timelineEntries.length === 0 ? (
@@ -190,7 +198,7 @@ export function TimelineTab({ timelineEntries, job }: TimelineTabProps) {
           />
           <div>
             {timelineEntries.map((entry) => (
-              <TimelineEntryItem key={entry.id} entry={entry} jobId={job.id} />
+              <TimelineEntryItem key={entry.id} entry={entry} jobId={job.id} isFirstApplied={entry.id === firstAppliedEntryId} />
             ))}
           </div>
         </div>
