@@ -34,12 +34,16 @@ export default function EditEntryDateDialog({ entry, trigger }: EditEntryDateDia
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()
 
+  const isAppliedEntry = entry.metadata?.['to'] === 'applied'
+
   const updateMutation = useMutation({
     mutationFn: () => {
       const original = parseISO(entry.occurred_at)
       const [year, month, day] = date.split('-').map(Number)
       const adjusted = new Date(year, month - 1, day, original.getHours(), original.getMinutes(), original.getSeconds(), original.getMilliseconds())
-      return updateTimelineEntry(entry.id, { occurred_at: adjusted.toISOString() })
+      const payload: Record<string, unknown> = { occurred_at: adjusted.toISOString() }
+      if (isAppliedEntry) payload['applied_date'] = date
+      return updateTimelineEntry(entry.id, payload as Parameters<typeof updateTimelineEntry>[1])
     },
     onSuccess: () => {
       invalidateJobQueries(queryClient, userId)

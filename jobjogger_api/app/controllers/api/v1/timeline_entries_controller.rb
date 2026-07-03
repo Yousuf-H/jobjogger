@@ -64,6 +64,14 @@ class Api::V1::TimelineEntriesController < Api::V1::AuthenticatedController
       .reorder(occurred_at: :asc)
       .first
 
-    @timeline_entry.job.update_column(:date_applied, earliest.occurred_at.to_date) if earliest
+    return unless earliest
+
+    # Prefer the browser-supplied local calendar date (applied_date param) to
+    # avoid UTC/local-day mismatch near day boundaries. Fall back to the UTC
+    # date of the earliest applied timestamp only when not provided.
+    date_value = params.dig(:timeline_entry, :applied_date).presence ||
+                 earliest.occurred_at.to_date
+
+    @timeline_entry.job.update_column(:date_applied, date_value)
   end
 end
