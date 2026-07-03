@@ -32,7 +32,8 @@ interface EditEntryDateDialogProps {
 
 export default function EditEntryDateDialog({ entry, jobId, isFirstApplied, trigger }: EditEntryDateDialogProps) {
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState(format(parseISO(entry.occurred_at), 'yyyy-MM-dd'))
+  const originalLocalDate = format(parseISO(entry.occurred_at), 'yyyy-MM-dd')
+  const [date, setDate] = useState(originalLocalDate)
   const queryClient = useQueryClient()
   const userId = getCurrentUserId()
 
@@ -44,7 +45,7 @@ export default function EditEntryDateDialog({ entry, jobId, isFirstApplied, trig
       const updates: Promise<unknown>[] = [
         updateTimelineEntry(entry.id, { occurred_at: adjusted.toISOString() }),
       ]
-      if (isFirstApplied) {
+      if (isFirstApplied && date !== originalLocalDate) {
         updates.push(updateJob(jobId, { date_applied: date }))
       }
       return Promise.all(updates)
@@ -62,7 +63,7 @@ export default function EditEntryDateDialog({ entry, jobId, isFirstApplied, trig
   })
 
   const handleOpenChange = (isOpen: boolean) => {
-    setDate(format(parseISO(entry.occurred_at), 'yyyy-MM-dd'))
+    setDate(originalLocalDate)
     setOpen(isOpen)
   }
 
