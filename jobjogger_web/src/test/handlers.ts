@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { testJob, testJobList } from './fixtures'
 
-const BASE = 'http://localhost:3000/api/v1'
+const BASE = 'http://localhost:3001/api/v1'
 
 export const handlers = [
   // Jobs list

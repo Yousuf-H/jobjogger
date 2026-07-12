@@ -7,7 +7,7 @@
   "host_permissions": [
     "https://www.seek.com.au/*",
     "https://au.seek.com/*",
-    "http://localhost:3000/*",
+    "http://localhost:3001/*",
     "https://api.jobjogger.com/*"
   ],
   "externally_connectable": {
