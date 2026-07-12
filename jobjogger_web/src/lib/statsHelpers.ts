@@ -8,16 +8,14 @@ export interface StatusBreakdown {
 }
 
 export function calculateStatusBreakdown(jobs: Job[]): StatusBreakdown[] {
+  // Terminal statuses (accepted/rejected/ghosted/withdrawn) are excluded — this
+  // chart shows the active pipeline, not closed-out outcomes.
   const statusCounts: Record<string, number> = {
     wishlist: 0,
     applied: 0,
     phone_screen: 0,
     interviewing: 0,
     offer: 0,
-    accepted: 0,
-    rejected: 0,
-    ghosted: 0,
-    withdrawn: 0,
   }
 
   jobs.forEach((job) => {
